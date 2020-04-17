@@ -1,0 +1,83 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/Register.hdl
+
+/**
+ * 16-bit register:
+ * If load[t] == 1 then out[t+1] = in[t]
+ * else out does not change
+ */
+
+CHIP Register {
+    IN in[16], load;
+    OUT out[16];
+
+    PARTS:
+    // Put your code here:
+
+    //Bit 0
+    Mux(a=muxIn0, b=in[0], sel=load, out=w0);
+    DFF(in=w0, out=out[0], out=muxIn0);
+
+    //Bit 1
+    Mux(a=muxIn1, b=in[1], sel=load, out=w1);
+    DFF(in=w1, out=out[1], out=muxIn1);
+
+    //Bit 2
+    Mux(a=muxIn2, b=in[2], sel=load, out=w2);
+    DFF(in=w2, out=out[2], out=muxIn2);
+
+    //Bit 3
+    Mux(a=muxIn3, b=in[3], sel=load, out=w3);
+    DFF(in=w3, out=out[3], out=muxIn3);
+
+    //Bit 4
+    Mux(a=muxIn4, b=in[4], sel=load, out=w4);
+    DFF(in=w4, out=out[4], out=muxIn4);
+
+    //Bit 5
+    Mux(a=muxIn5, b=in[5], sel=load, out=w5);
+    DFF(in=w5, out=out[5], out=muxIn5);
+
+    //Bit 6
+    Mux(a=muxIn6, b=in[6], sel=load, out=w6);
+    DFF(in=w6, out=out[6], out=muxIn6);
+
+    //Bit 7
+    Mux(a=muxIn7, b=in[7], sel=load, out=w7);
+    DFF(in=w7, out=out[7], out=muxIn7);
+
+    //Bit 8
+    Mux(a=muxIn8, b=in[8], sel=load, out=w8);
+    DFF(in=w8, out=out[8], out=muxIn8);
+
+    //Bit 9
+    Mux(a=muxIn9, b=in[9], sel=load, out=w9);
+    DFF(in=w9, out=out[9], out=muxIn9);
+
+    //Bit 10
+    Mux(a=muxIn10, b=in[10], sel=load, out=w10);
+    DFF(in=w10, out=out[10], out=muxIn10);
+
+    //Bit 11
+    Mux(a=muxIn11, b=in[11], sel=load, out=w11);
+    DFF(in=w11, out=out[11], out=muxIn11);
+
+    //Bit 12
+    Mux(a=muxIn12, b=in[12], sel=load, out=w12);
+    DFF(in=w12, out=out[12], out=muxIn12);
+
+    //Bit 13
+    Mux(a=muxIn13, b=in[13], sel=load, out=w13);
+    DFF(in=w13, out=out[13], out=muxIn13);
+
+    //Bit 14
+    Mux(a=muxIn14, b=in[14], sel=load, out=w14);
+    DFF(in=w14, out=out[14], out=muxIn14);
+
+    //Bit 15
+    Mux(a=muxIn15, b=in[15], sel=load, out=w15);
+    DFF(in=w15, out=out[15], out=muxIn15);
+
+}

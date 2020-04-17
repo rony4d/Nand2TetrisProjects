@@ -1,0 +1,124 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed by A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control bit is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously by the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected by the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // Put your code here:
+    /*
+        A - instruction 0 000000000000001      - This can mean address 1 in the RAM or constant value 1
+        C - instruction 1 11 0 110000 010 000  - This means
+                                                1   - signifies C instruction
+                                                11  - Ignore
+                                                0('a' part of C-instruction)   - means a is equal to zero, therefore we are dealing with the value in 
+                                                       the address register as a constant value and not as an address in the RAM. If 'a' is 1 it means we are dealing with the address in RAM eg RAM[4]
+                                                110000(ALU control bits)  - this means we are pointing to the constant value of 1 in the address register defined in the A-instruction
+                                                010(destination bits) - this means we will store the value 1 in the address register into the D-register. It looks like this D=A
+                                                000 - this means we are not specifying any jump
+
+        The above instructions look like this
+        @1
+        D=A                                    
+    */
+
+
+    // Stage 1: Mux16 -> A-register
+    Mux16(a=instruction, b=outMAregister, sel=instruction[15], out=aRegIn);                  //  
+    Mux(a=true, b=instruction[5], sel=instruction[15], out=aRegisterLoad);          //A-Registerload selection logic by considering d1
+    ARegister(in=aRegIn, load=aRegisterLoad, out=aRegOut, out=aRegOutAddressM, out=aRegOutPC);
+    //Register(in=aRegIn, load=instruction[5], out=aRegOut, out=aRegOutAddressM, out=aRegOutPC);                        //A - register
+    
+    // Stage 2: A-register -> Mux16 -> ALU -> D-register
+    Mux16(a=aRegOut, b=inM, sel=instruction[12], out=ALUInb);
+    Mux(a=false, b=instruction[4], sel=instruction[15], out=dRegisterLoad);  //D-register load selection logic by considering d2
+    DRegister(in=outMDRegister, load=dRegisterLoad, out=ALUIna);                           //D-Register
+    ALU(x=ALUIna, y=ALUInb, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM, zr=zrOut, ng=ngOut, zr=zrOut2, ng=ngOut2,zr=zrOut3,ng=ngOut3, out=outMAregister,out=outMDRegister);
+
+    // Stage 3: WriteM -> AddressM
+    Mux(a=false, b=instruction[3], sel=instruction[15], out=writeIn); // Load write M only for C instructions
+    Or(a=writeIn, b=false, out=writeM);      // Or d3(destination bit 3) with 0 to produce writeM
+    
+    Or16(a=aRegOutAddressM, b=false, out[0..14]=addressM);
+
+
+    /*  Stage 4: Program Counter(PC) 
+        This stage is broken down into sub levels
+        1. We need to generate Logic for the Jump instructions
+        2. The output of each Jump instruction logic will be fed into a pin of an 8-way MUX
+        3. Each MUX pin which constains the Jump instructions will be selected by Jump bits (j1 j2 j3)
+     */
+
+    //  Stage 4.1: Implementing the Jump Logic
+    //  Stage 4.1.1 -> [ NULL Jump Logic ] - Simply pass false to the Pin 1 of the 8-way MUX
+
+    //  Stage 4.1.2 -> [ JGT Jump Logic (out > 0)]
+    //  If Ng=0, test Zr, if  Zr=0 then we have our answer. So we pass our output to Pin 2 of the 8-way MUX
+    Mux(a=false, b=true, sel=ngOut, out=w0);
+    Not(in=w0, out=notW0);
+    Mux(a=notW0, b=false, sel=zrOut, out=JGT, out=JGTMux);
+
+    //  Stage 4.1.3 -> [ JEQ Jump Logic (out == 0)]
+    //  If Zr = 1 then we have our answer, so we just pass Zr to Pin 3 of the 8-way MUX
+    Or(a=zrOut2, b=false, out=JEQ, out=JEQMux, out=JEQ2);
+
+    //  Stage 4.1.4 -> [ JGE Jump Logic (out >= 0)]
+    //  This is the bitwise OR of JGT and JEQ. We will pass output to Pin 4 of the 8-way MUX
+    Or(a=JGT, b=JEQ, out=JGEMux);
+
+    //  Stage 4.1.5 -> [ JLT Jump Logic (out < 0)]
+    //  If Ng=1, then we have our answer, so we just pass Zr to Pin 5 of the 8-way MUX
+    Or(a=ngOut2, b=false, out=JLT, out=JLTMux);
+
+    //  Stage 4.1.6 -> [ JNE Jump Logic (out != 0)]
+    //  If Zr = 0, then we have our answer. We will pass output to Pin 6 of the 8-way MUX
+    Not(in=zrOut3, out=JNEMux);
+
+    
+    //  Stage 4.1.7 -> [ JLE Jump Logic (out <= 0)]
+    //  This is the bitwise OR of JLT and JEQ. We will pass output to Pin 7 of the 8-way MUX
+    Or(a=JLT, b=JEQ2, out=JLEMux);
+
+    //  Stage 4.1.8 -> [ JMP Jump Logic (Just Jump to address in A register)]
+    //  This achieved by passing true to Pin 8 of the 8-way MUX
+
+    Mux8Way16(a[15]=false, b[15]=JGTMux, c[15]=JEQMux, d[15]=JGEMux, e[15]=JLTMux, f[15]=JNEMux, g[15]=JLEMux, h[15]=true, sel=instruction[0..2], out[15]=pcLoadMux);
+    Mux(a=false, b=pcLoadMux, sel=instruction[15], out=pcLoad); //Load the pc only in a C-instruction
+    PC(in=aRegOutPC, load=pcLoad, inc=true, reset=reset, out[0..14]=pc);
+
+
+}

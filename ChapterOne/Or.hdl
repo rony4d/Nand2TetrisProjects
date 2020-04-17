@@ -1,0 +1,34 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Or.hdl
+
+ /**
+ * Or gate:
+ * out = 1 if (a == 1 or b == 1)
+ *       0 otherwise
+ */
+
+CHIP Or {
+    IN a, b;
+    OUT out;
+
+    PARTS:
+    // // Put your code here:
+
+    // Using demorgans law
+    // Nand(a=a, b=a, out=w1);     //Not-a
+    // Nand(a=b, b=b, out=w2);     //Not-b
+    // Nand(a=w1, b=w2, out=out);  //Nand of w1 and w2
+
+    //Using large number of gates without demorgans law
+    Nand(a=a, b=a, out=aBar);
+    Nand(a=b, b=b, out=bBar);
+    Nand(a=a, b=bBar, out=abBarAllBar);
+    Nand(a=aBar, b=b, out=aBarbAllBar);
+    Nand(a=abBarAllBar, b=abBarAllBar, out=abBarAllBarBar);
+    Nand(a=aBarbAllBar, b=aBarbAllBar, out=aBarbAllBarBar);
+    Nand(a=abBarAllBarBar, b=abBarAllBarBar, out=abBarAllBarBarBar);
+    Nand(a=aBarbAllBarBar, b=aBarbAllBarBar, out=aBarbAllBarBarBar);
+    Nand(a=abBarAllBarBarBar, b=aBarbAllBarBarBar, out=out);
+}
