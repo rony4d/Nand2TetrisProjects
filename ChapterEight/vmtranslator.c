@@ -101,6 +101,9 @@
 
 #define BASIC_LOOP_TEST_VM "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/ProgramFlow/BasicLoop/BasicLoop.vm"
 #define BASIC_LOOP_TEST_VM_TEMP "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/ProgramFlow/BasicLoop/BasicLoop_Temp.vm"
+
+#define FIBONACCI_SERIES_VM "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/ProgramFlow/FibonacciSeries/FibonacciSeries.vm"
+#define FIBONACCI_SERIES_VM_TEMP "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/ProgramFlow/FibonacciSeries/FibonacciSeries_Temp.vm"
 /**
  * NOTES: Reference: Elements of Computing Systems Text Book Page 170 (Memory Segments Mapping)
  * 1. For memory segments: Local, Argument, this, that: Each of these segments is mapped directly on the RAM
@@ -2152,6 +2155,42 @@ void build_if_goto_command(char **hack_asm_init_array, char *label){
 }
 
 /**
+ * @brief This function builds the igoto label command used in program flow control(unconditional branching)
+*/
+void build_goto_command(char **hack_asm_init_array, char *label){
+    
+    /*
+    
+        ASM Code
+
+
+        // @SP
+        // M=M-1   
+        
+        @END_PROGRAM
+        0;JMP   //  goto label END_PROGRAM by force.
+    */
+
+    char label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char sp_instruction[ASM_INSTRUCTION_LEN] = {0};
+
+    char *at_symbol = "@";
+
+    strncat(sp_instruction,at_symbol,strlen(at_symbol));                            //@
+    strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                              //@SP
+
+    strncat(label_instruction,at_symbol,strlen(at_symbol));                         //@
+    
+    label = strip_whitespace(label);                                                //remove new line that comes from word split
+    strncat(label_instruction,label,strlen(label));                                 //@label
+
+    // From the value in counter, start inserting the push local asm commands
+    hack_asm_init_array[counter] = strdup(label_instruction);                       //@label
+    counter++;
+    hack_asm_init_array[counter] = strdup("0;JMP");                                 //0;JMP
+    counter++;   
+}
+/**
  * @brief: splits a sentence into words and outs an array
  * NOTE: the word_split_array has to be "malloced" before passing to this function
 */
@@ -2435,6 +2474,14 @@ void parse_vm_code(FILE *src_file){
             printf("Debug: if-goto command %s Count: %d\n",label_value,counter);
         }
         //  GOTO
+        if (strcmp(word_split_array[0],GOTO_COMMAND) == 0)
+        {
+            char *label_value = word_split_array[1];
+            build_goto_command(hack_asm_init_array, word_split_array[1]);
+            printf("Debug: goto command %s Count: %d\n",label_value,counter);
+        }
+        
+        
         
         
 
@@ -3057,7 +3104,7 @@ void basic_loop_vm_file(FILE *src_file,FILE *tmp_file){
     //TODO: debug line remove
     //Open src file and print its contents
     printf("Print content after removing comment \n\n");
-    src_file = fopen(STATIC_TEST_VM, "r");
+    src_file = fopen(BASIC_LOOP_TEST_VM, "r");
     print_file_stream(src_file);
     fclose(src_file);
 
@@ -3071,6 +3118,67 @@ void basic_loop_vm_file(FILE *src_file,FILE *tmp_file){
     //close file
     fclose(src_file);
 }
+void fibonacci_series_vm_file(FILE *src_file,FILE *tmp_file){
+
+    // Remove empty lines from file
+
+    src_file = fopen(FIBONACCI_SERIES_VM, "r");           // opens source file for reading
+    tmp_file = fopen(FIBONACCI_SERIES_VM_TEMP, "w");      // opens tmp file for writing, creates file if it does not exist
+
+    if (src_file == NULL || tmp_file == NULL)
+    {
+       printf("Unable to open files \n");
+    }
+
+    //Remove empty lines from file.
+    remove_empty_lines(src_file,tmp_file);  
+    
+    //Close all open files
+    fclose(src_file);
+    fclose(tmp_file);
+
+    //Delete src file and rename tmp file as src file
+    remove(FIBONACCI_SERIES_VM); 
+    rename(FIBONACCI_SERIES_VM_TEMP,FIBONACCI_SERIES_VM);
+
+    //Remove comments from file
+
+    //Open src file and read from it and open tmp file
+    src_file = fopen(FIBONACCI_SERIES_VM, "r");
+    tmp_file = fopen(FIBONACCI_SERIES_VM_TEMP, "w");    // opens tmp file for writing, creates file if it does not exist
+
+    //Move src file pointer to the beginning
+    rewind(src_file);
+
+    //Remove the comments from file
+    remove_comments(src_file,tmp_file);
+
+    //Close all open files
+    fclose(src_file);
+    fclose(tmp_file);
+
+    //Delete src file and rename tmp file as src file
+    remove(FIBONACCI_SERIES_VM);
+    rename(FIBONACCI_SERIES_VM_TEMP,FIBONACCI_SERIES_VM);
+    
+    //TODO: debug line remove
+    //Open src file and print its contents
+    printf("Print content after removing comment \n\n");
+    src_file = fopen(FIBONACCI_SERIES_VM, "r");
+    print_file_stream(src_file);
+    fclose(src_file);
+
+    // Parse the VM code to generate hack asm code
+
+    printf("\n Parsing POINTER TEST VM code -> Hack ASM code \n\n");
+
+    // Open src file 
+    src_file = fopen(FIBONACCI_SERIES_VM, "r");
+    parse_vm_code(src_file);
+    //close file
+    fclose(src_file);
+}
+
 int main(int argc, char * argv[]){
 
     
@@ -3111,8 +3219,11 @@ int main(int argc, char * argv[]){
         static_test_vm_file(src_file,tmp_file);
     }
 
-    if(TRUE){
+    if(FALSE){
         basic_loop_vm_file(src_file,tmp_file);
+    }
+    if(TRUE){
+        fibonacci_series_vm_file(src_file,tmp_file);
     }
     return 0;
 }
