@@ -1072,6 +1072,24 @@ void build_sub_command(char **hack_asm_init_array){
     counter++;
 }
 
+void build_label_command(char **hack_asm_init_array, char *label){
+    
+    char label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char *open_bracket_symbol = "(";
+    char *close_bracket_symbol = ")";
+    
+    strncat(label_instruction,open_bracket_symbol,strlen(open_bracket_symbol));     //(
+    
+    // label = strip_whitespace(label);                                                //remove new line that comes from word split
+    strncat(label_instruction,label,strlen(label));                                 //(label
+    strncat(label_instruction,close_bracket_symbol,strlen(close_bracket_symbol));   //(label)
+
+    // From the value in counter, start inserting the push local asm commands
+
+    hack_asm_init_array[counter] = strdup(label_instruction);       //()  
+    counter++;
+}
+
 int main(int argc, char * argv[]){
 
     //Split word
@@ -1085,7 +1103,11 @@ int main(int argc, char * argv[]){
 
     //Testing some vm translator functions
     char **hack_asm_array = malloc(sizeof(char *) * ARRAY_MAX_LEN);
-    //build_stack_pointer_initialization_command(hack_asm_array);
+
+    // build_stack_pointer_initialization_command(hack_asm_array);
+    build_label_command(hack_asm_array,"LOOP_START");
+    print_double_pointer_array(hack_asm_array);
+
     //build_equal_command(hack_asm_array);
     //build_greater_than_command(hack_asm_array);
     //build_less_than_command(hack_asm_array);
