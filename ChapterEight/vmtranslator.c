@@ -55,6 +55,9 @@
 #define GOTO_COMMAND    "goto"          // unconditional branching 
 #define IF_GOTO_COMMAND "if-goto"       // conditional branching 
 
+//define function commands
+#define FUNCTION_LABEL  "function"
+#define FUNCTION_RETURN  "return"
 
 //define other constants
 #define SP_BASE_ADDRESS "256"
@@ -2190,6 +2193,72 @@ void build_goto_command(char **hack_asm_init_array, char *label){
     hack_asm_init_array[counter] = strdup("0;JMP");                                 //0;JMP
     counter++;   
 }
+
+/**
+ * @brief This function builds the function_declaration command
+ * example: function SimpleFunction.test 2
+*/
+void build_function_declaration_command(char **hack_asm_init_array, char *function_name, int local_variable_count){
+    
+    /*
+    
+        //  Test Case:  function SimpleFunction.test 2
+              Number of local variables: 2. This means we have to push constant 0, two times
+
+        //  See VM representation of the initialization process of function SimpleFunction.test 2 below
+        //  push constant 0
+        //  push constant 0
+
+        //  See ASM representation of the initialization process of function SimpleFunction.test 2
+
+        @0
+        D=A
+        @SP
+        A=M
+        M=D
+        @SP
+        M=M+1   //SP move ++ (Stack pointer moves one space forward after every push)
+    
+        @0
+        D=A
+        @SP
+        A=M
+        M=D
+        @SP
+        M=M+1   //SP move ++ (Stack pointer moves one space forward after every push)
+    */
+
+    
+    char label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char sp_instruction[ASM_INSTRUCTION_LEN] = {0};
+
+    char *at_symbol = "@";
+
+    strncat(sp_instruction,at_symbol,strlen(at_symbol));                                //@
+    strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                                  //@SP
+
+    //  Initial the local variables to 0, based on local_variable_count
+    for (size_t i = 0; i < local_variable_count; i++)
+    {
+
+        hack_asm_init_array[counter] = strdup("@0");                                    //@0
+        counter++;
+        hack_asm_init_array[counter] = strdup("D=A");                                   //D=A
+        counter++;      
+        hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP   
+        counter++;
+        hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+        counter++;
+        hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+        counter++;
+        hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP
+        counter++;
+        hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+        counter++; 
+    }
+
+  
+}
 /**
  * @brief: splits a sentence into words and outs an array
  * NOTE: the word_split_array has to be "malloced" before passing to this function
@@ -2481,6 +2550,24 @@ void parse_vm_code(FILE *src_file){
             printf("Debug: goto command %s Count: %d\n",label_value,counter);
         }
         
+        char *function_name = {0};
+        //  FUNCTION DECLARATION
+        if (strcmp(word_split_array[0],FUNCTION_LABEL) == 0)
+        {
+            function_name = word_split_array[1];
+            int local_variable_count = atoi(word_split_array[2]); //  Convert string to int
+            build_function_declaration_command(hack_asm_init_array,function_name,local_variable_count);
+            printf("Debug: function declaration command %s Count: %d\n",function_name,counter);
+        }
+
+        if (strcmp(word_split_array[0],FUNCTION_RETURN) == 0)
+        {
+            char *function_name = word_split_array[1];
+            int local_variable_count = atoi(word_split_array[2]); //  Convert string to int
+            build_function_declaration_command(hack_asm_init_array,function_name,local_variable_count);
+            printf("Debug: function return command %s Count: %d\n",function_name,counter);
+        }
+        //  RETURN
         
         
         

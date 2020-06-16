@@ -169,5 +169,5 @@ M=D
 //  9. goto retAddr
  
         
-@endFrame
-0;JMP   //  goto label endFrame by force.
+@retAddr
+0;JMP   //  goto label retAddr by force.

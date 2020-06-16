@@ -1090,23 +1090,101 @@ void build_label_command(char **hack_asm_init_array, char *label){
     counter++;
 }
 
+/**
+ * @brief This function builds the function_declaration command
+ * example: function SimpleFunction.test 2
+*/
+void build_function_declaration_command(char **hack_asm_init_array, char *function_name, int local_variable_count){
+    
+    /*
+    
+        //  Test Case:  function SimpleFunction.test 2
+              Number of local variables: 2. This means we have to push constant 0, two times
+
+        //  See VM representation of the initialization process of function SimpleFunction.test 2 below
+        //  push constant 0
+        //  push constant 0
+
+        //  See ASM representation of the initialization process of function SimpleFunction.test 2
+
+        @0
+        D=A
+        @SP
+        A=M
+        M=D
+        @SP
+        M=M+1   //SP move ++ (Stack pointer moves one space forward after every push)
+    
+        @0
+        D=A
+        @SP
+        A=M
+        M=D
+        @SP
+        M=M+1   //SP move ++ (Stack pointer moves one space forward after every push)
+    */
+
+    
+    char label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char sp_instruction[ASM_INSTRUCTION_LEN] = {0};
+
+    char *at_symbol = "@";
+
+    strncat(sp_instruction,at_symbol,strlen(at_symbol));                                //@
+    strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                                  //@SP
+
+    //  Initial the local variables to 0, based on local_variable_count
+    for (size_t i = 0; i < local_variable_count; i++)
+    {
+
+        hack_asm_init_array[counter] = strdup("@0");                                    //@0
+        counter++;
+        hack_asm_init_array[counter] = strdup("D=A");                                   //D=A
+        counter++;      
+        hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP   
+        counter++;
+        hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+        counter++;
+        hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+        counter++;
+        hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP
+        counter++;
+        hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+        counter++; 
+    }
+
+  
+}
+
+
 int main(int argc, char * argv[]){
 
     //Split word
 
-    char word[64] = "Hello    ";
+    char word[64] = "function SimpleFunction.test 2";
     char **word_split_array = malloc(sizeof(char *) * ARRAY_MAX_LEN);
     sentence_splitter(word,word_split_array);
     printf("%lu \n",strlen(word_split_array[0]));
     print_double_pointer_array(word_split_array);
 
-
+    
     //Testing some vm translator functions
     char **hack_asm_array = malloc(sizeof(char *) * ARRAY_MAX_LEN);
 
-    // build_stack_pointer_initialization_command(hack_asm_array);
-    build_label_command(hack_asm_array,"LOOP_START");
+    char *function_name = {0};
+    // build function declaration and print values
+    function_name = word_split_array[1];
+    int local_var_count = atoi(word_split_array[2]);
+
+    build_function_declaration_command(hack_asm_array,function_name,local_var_count);
     print_double_pointer_array(hack_asm_array);
+
+
+
+    // build_stack_pointer_initialization_command(hack_asm_array);
+    // build_label_command(hack_asm_array,"LOOP_START");
+    
+    // print_double_pointer_array(hack_asm_array);
 
     //build_equal_command(hack_asm_array);
     //build_greater_than_command(hack_asm_array);
