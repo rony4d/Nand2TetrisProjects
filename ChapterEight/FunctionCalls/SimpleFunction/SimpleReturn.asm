@@ -76,7 +76,7 @@
 //  1.  endFrame = LCL -> Assing LCL to a temporary variable -> endFrame = 317
 
 @LCL
-D=A
+D=M
 
 @endFrame
 M=D
@@ -105,6 +105,7 @@ A=M     // Let us go to RAM[256]
 D=M     //Assign *SP to D-register first
 
 @ARG
+A=M
 M=D     // *ARG = *SP
 
 //  4. SP = ARG + 1
@@ -113,7 +114,7 @@ M=D     // *ARG = *SP
 D=A
 
 @ARG
-D=D+A
+D=M+D
 
 @SP
 M=D
@@ -170,4 +171,5 @@ M=D
  
         
 @retAddr
+A=M
 0;JMP   //  goto label retAddr by force.
