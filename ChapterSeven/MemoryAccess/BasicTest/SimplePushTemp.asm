@@ -29,22 +29,26 @@ M=D
 // temp segment initialization
 @5
 D=A
-M=D
+//M=D - remove this, temp segment is already initialized from test script, so all you need is the RAM address which is 5 and store in D-register
 
 //push temp 6
 
 @6
-D=A
+D=D+A   // 5 + i where i in this case is 6
 
-@pushtemp
-M=D         //assign push temp value to pushtemp variable
+// @pushtemp    - remove redundant line of code
+// M=D          - remove redundant line of code //assign push temp value to pushtemp variable
 
-@5          // we are at RAM[5] with value 5
-D=M+D       // Temp + 2 => 5 + 2 -> D-register
+//@5 (remove this line of code)         // we are at RAM[5] with value 5
+//D=M+D  (remove this line of code)     // Temp + 2 => 5 + 2 -> D-register
+
+
+// @pushtemp    - remove redundant line of code
+// D=M          - remove redundant line of code
 
 @addr
 A=D
-D=M
+D=M     // RAM[5 + i] = i, this is *ADDR. This means we have stored *ADDR in D-register
 
 @SP     // We are at RAM[0] with value 256
 A=M

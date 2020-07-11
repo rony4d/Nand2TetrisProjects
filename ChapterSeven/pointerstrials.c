@@ -1111,13 +1111,21 @@ void build_label_command(char **hack_asm_init_array, char *label){
 void build_function_declaration_command(char **hack_asm_init_array, char *function_name, int local_variable_count){
     
     /*
-    
+        //  For function declarations remove the SP intialization asm code. I will remove it from the translator
+            later
+            // @256 
+            // D=A 
+            // @SP 
+            // M=D 
         //  Test Case:  function SimpleFunction.test 2
               Number of local variables: 2. This means we have to push constant 0, two times
 
         //  See VM representation of the initialization process of function SimpleFunction.test 2 below
         //  push constant 0
         //  push constant 0
+
+        //  Generate Function Label
+        (functionName)
 
         //  See ASM representation of the initialization process of function SimpleFunction.test 2
 
@@ -1139,14 +1147,23 @@ void build_function_declaration_command(char **hack_asm_init_array, char *functi
     */
 
     
-    char label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char function_label[ASM_INSTRUCTION_LEN] = {0};
     char sp_instruction[ASM_INSTRUCTION_LEN] = {0};
 
     char *at_symbol = "@";
+    char *open_bracket = "(";
+    char *close_bracket = ")";
 
     strncat(sp_instruction,at_symbol,strlen(at_symbol));                                //@
     strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                                  //@SP
 
+    strncat(function_label,open_bracket,strlen(open_bracket));                          //(
+    strncat(function_label,function_name,strlen(function_name));                        //(functionName
+    strncat(function_label,close_bracket,strlen(close_bracket));                        //(functionName)
+
+    //  Generate Function Label
+    hack_asm_init_array[counter] = strdup(function_label);                              //(functionName)
+    counter++;
     //  Initial the local variables to 0, based on local_variable_count
     for (size_t i = 0; i < local_variable_count; i++)
     {
@@ -1430,28 +1447,374 @@ void build_return_command(char **hack_asm_init_array, char *function_name){
     hack_asm_init_array[counter] = strdup("0;JMP");                         //0;JMP
     counter++;
 }
+
+/**
+ * @brief This function builds the call command for a function.
+*/
+void build_call_command(char **hack_asm_init_array, char* caller_function_name,char *function_name, int local_variable_count){
+
+    /*
+        //  Analyzing Call function
+
+        //  Implementing the Code 
+
+        //  1. push retAddrLabel
+
+        @retAddr
+        D=A
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of LCL to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  2. push LCL
+        @LCL
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of LCL to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  3. push ARG
+        @ARG
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of ARG to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  4. push THIS
+        @THIS
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of THIS to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  5. push THAT
+        @THAT
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of THAT to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  6. ARG = SP - 5 - nArgs     //  Repositions ARG
+
+        //  Assume nArgs = 0
+
+        @SP
+        D=M
+
+        @5
+        D=D-A
+
+        @0  //nArgs
+        D=D-A
+
+        @ARG
+        M=D
+
+        //  7. LCL = SP
+
+        @SP
+        D=M
+
+        @LCL
+        M=D     //  LCL = SP
+
+
+        //  8. goto functionName
+
+        @functionName
+        0;JMP       //  Go to the function name address by force
+
+        //  9. (retAddressLabel) -> Just print the return address label
+
+        
+
+    */
+
+    char local_variable_count_str[ASM_INSTRUCTION_LEN] = {0};
+    char local_variable_count_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char return_addr_label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char function_label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char return_addr_label[ASM_INSTRUCTION_LEN] = {0};
+
+    char sp_instruction[ASM_INSTRUCTION_LEN] = {0};
+
+    char *at_symbol = "@";
+
+    strncat(sp_instruction,at_symbol,strlen(at_symbol));                            //@
+    strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                              //@SP
+
+
+    strncat(return_addr_label_instruction,RETURN_ADDR_LABEL,strlen(RETURN_ADDR_LABEL));         //@returnAddr
+    strncat(return_addr_label_instruction,caller_function_name,strlen(caller_function_name));   //@returnAddrCallerFunctionName 
+    snprintf(local_variable_count_str,ASM_INSTRUCTION_LEN,"%d",local_variable_count);           //converts int to string
+    
+    strncat(local_variable_count_instruction,at_symbol,strlen(at_symbol));                                  //@
+    strncat(local_variable_count_instruction,local_variable_count_str,strlen(local_variable_count_str));    //@local_variable_count_str
+
+    strncat(function_label_instruction,at_symbol,strlen(at_symbol));                    //@
+    strncat(function_label_instruction,function_name,strlen(function_name));            //@functionName
+
+    strncat(return_addr_label,"retAddr",strlen("retAddr"));                         //returnAddr
+    strncat(return_addr_label,caller_function_name,strlen(caller_function_name));   //returnAddrCallerFunctionName 
+    /*
+        //  1. push retAddrLabel
+
+        @retAddr
+        D=A
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of LCL to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    */
+    hack_asm_init_array[counter] = strdup(return_addr_label_instruction);           //@returnAddrCallerFunctionName
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=A");                                   //D=A
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+
+    /*
+        //  2. push LCL
+        @LCL
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of LCL to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    */
+    hack_asm_init_array[counter] = strdup(LCL_LABEL);                               //@LCL
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+
+    /*
+        //  3. push ARG
+        @ARG
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of ARG to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    */
+
+    hack_asm_init_array[counter] = strdup(ARG_LABEL);                               //@ARG
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+    
+    /*
+        //  4. push THIS
+        @THIS
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of THIS to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    
+    */
+
+    hack_asm_init_array[counter] = strdup(THIS_LABEL);                              //@THIS
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+
+    /*
+        //  5. push THAT
+        @THAT
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of THAT to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    
+    */
+
+    hack_asm_init_array[counter] = strdup(THAT_LABEL);                              //@THAT
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+
+    /*
+        //  6. ARG = SP - 5 - nArgs     //  Repositions ARG
+
+        //  Assume nArgs = 0
+
+        @SP
+        D=M
+
+        @5
+        D=D-A
+
+        @0  //nArgs
+        D=D-A
+
+        @ARG
+        M=D
+    */
+   
+    // int local_variable_count = atoi(word_split_array[2]); //  Convert string to int
+
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("@5");                                    //@5 
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=D-A");                                 //D=D-A
+    counter++;
+    hack_asm_init_array[counter] = strdup(local_variable_count_instruction);        //@local_variable_count_instruction
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=D-A");                                 //D=D-A
+    counter++;
+    hack_asm_init_array[counter] = strdup(ARG_LABEL);                               //@ARG
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+
+    /*
+        //  7. LCL = SP
+
+        @SP
+        D=M
+
+        @LCL
+        M=D     //  LCL = SP
+    */
+
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;
+    hack_asm_init_array[counter] = strdup(LCL_LABEL);                               //@LCL  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    
+    /*
+        //  8. goto functionName
+
+        @functionName
+        0;JMP       //  Go to the function name address by force
+    */
+
+
+    hack_asm_init_array[counter] = strdup(function_label_instruction);      //@functionName
+    counter++;
+    hack_asm_init_array[counter] = strdup("0;JMP");                         //0;JMP
+    counter++;
+
+    /*
+        //  9. (retAddressLabel) -> Just print the return address label
+
+    */
+   build_label_command(hack_asm_init_array,return_addr_label);
+}
 int main(int argc, char * argv[]){
 
     //Split word
-
+    int count = 10;
     char word[64] = "function SimpleFunction.test 2";
     char **word_split_array = malloc(sizeof(char *) * ARRAY_MAX_LEN);
     sentence_splitter(word,word_split_array);
-    printf("%lu \n",strlen(word_split_array[0]));
-    print_double_pointer_array(word_split_array);
-
+    // printf("%lu \n",strlen(word_split_array[0]));
+    // print_double_pointer_array(word_split_array);
+    char *function_name = {0};
+    // build function declaration and print values
+    // function_name = word_split_array[1];
+    // int local_var_count = atoi(word_split_array[2]);
     
     //Testing some vm translator functions
     char **hack_asm_array = malloc(sizeof(char *) * ARRAY_MAX_LEN);
 
-    char *function_name = {0};
-    // build function declaration and print values
-    function_name = word_split_array[1];
-    int local_var_count = atoi(word_split_array[2]);
+
 
     
-    build_function_declaration_command(hack_asm_array,function_name,local_var_count);
-    build_return_command(hack_asm_array,function_name);
+    // build_function_declaration_command(hack_asm_array,function_name,local_var_count);
+    // build_return_command(hack_asm_array,function_name);
+    build_call_command(hack_asm_array,"Sys.init","Sys.main",0);
     print_double_pointer_array(hack_asm_array);
 
 

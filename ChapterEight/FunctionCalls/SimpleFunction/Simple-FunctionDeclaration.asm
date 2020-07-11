@@ -13,6 +13,9 @@
 //  push constant 0
 //  push constant 0
 
+//  Generate Function Label
+(functionName)
+
 //  See ASM representation of the initialization process of function SimpleFunction.test 2
 
     @0
@@ -22,7 +25,7 @@
     M=D
     @SP
     M=M+1   //SP move ++ (Stack pointer moves one space forward after every push)
-    
+
     @0
     D=A
     @SP

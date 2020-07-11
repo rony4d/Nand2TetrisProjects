@@ -58,6 +58,7 @@
 //define function commands
 #define FUNCTION_LABEL  "function"
 #define FUNCTION_RETURN  "return"
+#define FUNCTION_CALL  "call"
 #define ENDFRAME_LABEL "@endFrame"
 #define RETURN_ADDR_LABEL "@retAddr"
 
@@ -112,6 +113,9 @@
 
 #define SIMPLE_FUNCTION_VM "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/FunctionCalls/SimpleFunction/SimpleFunction.vm"
 #define SIMPLE_FUNCTION_VM_TEMP "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/FunctionCalls/SimpleFunction/SimpleFunction_Temp.vm"
+
+#define SYS_VM "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/FunctionCalls/NestedCall/Sys.vm"
+#define SYS_VM_TMP "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/FunctionCalls/NestedCall/Sys_Temp.vm"
 /**
  * NOTES: Reference: Elements of Computing Systems Text Book Page 170 (Memory Segments Mapping)
  * 1. For memory segments: Local, Argument, this, that: Each of these segments is mapped directly on the RAM
@@ -415,28 +419,22 @@ void build_push_local_command(char *local_value, char **hack_asm_init_array){
 void build_push_temp_command(char *temp_value, char **hack_asm_init_array){
 
     /*
-        //push temp 6
-
-        // temp segment initialization
-        @5
-        D=A
-        M=D
-
-        //push temp 6
-
         @6
-        D=A
+        D=D+A   // 5 + i where i in this case is 6
 
-        @pushtemp
-        M=D         //assign push temp value to pushtemp variable
+        // @pushtemp    - remove redundant line of code
+        // M=D          - remove redundant line of code //assign push temp value to pushtemp variable
 
-        @5          // we are at RAM[5] with value 5
-        D=M+D       // Temp + 6 => 5 + 6 -> D-register
-        
+        //@5 (remove this line of code)         // we are at RAM[5] with value 5
+        //D=M+D  (remove this line of code)     // Temp + 2 => 5 + 2 -> D-register
+
+
+        // @pushtemp    - remove redundant line of code
+        // D=M          - remove redundant line of code
+
         @addr
         A=D
-        D=M
-
+        D=M     // RAM[5 + i] = i, this is *ADDR. This means we have stored *ADDR in D-register
 
         @SP     // We are at RAM[0] with value 256
         A=M
@@ -464,23 +462,22 @@ void build_push_temp_command(char *temp_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("D=A");                   //D=A
     counter++;
-    hack_asm_init_array[counter] = strdup("M=D");                   //M=D
-    counter++;
+    // hack_asm_init_array[counter] = strdup("M=D");                   //M=D
+    // counter++;
     // From the value in counter, start inserting the push temp asm commands
 
     hack_asm_init_array[counter] = strdup(temp_instruction);        //@temp_value  
     counter++;
-    hack_asm_init_array[counter] = strdup("D=A");                   //D=A
+    hack_asm_init_array[counter] = strdup("D=D+A");                 //D=D+A
     counter++;
-    hack_asm_init_array[counter] = strdup(VAR_PUSH_TEMP);           //@pushtemp
-    counter++;
-    hack_asm_init_array[counter] = strdup("M=D");                   //M=D
-    counter++;
-    hack_asm_init_array[counter] = strdup(TEMP_LABEL);              //@5
-    counter++;
-    hack_asm_init_array[counter] = strdup("D=M+D");                 //D=M+D
-    counter++;
-    
+    // hack_asm_init_array[counter] = strdup(VAR_PUSH_TEMP);           //@pushtemp - redundant code
+    // counter++;
+    // hack_asm_init_array[counter] = strdup("M=D");                   //M=D        - redundant code
+    // counter++;
+    // hack_asm_init_array[counter] = strdup(TEMP_LABEL);              //@5     
+    // counter++;
+    // hack_asm_init_array[counter] = strdup("D=M+D");                 //D=M+D
+    // counter++;
     hack_asm_init_array[counter] = strdup(VAR_ADDR);                //@addr
     counter++;
     hack_asm_init_array[counter] = strdup("A=D");                   //A=D
@@ -949,17 +946,18 @@ void build_pop_temp_command(char *temp_value, char **hack_asm_init_array){
     /*
 
 
-        // temp segment initialization
+        // temp segment initialization -
         @5
         D=A
-        M=D
+        //M=D - remove this, temp segment is already initialized from test script, so all you need is the RAM address which is 5 and store in D-register
+
 
         //pop temp 8
         @8
-        D=A       
+        D=D+A       
 
-        @5          // we are in the temp segment base register RAM[5] with value 5 based on temp initialization 5
-        D=M+D       // 5 + i => 5 + 8 => 13, this means register D will hold value of 13
+        @5 (remove this line of code)         // we are in the temp segment base register RAM[5] with value 5 based on temp initialization 5
+        D=M+D (remove this line of code)      // 5 + i => 5 + 8 => 13, this means register D will hold value of 13
 
         @addr
         M=D         // We assgin 13 to addr variable to hold the value
@@ -994,19 +992,19 @@ void build_pop_temp_command(char *temp_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("D=A");                   //D=A
     counter++;
-    hack_asm_init_array[counter] = strdup("M=D");                   //M=D
-    counter++;
+    // hack_asm_init_array[counter] = strdup("M=D");                   //M=D
+    // counter++;
 
     // From the value in counter, start inserting the push temp asm commands
 
     hack_asm_init_array[counter] = strdup(temp_instruction);        //@temp_value  
     counter++;
-    hack_asm_init_array[counter] = strdup("D=A");                   //D=A
+    hack_asm_init_array[counter] = strdup("D=D+A");                   //D=A
     counter++;
-    hack_asm_init_array[counter] = strdup(TEMP_LABEL);              //@5
-    counter++;
-    hack_asm_init_array[counter] = strdup("D=M+D");                 //D=M+D
-    counter++;
+    // hack_asm_init_array[counter] = strdup(TEMP_LABEL);              //@5
+    // counter++;
+    // hack_asm_init_array[counter] = strdup("D=M+D");                 //D=M+D
+    // counter++;
     hack_asm_init_array[counter] = strdup(VAR_ADDR);                //@addr
     counter++;
     hack_asm_init_array[counter] = strdup("M=D");                   //M=D
@@ -2219,6 +2217,9 @@ void build_function_declaration_command(char **hack_asm_init_array, char *functi
         //  push constant 0
         //  push constant 0
 
+        //  Generate Function Label
+        (functionName)
+
         //  See ASM representation of the initialization process of function SimpleFunction.test 2
 
         @0
@@ -2239,14 +2240,23 @@ void build_function_declaration_command(char **hack_asm_init_array, char *functi
     */
 
     
-    char label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char function_label[ASM_INSTRUCTION_LEN] = {0};
     char sp_instruction[ASM_INSTRUCTION_LEN] = {0};
 
     char *at_symbol = "@";
+    char *open_bracket = "(";
+    char *close_bracket = ")";
 
     strncat(sp_instruction,at_symbol,strlen(at_symbol));                                //@
     strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                                  //@SP
 
+    strncat(function_label,open_bracket,strlen(open_bracket));                          //(
+    strncat(function_label,function_name,strlen(function_name));                        //(functionName
+    strncat(function_label,close_bracket,strlen(close_bracket));                        //(functionName)
+
+    //  Generate Function Label
+    hack_asm_init_array[counter] = strdup(function_label);                              //(functionName)
+    counter++;
     //  Initial the local variables to 0, based on local_variable_count
     for (size_t i = 0; i < local_variable_count; i++)
     {
@@ -2539,6 +2549,350 @@ void build_return_command(char **hack_asm_init_array, char *function_name){
     counter++;
 }
 
+/**
+ * @brief This function builds the call command for a function.
+*/
+void build_call_command(char **hack_asm_init_array, char* caller_function_name,char *called_function_name, int local_variable_count){
+
+    /*
+        //  Analyzing Call function
+
+        //  Implementing the Code 
+
+        //  1. push retAddrLabel
+
+        @retAddr
+        D=A
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of LCL to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  2. push LCL
+        @LCL
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of LCL to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  3. push ARG
+        @ARG
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of ARG to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  4. push THIS
+        @THIS
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of THIS to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  5. push THAT
+        @THAT
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of THAT to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+
+        //  6. ARG = SP - 5 - nArgs     //  Repositions ARG
+
+        //  Assume nArgs = 0
+
+        @SP
+        D=M
+
+        @5
+        D=D-A
+
+        @0  //nArgs
+        D=D-A
+
+        @ARG
+        M=D
+
+        //  7. LCL = SP
+
+        @SP
+        D=M
+
+        @LCL
+        M=D     //  LCL = SP
+
+
+        //  8. goto functionName
+
+        @functionName
+        0;JMP       //  Go to the function name address by force
+
+        //  9. (retAddressLabel) -> Just print the return address label
+
+        
+
+    */
+
+    char local_variable_count_str[ASM_INSTRUCTION_LEN] = {0};
+    char local_variable_count_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char return_addr_label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char function_label_instruction[ASM_INSTRUCTION_LEN] = {0};
+    char return_addr_label[ASM_INSTRUCTION_LEN] = {0};
+
+    char sp_instruction[ASM_INSTRUCTION_LEN] = {0};
+
+    char *at_symbol = "@";
+
+    strncat(sp_instruction,at_symbol,strlen(at_symbol));                            //@
+    strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                              //@SP
+
+
+    strncat(return_addr_label_instruction,RETURN_ADDR_LABEL,strlen(RETURN_ADDR_LABEL));         //@returnAddr
+    strncat(return_addr_label_instruction,caller_function_name,strlen(caller_function_name));   //@returnAddrCallerFunctionName 
+    snprintf(local_variable_count_str,ASM_INSTRUCTION_LEN,"%d",local_variable_count);           //converts int to string
+    
+    strncat(local_variable_count_instruction,at_symbol,strlen(at_symbol));                                  //@
+    strncat(local_variable_count_instruction,local_variable_count_str,strlen(local_variable_count_str));    //@local_variable_count_str
+
+    strncat(function_label_instruction,at_symbol,strlen(at_symbol));                                    //@
+    strncat(function_label_instruction,called_function_name,strlen(called_function_name));              //@calledfunctionName
+
+    strncat(return_addr_label,"retAddr",strlen("retAddr"));                         //returnAddr
+    strncat(return_addr_label,caller_function_name,strlen(caller_function_name));   //returnAddrCallerFunctionName 
+    /*
+        //  1. push retAddrLabel
+
+        @retAddr
+        D=A
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of LCL to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    */
+    hack_asm_init_array[counter] = strdup(return_addr_label_instruction);           //@returnAddrCallerFunctionName
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=A");                                   //D=A
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+
+    /*
+        //  2. push LCL
+        @LCL
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of LCL to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    */
+    hack_asm_init_array[counter] = strdup(LCL_LABEL);                               //@LCL
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+
+    /*
+        //  3. push ARG
+        @ARG
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of ARG to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    */
+
+    hack_asm_init_array[counter] = strdup(ARG_LABEL);                               //@ARG
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+    
+    /*
+        //  4. push THIS
+        @THIS
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of THIS to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    
+    */
+
+    hack_asm_init_array[counter] = strdup(THIS_LABEL);                              //@THIS
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+
+    /*
+        //  5. push THAT
+        @THAT
+        D=M
+
+        @SP
+        A=M     //  Let us go to memory location pointed to by stack pointer
+        M=D     //  Assign the value of THAT to memory location pointed to by the stack
+
+        @SP
+        M=M+1
+    
+    */
+
+    hack_asm_init_array[counter] = strdup(THAT_LABEL);                              //@THAT
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;      
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("A=M");                                   //A=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=M+1");                                 //M=M+1
+    counter++;
+
+    /*
+        //  6. ARG = SP - 5 - nArgs     //  Repositions ARG
+
+        //  Assume nArgs = 0
+
+        @SP
+        D=M
+
+        @5
+        D=D-A
+
+        @0  //nArgs
+        D=D-A
+
+        @ARG
+        M=D
+    */
+   
+    // int local_variable_count = atoi(word_split_array[2]); //  Convert string to int
+
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;
+    hack_asm_init_array[counter] = strdup("@5");                                    //@5 
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=D-A");                                 //D=D-A
+    counter++;
+    hack_asm_init_array[counter] = strdup(local_variable_count_instruction);        //@local_variable_count_instruction
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=D-A");                                 //D=D-A
+    counter++;
+    hack_asm_init_array[counter] = strdup(ARG_LABEL);                               //@ARG
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+
+    /*
+        //  7. LCL = SP
+
+        @SP
+        D=M
+
+        @LCL
+        M=D     //  LCL = SP
+    */
+
+    hack_asm_init_array[counter] = strdup(sp_instruction);                          //@SP  
+    counter++;
+    hack_asm_init_array[counter] = strdup("D=M");                                   //D=M
+    counter++;
+    hack_asm_init_array[counter] = strdup(LCL_LABEL);                               //@LCL  
+    counter++;
+    hack_asm_init_array[counter] = strdup("M=D");                                   //M=D
+    counter++;
+    
+    /*
+        //  8. goto functionName
+
+        @functionName
+        0;JMP       //  Go to the function name address by force
+    */
+
+
+    hack_asm_init_array[counter] = strdup(function_label_instruction);      //@functionName
+    counter++;
+    hack_asm_init_array[counter] = strdup("0;JMP");                         //0;JMP
+    counter++;
+
+    /*
+        //  9. (retAddressLabel) -> Just print the return address label for the caller function
+
+    */
+   build_label_command(hack_asm_init_array,return_addr_label);
+}
 /**
  * @brief: splits a sentence into words and outs an array
  * NOTE: the word_split_array has to be "malloced" before passing to this function
@@ -2850,6 +3204,17 @@ void parse_vm_code(FILE *src_file){
 
             build_return_command(hack_asm_init_array,function_name);
             printf("Debug:return command for function %s Count: %d\n",function_name,counter);
+        }
+        
+        //  CALL
+        //  NOTE:  The function that was declared will be the caller function
+        if (strcmp(word_split_array[0],FUNCTION_CALL) == 0)
+        {
+             
+            char * called_function_name = word_split_array[1];
+            int local_variable_count = atoi(word_split_array[2]); //  Convert string to int
+            build_call_command(hack_asm_init_array,function_name,called_function_name,local_variable_count);
+            printf("Debug:call command for function %s Count: %d\n",function_name,counter);
         }
         
     }
@@ -3605,6 +3970,67 @@ void simple_function_vm_file(FILE *src_file,FILE *tmp_file){
     //close file
     fclose(src_file);
 }
+
+void sys_vm_file(FILE *src_file,FILE *tmp_file){
+
+    // Remove empty lines from file
+
+    src_file = fopen(SYS_VM, "r");           // opens source file for reading
+    tmp_file = fopen(SYS_VM_TMP, "w");      // opens tmp file for writing, creates file if it does not exist
+
+    if (src_file == NULL || tmp_file == NULL)
+    {
+       printf("Unable to open files \n");
+    }
+
+    //Remove empty lines from file.
+    remove_empty_lines(src_file,tmp_file);  
+    
+    //Close all open files
+    fclose(src_file);
+    fclose(tmp_file);
+
+    //Delete src file and rename tmp file as src file
+    remove(SYS_VM); 
+    rename(SYS_VM_TMP,SYS_VM);
+
+    //Remove comments from file
+
+    //Open src file and read from it and open tmp file
+    src_file = fopen(SYS_VM, "r");
+    tmp_file = fopen(SYS_VM_TMP, "w");    // opens tmp file for writing, creates file if it does not exist
+
+    //Move src file pointer to the beginning
+    rewind(src_file);
+
+    //Remove the comments from file
+    remove_comments(src_file,tmp_file);
+
+    //Close all open files
+    fclose(src_file);
+    fclose(tmp_file);
+
+    //Delete src file and rename tmp file as src file
+    remove(SYS_VM);
+    rename(SYS_VM_TMP,SYS_VM);
+    
+    //TODO: debug line remove
+    //Open src file and print its contents
+    printf("Print content after removing comment \n\n");
+    src_file = fopen(SYS_VM, "r");
+    print_file_stream(src_file);
+    fclose(src_file);
+
+    // Parse the VM code to generate hack asm code
+
+    printf("\n Parsing POINTER TEST VM code -> Hack ASM code \n\n");
+
+    // Open src file 
+    src_file = fopen(SYS_VM, "r");
+    parse_vm_code(src_file);
+    //close file
+    fclose(src_file);
+}
 int main(int argc, char * argv[]){
 
     
@@ -3651,8 +4077,11 @@ int main(int argc, char * argv[]){
     if(FALSE){
         fibonacci_series_vm_file(src_file,tmp_file);
     }
-    if(TRUE){
+    if(FALSE){
         simple_function_vm_file(src_file,tmp_file);
+    }
+    if(TRUE){
+        sys_vm_file(src_file,tmp_file);
     }
     return 0;
 }

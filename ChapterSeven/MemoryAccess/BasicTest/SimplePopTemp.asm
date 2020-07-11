@@ -10,38 +10,35 @@
 // pop segmentPointer i ---> addr = segmentPointer + i, SP--, *addr = *SP
 // push segmentPointer i ---> addr = segmentPointer + i, *SP = *addr, SP++
 
-//stack pointer initialization
+//stack pointer initialization - This should be removed, as it is initialized by the test script
 @256
 D=A
 
 @SP
 M=D
 
-// temp segment initialization
+// temp segment initialization 
 @5
 D=A
-M=D
+//M=D - remove this, temp segment is already initialized from test script, so all you need is the RAM address which is 5 and store in D-register
 
 //push temp 6
 
 @6
-D=A
+D=D+A   // 5 + i  where i in this case is 6
 
-@pushtemp
-M=D         //assign push temp value to pushtemp variable
+// @pushtemp    - remove redundant line of code
+// M=D          - remove redundant line of code //assign push temp value to pushtemp variable
 
-@5          // we are at RAM[5] with value 5
-D=M+D       // Temp + 2 => 5 + 2 -> D-register
+//@5 (remove this line of code)         // we are at RAM[5] with value 5
+//D=M+D  (remove this line of code)     // Temp + 2 => 5 + 2 -> D-register
 
-@addr
-M=D
-
-@pushtemp
-D=M
+// @pushtemp    - remove redundant line of code
+// D=M          - remove redundant line of code
 
 @addr
-A=M
-M=D     // RAM[5 + i] = i, this is *ADDR
+A=D
+D=M     // RAM[5 + i] = i, this is *ADDR. This means we have stored *ADDR in D-register
 
 @SP     // We are at RAM[0] with value 256
 A=M
@@ -55,10 +52,10 @@ M=M+1   // SP++ , now value at RAM[0] is 257
 
 
 @8
-D=A       
+D=D+A       
 
-@5          // we are in the temp segment base register RAM[5] with value 5 based on temp initialization 5
-D=M+D       // 5 + i => 5 + 8 => 13, this means register D will hold value of 13
+//@5  (remove this line of code)        // we are in the temp segment base register RAM[5] with value 5 based on temp initialization 5
+//D=M+D (remove this line of code)      // 5 + i => 5 + 8 => 13, this means register D will hold value of 13
 
 @addr
 M=D         // We assgin 13 to addr variable to hold the value
