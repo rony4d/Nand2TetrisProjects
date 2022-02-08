@@ -116,6 +116,10 @@
 
 #define SYS_VM "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/FunctionCalls/NestedCall/Sys.vm"
 #define SYS_VM_TMP "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/FunctionCalls/NestedCall/Sys_Temp.vm"
+
+#define FIBONACCI_ELEMENT_VM "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/FunctionCalls/FibonacciElement/Test/FibonacciElementSysMain.vm"
+#define FIBONACCI_ELEMENT_VM_TEMP "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/ChapterEight/FunctionCalls/FibonacciElement/Test/FibonacciElementSysMain_Temp.vm"
+
 /**
  * NOTES: Reference: Elements of Computing Systems Text Book Page 170 (Memory Segments Mapping)
  * 1. For memory segments: Local, Argument, this, that: Each of these segments is mapped directly on the RAM
@@ -257,6 +261,8 @@ void build_push_constant_command(char *const_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Push contant command"); // debug line
+    counter++;
 }
 
 /**
@@ -331,6 +337,8 @@ void build_push_argument_command(char *arg_value, char **hack_asm_init_array){
     hack_asm_init_array[counter] = strdup(sp_instruction);          //@SP
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
+    counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Push argument command"); // debug line
     counter++;
 }
 
@@ -408,6 +416,8 @@ void build_push_local_command(char *local_value, char **hack_asm_init_array){
     hack_asm_init_array[counter] = strdup(sp_instruction);          //@SP
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
+    counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Push local command"); // debug line
     counter++;
 }
 
@@ -495,6 +505,8 @@ void build_push_temp_command(char *temp_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Push Temp command"); // debug line
+    counter++;
 }
 
 /**
@@ -572,6 +584,9 @@ void build_push_this_command(char *this_value, char **hack_asm_init_array){
     hack_asm_init_array[counter] = strdup(sp_instruction);          //@SP
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
+    counter++;
+
+    hack_asm_init_array[counter] = strdup("// Debug: Push THIS command"); // debug line
     counter++;
 }
 
@@ -651,6 +666,9 @@ void build_push_that_command(char *that_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+
+    hack_asm_init_array[counter] = strdup("// Debug: Push THAT command"); // debug line
+    counter++;
 }
 
 /**
@@ -694,7 +712,9 @@ void build_push_pointer_command(char *pointer_value, char **hack_asm_init_array)
         hack_asm_init_array[counter] = strdup(sp_instruction);          //@SP
         counter++;
         hack_asm_init_array[counter] = strdup("M=M+1");                 //SP++
-        counter++;     
+        counter++;   
+        hack_asm_init_array[counter] = strdup("// Debug: Push Pointer 0(THIS) command"); // debug line
+        counter++;  
     }
 
     /*
@@ -725,6 +745,8 @@ void build_push_pointer_command(char *pointer_value, char **hack_asm_init_array)
         hack_asm_init_array[counter] = strdup(sp_instruction);          //@SP
         counter++;
         hack_asm_init_array[counter] = strdup("M=M+1");                 //SP++
+        counter++;
+        hack_asm_init_array[counter] = strdup("// Debug: Push Pointer 1(THAT) command"); // debug line
         counter++;       
     }
 }
@@ -777,6 +799,8 @@ void build_push_static_command(char *static_value, char **hack_asm_init_array, c
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //SP++
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Push STATIC command"); // debug line
+    counter++; 
 
 }
 /**
@@ -853,6 +877,9 @@ void build_pop_argument_command(char *arg_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=D");                   //M=D
     counter++;
+
+    hack_asm_init_array[counter] = strdup("// Debug: Pop ARG command"); // debug line
+    counter++; 
 }
 
 /**
@@ -934,6 +961,8 @@ void build_pop_local_command(char *local_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=D");                   //M=D
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Pop Local command"); // debug line
+    counter++; 
 }
 
 /**
@@ -1025,7 +1054,8 @@ void build_pop_temp_command(char *temp_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=D");                   //M=D
     counter++;
-
+    hack_asm_init_array[counter] = strdup("// Debug: Pop Temp command"); // debug line
+    counter++; 
 }
 
 /**
@@ -1102,6 +1132,8 @@ void build_pop_this_command(char *this_value, char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=D");                   //M=D
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Pop THIS command"); // debug line
+    counter++; 
 }
 
 
@@ -1179,7 +1211,9 @@ void build_pop_that_command(char *that_value, char **hack_asm_init_array){
     hack_asm_init_array[counter] = strdup("A=M");                   //A=M
     counter++;
     hack_asm_init_array[counter] = strdup("M=D");                   //M=D
-    counter++;  
+    counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Pop THAT command"); // debug line
+    counter++;   
 }
 
 /**
@@ -1224,7 +1258,9 @@ void build_pop_pointer_command(char *pointer_value, char **hack_asm_init_array){
         hack_asm_init_array[counter] = strdup(THIS_LABEL);              //@THIS
         counter++;
         hack_asm_init_array[counter] = strdup("M=D");                   //M=D
-        counter++;     
+        counter++;    
+        hack_asm_init_array[counter] = strdup("// Debug: Pop Pointer 0(THIS) command"); // debug line
+        counter++;  
     }
 
     /*
@@ -1256,7 +1292,9 @@ void build_pop_pointer_command(char *pointer_value, char **hack_asm_init_array){
         hack_asm_init_array[counter] = strdup(THAT_LABEL);              //@THAT
         counter++;
         hack_asm_init_array[counter] = strdup("M=D");                   //M=D
-        counter++;        
+        counter++;    
+        hack_asm_init_array[counter] = strdup("// Debug: Pop Pointer 1(THIS) command"); // debug line
+        counter++;      
     }
 }
 
@@ -1310,7 +1348,8 @@ void build_pop_static_command(char *static_value, char **hack_asm_init_array,cha
     counter++;
     hack_asm_init_array[counter] = strdup("M=D");                   //M=D
     counter++; 
-
+    hack_asm_init_array[counter] = strdup("// Debug: Pop STATIC command"); // debug line
+    counter++;  
 }
 
 /**
@@ -1366,6 +1405,8 @@ void build_add_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Add command"); // debug line
+    counter++;  
 }
 
 /**
@@ -1423,6 +1464,8 @@ void build_sub_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Sub command"); // debug line
+    counter++;  
 }
 
 /**
@@ -1480,6 +1523,8 @@ void build_and_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: And(&) command"); // debug line
+    counter++;  
 }
 
 /**
@@ -1631,6 +1676,8 @@ void build_equal_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Equal(=) command"); // debug line
+    counter++;  
 }
 
 
@@ -1784,6 +1831,8 @@ void build_greater_than_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                          //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Greater Than(>) command"); // debug line
+    counter++;  
 }
 
 /**
@@ -1936,6 +1985,8 @@ void build_less_than_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                          //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Less Than(<) command"); // debug line
+    counter++; 
 }
 
 /**
@@ -1979,6 +2030,8 @@ void build_neg_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Neg (-) command"); // debug line
+    counter++; 
 }
 
 /**
@@ -2023,6 +2076,8 @@ void build_not_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Not (!) command"); // debug line
+    counter++; 
 }
 
 /**
@@ -2080,6 +2135,8 @@ void build_or_command(char **hack_asm_init_array){
     counter++;
     hack_asm_init_array[counter] = strdup("M=M+1");                 //M=M+1
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Or (|) command"); // debug line
+    counter++; 
 }
 
 /**
@@ -2102,6 +2159,8 @@ void build_label_command(char **hack_asm_init_array, char *label){
 
     hack_asm_init_array[counter] = strdup(label_instruction);       //()  
     counter++;
+    hack_asm_init_array[counter] = strdup("// Debug: Label command"); // debug line
+    counter++; 
 }
 
 /**
@@ -2158,6 +2217,8 @@ void build_if_goto_command(char **hack_asm_init_array, char *label){
     counter++;
     hack_asm_init_array[counter] = strdup("D;JNE");                                 //D;JNE
     counter++;   
+    hack_asm_init_array[counter] = strdup("// Debug: if-goto command"); // debug line
+    counter++; 
 }
 
 /**
@@ -2194,7 +2255,9 @@ void build_goto_command(char **hack_asm_init_array, char *label){
     hack_asm_init_array[counter] = strdup(label_instruction);                       //@label
     counter++;
     hack_asm_init_array[counter] = strdup("0;JMP");                                 //0;JMP
-    counter++;   
+    counter++; 
+    hack_asm_init_array[counter] = strdup("// Debug: goto command"); // debug line
+    counter++;  
 }
 
 /**
@@ -2277,7 +2340,8 @@ void build_function_declaration_command(char **hack_asm_init_array, char *functi
         counter++; 
     }
 
-  
+    hack_asm_init_array[counter] = strdup("// Debug: Function Declaration command"); // debug line
+    counter++; 
 }
 
 /**
@@ -2392,22 +2456,25 @@ void build_return_command(char **hack_asm_init_array, char *function_name){
         0;JMP   //  goto label retAddr by force.
     */
 
-    
+    char counter_str[ASM_INSTRUCTION_LEN] = {0};
     char endframe_label_instruction[ASM_INSTRUCTION_LEN] = {0};
     char return_addr_label_instruction[ASM_INSTRUCTION_LEN] = {0};
     char sp_instruction[ASM_INSTRUCTION_LEN] = {0};
 
     char *at_symbol = "@";
 
+    snprintf(counter_str,ASM_INSTRUCTION_LEN,"%d",counter);           //converts int to string, get counter string
+
     strncat(sp_instruction,at_symbol,strlen(at_symbol));                            //@
     strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                              //@SP
 
     strncat(endframe_label_instruction,ENDFRAME_LABEL,strlen(ENDFRAME_LABEL));      //@endFrame
     strncat(endframe_label_instruction,function_name,strlen(function_name));        //@endFrameFunctionname
+    strncat(endframe_label_instruction,counter_str,strlen(counter_str));            //@endFrameFunctionnameCounterStr - Add counter to make it unique
 
-    strncat(return_addr_label_instruction,RETURN_ADDR_LABEL,strlen(RETURN_ADDR_LABEL));      //@returnAddr
+    strncat(return_addr_label_instruction,RETURN_ADDR_LABEL,strlen(RETURN_ADDR_LABEL));     //@returnAddr
     strncat(return_addr_label_instruction,function_name,strlen(function_name));             //@returnAddrFunctionname  
-
+    strncat(return_addr_label_instruction,counter_str,strlen(counter_str));                 //@returnAddrFunctionnameCounterStr - Add counter to make it unique
 
     //  1.  endFrame = LCL -> Assing LCL address to a temporary variable  called endFrame
 
@@ -2547,6 +2614,9 @@ void build_return_command(char **hack_asm_init_array, char *function_name){
     counter++;
     hack_asm_init_array[counter] = strdup("0;JMP");                         //0;JMP
     counter++;
+
+    hack_asm_init_array[counter] = strdup("// Debug: return command"); // debug line
+    counter++; 
 }
 
 /**
@@ -2651,6 +2721,7 @@ void build_call_command(char **hack_asm_init_array, char* caller_function_name,c
 
     */
 
+    char counter_str[ASM_INSTRUCTION_LEN] = {0};
     char local_variable_count_str[ASM_INSTRUCTION_LEN] = {0};
     char local_variable_count_instruction[ASM_INSTRUCTION_LEN] = {0};
     char return_addr_label_instruction[ASM_INSTRUCTION_LEN] = {0};
@@ -2664,9 +2735,13 @@ void build_call_command(char **hack_asm_init_array, char* caller_function_name,c
     strncat(sp_instruction,at_symbol,strlen(at_symbol));                            //@
     strncat(sp_instruction,SP_LABEL,strlen(SP_LABEL));                              //@SP
 
+    snprintf(counter_str,ASM_INSTRUCTION_LEN,"%d",counter);           //converts counter to counter string for uniquess in variable names
 
     strncat(return_addr_label_instruction,RETURN_ADDR_LABEL,strlen(RETURN_ADDR_LABEL));         //@returnAddr
     strncat(return_addr_label_instruction,caller_function_name,strlen(caller_function_name));   //@returnAddrCallerFunctionName 
+    strncat(return_addr_label_instruction,counter_str,strlen(counter_str));                     //@returnAddrCallerFunctionNameCounter 
+
+
     snprintf(local_variable_count_str,ASM_INSTRUCTION_LEN,"%d",local_variable_count);           //converts int to string
     
     strncat(local_variable_count_instruction,at_symbol,strlen(at_symbol));                                  //@
@@ -2675,8 +2750,10 @@ void build_call_command(char **hack_asm_init_array, char* caller_function_name,c
     strncat(function_label_instruction,at_symbol,strlen(at_symbol));                                    //@
     strncat(function_label_instruction,called_function_name,strlen(called_function_name));              //@calledfunctionName
 
+
     strncat(return_addr_label,"retAddr",strlen("retAddr"));                         //returnAddr
     strncat(return_addr_label,caller_function_name,strlen(caller_function_name));   //returnAddrCallerFunctionName 
+    strncat(return_addr_label,counter_str,strlen(counter_str));                     //returnAddrCallerFunctionNameCounter
     /*
         //  1. push retAddrLabel
 
@@ -2892,6 +2969,9 @@ void build_call_command(char **hack_asm_init_array, char* caller_function_name,c
 
     */
    build_label_command(hack_asm_init_array,return_addr_label);
+
+    hack_asm_init_array[counter] = strdup("// Debug:  Call command"); // debug line
+    counter++; 
 }
 /**
  * @brief: splits a sentence into words and outs an array
@@ -3212,6 +3292,7 @@ void parse_vm_code(FILE *src_file){
         {
              
             char * called_function_name = word_split_array[1];
+            //  Check if called function name has been called before
             int local_variable_count = atoi(word_split_array[2]); //  Convert string to int
             build_call_command(hack_asm_init_array,function_name,called_function_name,local_variable_count);
             printf("Debug:call command for function %s Count: %d\n",function_name,counter);
@@ -4031,6 +4112,67 @@ void sys_vm_file(FILE *src_file,FILE *tmp_file){
     //close file
     fclose(src_file);
 }
+
+void fibonnaci_element_vm_file(FILE *src_file,FILE *tmp_file){
+
+    // Remove empty lines from file
+
+    src_file = fopen(FIBONACCI_ELEMENT_VM, "r");           // opens source file for reading
+    tmp_file = fopen(FIBONACCI_ELEMENT_VM_TEMP, "w");      // opens tmp file for writing, creates file if it does not exist
+
+    if (src_file == NULL || tmp_file == NULL)
+    {
+       printf("Unable to open files \n");
+    }
+
+    //Remove empty lines from file.
+    remove_empty_lines(src_file,tmp_file);  
+    
+    //Close all open files
+    fclose(src_file);
+    fclose(tmp_file);
+
+    //Delete src file and rename tmp file as src file
+    remove(FIBONACCI_ELEMENT_VM); 
+    rename(FIBONACCI_ELEMENT_VM_TEMP,FIBONACCI_ELEMENT_VM);
+
+    //Remove comments from file
+
+    //Open src file and read from it and open tmp file
+    src_file = fopen(FIBONACCI_ELEMENT_VM, "r");
+    tmp_file = fopen(FIBONACCI_ELEMENT_VM_TEMP, "w");    // opens tmp file for writing, creates file if it does not exist
+
+    //Move src file pointer to the beginning
+    rewind(src_file);
+
+    //Remove the comments from file
+    remove_comments(src_file,tmp_file);
+
+    //Close all open files
+    fclose(src_file);
+    fclose(tmp_file);
+
+    //Delete src file and rename tmp file as src file
+    remove(FIBONACCI_ELEMENT_VM);
+    rename(FIBONACCI_ELEMENT_VM_TEMP,FIBONACCI_ELEMENT_VM);
+    
+    //TODO: debug line remove
+    //Open src file and print its contents
+    printf("Print content after removing comment \n\n");
+    src_file = fopen(FIBONACCI_ELEMENT_VM, "r");
+    print_file_stream(src_file);
+    fclose(src_file);
+
+    // Parse the VM code to generate hack asm code
+
+    printf("\n Parsing POINTER TEST VM code -> Hack ASM code \n\n");
+
+    // Open src file 
+    src_file = fopen(FIBONACCI_ELEMENT_VM, "r");
+    parse_vm_code(src_file);
+    //close file
+    fclose(src_file);
+}
 int main(int argc, char * argv[]){
 
     
@@ -4080,8 +4222,11 @@ int main(int argc, char * argv[]){
     if(FALSE){
         simple_function_vm_file(src_file,tmp_file);
     }
-    if(TRUE){
+    if(FALSE){
         sys_vm_file(src_file,tmp_file);
+    }
+    if(TRUE){
+        fibonnaci_element_vm_file(src_file,tmp_file);
     }
     return 0;
 }
