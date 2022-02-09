@@ -1,0 +1,10 @@
+9/02/2022
+- Started going through Nand2Tetris again from chapter one again after 2 years. Stopped at Chapter 8 2 years ago to focus on
+making something that will make money for the company while I focus on research
+- Studied chapter one from the main textbook, studied the hardware simulator tutorial PDF and then studied the lecture note
+- I found it quite challenging to understand the simplification of the truth table to boolean expression on Slide 19 of the 
+lecture note. This made me to go and search online for all the possible boolean functions. I took note of all of them and attempted
+to derive them. I realized that "Distributive Law" is a very powerful law and somehow finds itself in a lot of examples as 
+seen in the Boolean expression I was finding hard to understand. Here is the link to the document that shows all the laws of 
+boolean expression: https://www.mi.mun.ca/users/cchaulk/misc/boolean.htm
+- I did the HDL for NOT, AND and OR Gate
