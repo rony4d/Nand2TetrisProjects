@@ -8,3 +8,6 @@ to derive them. I realized that "Distributive Law" is a very powerful law and so
 seen in the Boolean expression I was finding hard to understand. Here is the link to the document that shows all the laws of 
 boolean expression: https://www.mi.mun.ca/users/cchaulk/misc/boolean.htm
 - I did the HDL for NOT, AND and OR Gate
+- Designing the logic gate diagram of the MUX took me almost one hour to think about the design. The feeling was good finally 
+creating the final design. Implementing the HDL was really easy and ran once. 
+- DMux was a little mind boggling but eventually nailed it
