@@ -1,13 +1,39 @@
 9/02/2022
-- Started going through Nand2Tetris again from chapter one again after 2 years. Stopped at Chapter 8 2 years ago to focus on
+-   Started going through Nand2Tetris again from chapter one again after 2 years. Stopped at Chapter 8 2 years ago to focus on
 making something that will make money for the company while I focus on research
-- Studied chapter one from the main textbook, studied the hardware simulator tutorial PDF and then studied the lecture note
-- I found it quite challenging to understand the simplification of the truth table to boolean expression on Slide 19 of the 
+-   Studied chapter one from the main textbook, studied the hardware simulator tutorial PDF and then studied the lecture note
+-   I found it quite challenging to understand the simplification of the truth table to boolean expression on Slide 19 of the 
 lecture note. This made me to go and search online for all the possible boolean functions. I took note of all of them and attempted
 to derive them. I realized that "Distributive Law" is a very powerful law and somehow finds itself in a lot of examples as 
 seen in the Boolean expression I was finding hard to understand. Here is the link to the document that shows all the laws of 
 boolean expression: https://www.mi.mun.ca/users/cchaulk/misc/boolean.htm
-- I did the HDL for NOT, AND and OR Gate
-- Designing the logic gate diagram of the MUX took me almost one hour to think about the design. The feeling was good finally 
+-   I did the HDL for NOT, AND and OR Gate
+-   Designing the logic gate diagram of the MUX took me almost one hour to think about the design. The feeling was good finally 
 creating the final design. Implementing the HDL was really easy and ran once. 
-- DMux was a little mind boggling but eventually nailed it
+-   DMux was a little mind boggling but eventually nailed it 
+
+10/02/2022
+-   Studied 2 examples of the MUX from the Lecture Note:
+    1. For creating a programmable logic gate: In the example, a gate that can act as both And and Or gate using select bit
+    for switching operations between And and Or
+    2. For creating communication networks. Here a single communication channel can be used to pass multiple messages
+
+-   Completed the HDL for 16-bit variants of the logic gates : Not16, And16, Or16 and Mux16
+
+23/02/2022
+
+-   Chapeter 2 was very insightful as I had to spend a lot of time deriving the ALU outputs by working backwords. This chapter
+    is strongly related to the chapter one. To have the best understanding, I had to derive all the Hack ALU outputs in the back of my
+    physical note. It is really great understing 2's completement as this is the fundamental knowledge required for the Hack ALU.
+    I have completed the HACK ALU Logic diagram. I did not implement Zr and Ng outputs easily. I had to take a look at how I did it 2 years ago. 
+    Then I realized that it was because I did not remeber Or8Way. I had skipped the excerise in chapter one. It was annoying but I had to go back to chapter one
+    to complete the implementations. 
+
+
+27/02/2022
+
+-   So I realized I missed MultiWay Variant projects in chapter one. I had to go back to complete all the implementations of Or8Way,Mux4Way16, Mux8Way16, 
+    DMux4Way and DMux8Way. These implementations took longer than I expected to implement the logic diagram especially the DMux4Way. 
+
+-   I will be going back to implement the Hack ALU in HDL. I have completed 
+
