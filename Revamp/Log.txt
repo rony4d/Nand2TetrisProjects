@@ -37,3 +37,9 @@ creating the final design. Implementing the HDL was really easy and ran once.
 
 -   I will be going back to implement the Hack ALU in HDL. I have completed 
 
+
+27/02/2022
+
+-   Completed the implementation of the Hack ALU
+-   Decided to study my past notes 2 years ago after going through the text and lecture notes
+
