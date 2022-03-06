@@ -16,4 +16,25 @@ CHIP RAM8 {
 
     PARTS:
     // Put your code here:
+
+    //  Input combinational logic
+    DMux8Way16(in=in, sel=address, a=InR0, b=InR1, c=InR2, d=InR3, e=InR4, f=InR5, g=InR6, h=InR7);
+    DMux8Way(in=load, sel=address, a=LoadR0, b=LoadR1, c=LoadR2, d=LoadR3, e=LoadR4, f=LoadR5, g=LoadR6, h=LoadR7);
+    
+    //  RAM8 connection with sequential chips
+    Register(in=InR0, load=LoadR0, out=OutR0);
+    Register(in=InR1, load=LoadR1, out=OutR1);
+    Register(in=InR2, load=LoadR2, out=OutR2);
+    Register(in=InR3, load=LoadR3, out=OutR3);
+    Register(in=InR4, load=LoadR4, out=OutR4);
+    Register(in=InR5, load=LoadR5, out=OutR5);
+    Register(in=InR6, load=LoadR6, out=OutR6);
+    Register(in=InR7, load=LoadR7, out=OutR7);
+
+    //  Output combinational logic
+
+    Mux8Way16(a=OutR0, b=OutR1, c=OutR2, d=OutR3, e=OutR4, f=OutR5, g=OutR6, h=OutR7, sel=address, out=out);
+
+
+
 }
