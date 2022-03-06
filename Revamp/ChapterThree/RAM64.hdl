@@ -16,4 +16,22 @@ CHIP RAM64 {
 
     PARTS:
     // Put your code here:
+
+    //  Load selection Logic
+    DMux8Way(in=load, sel=address[0..2], a=Load0, b=Load1, c=Load2, d=Load3, e=Load4, f=Load5, g=Load6, h=Load7);
+    
+    //  Input Logic
+    RAM8(in=in, load=Load0, address=address[3..5], out=RAMOut0);     //  RAM 0
+    RAM8(in=in, load=Load1, address=address[3..5], out=RAMOut1);     //  RAM 1
+    RAM8(in=in, load=Load2, address=address[3..5], out=RAMOut2);     //  RAM 2
+    RAM8(in=in, load=Load3, address=address[3..5], out=RAMOut3);     //  RAM 3
+    RAM8(in=in, load=Load4, address=address[3..5], out=RAMOut4);     //  RAM 4
+    RAM8(in=in, load=Load5, address=address[3..5], out=RAMOut5);     //  RAM 5
+    RAM8(in=in, load=Load6, address=address[3..5], out=RAMOut6);     //  RAM 6
+    RAM8(in=in, load=Load7, address=address[3..5], out=RAMOut7);     //  RAM 7
+
+
+    //  Output probing logic
+    Mux8Way16(a=RAMOut0, b=RAMOut1, c=RAMOut2, d=RAMOut3, e=RAMOut4, f=RAMOut5, g=RAMOut6, h=RAMOut7, sel=address[0..2], out=out);
+
 }
