@@ -43,3 +43,19 @@ creating the final design. Implementing the HDL was really easy and ran once.
 -   Completed the implementation of the Hack ALU
 -   Decided to study my past notes 2 years ago after going through the text and lecture notes
 
+06/03/2022
+-   Completed the Chapter 3 on the main text (Elements of Computing Systems - Building a modern computer from first principles) yesterday. 
+-   Completed the lecture note on chapter 3
+-   Key learnings:
+    i)  Sequential Chips maintain state and this can now be used a building block to create advanced memory units like Registers and RAMs 
+    ii) Program counter (PC): These are special registers that keep track of instructions a computer should execute. The PC is the basic register that 
+        handles any software code at the lowest level. I found this to be very beautiful. It has 3 operations that all codes must adhere to
+        -   Reset   (PC = 0)    -   Fetch the first instruction
+        -   Next    (PC++)      -   Fetch the next instruction 
+        -   Goto    (PC = n)    -   Fetch instruction n
+
+        If you carefully look at these 3 operations you can easily realize that all software code ,no matter the complexity eventually breaks down to these function. 
+        I think is is absolutely amazing to see how the hardware powers every single part of the software with so much simplicity and elegance
+
+        
+
