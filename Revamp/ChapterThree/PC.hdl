@@ -17,4 +17,55 @@ CHIP PC {
 
     PARTS:
     // Put your code here:
+
+    //  ---------- First try
+    // Register(in=in, load=load, out=regOut);
+
+    // //  Inc Logic
+    // Inc16(in=regOut, out=IncOut);
+    // Mux16(a=regOut, b=IncOut, sel=inc, out=IncMuxOut);
+
+    // //  Reset Logic
+    // Mux16(a=IncMuxOut, b=false, sel=reset, out=out);
+
+
+    //  ---------- Second try
+    // //  Inc Logic
+    // Inc16(in=in, out=IncOut);
+    // Mux16(a=in, b=IncOut, sel=inc, out=IncMuxOut);
+
+    // //  Reset Logic
+    // Mux16(a=IncMuxOut, b=false, sel=reset, out=IncMuxResetOut);
+
+
+    // Register(in=IncMuxResetOut, load=load, out=out);
+
+    //  ---------   Third
+
+    // Mux16(a=OutToMuxIn, b=in, sel=load, out=RegIn, out=IncIn);
+
+    // Inc16(in=IncIn, out=IncOut);
+
+    // Register(in=IncOut, load=inc, out=InIncRegOut);
+
+    // Register(in=false, load=reset, out=RegResetOut);
+
+    // Register(in=RegIn, load=load, out=InRegOut);
+
+    // Mux16(a=InRegOut, b=IncIn, sel=inc, out=MuxIncSelOut);
+
+    // Mux16(a=MuxIncSelOut, b=InRegOut, sel=load, out=MuxLoadSelOut);
+
+    // Mux16(a=MuxLoadSelOut, b=RegResetOut, sel=reset, out=out , out=OutToMuxIn);
+
+    //  ---------   Fourth
+
+
+    Inc16(in=IncIn, out=IncOut);
+    Mux16(a=IncMuxIn, b=IncOut, sel=inc, out=IncMuxOut);
+    Mux16(a=IncMuxOut, b=in, sel=load, out=LoadMuxOut);
+    Mux16(a=LoadMuxOut, b=false, sel=reset, out=ResetMuxOut);
+
+    Register(in=ResetMuxOut, load=true, out=out, out=IncIn, out=IncMuxIn);
+
 }
