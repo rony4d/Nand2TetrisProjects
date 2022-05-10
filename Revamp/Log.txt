@@ -61,3 +61,13 @@ creating the final design. Implementing the HDL was really easy and ran once.
 
 -   Completed the PC today after 4 very long trials and failures. 
 
+10/05/2022
+
+-   Running the mult.asm project: NOTE that to fully test the assembly file, first load the asm file into the assembler and generate the hack file
+    then save the hack file in the same directory. Next use the load the asm file in the CPUEmulator and then load the test script. The test script
+    requires the .hack file so if you don't generate it, the CPUEmulator will throw an exception. 
+
+-   Completed mult.asm : This was a little challenging because my loop was not terminating properly, I found out by carefully
+    debugging with the CPUEmulator. So I realized my jump statement (@END D;JEQ) in line 48 and line 49 was  written as ( @END M;JEQ). I was using M instead of 
+    D as destination to Jump if value in the register is equal to 0. 
+    ToDo: I will still investigate to know why it jumps to D and not to the meory location specified. 
