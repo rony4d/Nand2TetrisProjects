@@ -71,3 +71,13 @@ creating the final design. Implementing the HDL was really easy and ran once.
     debugging with the CPUEmulator. So I realized my jump statement (@END D;JEQ) in line 48 and line 49 was  written as ( @END M;JEQ). I was using M instead of 
     D as destination to Jump if value in the register is equal to 0. 
     ToDo: I will still investigate to know why it jumps to D and not to the meory location specified. 
+
+16/05/2022
+
+-   Working on the fill.asm task. To better understand the memory mapping, I had to draw the diagram to full understand the mapping. See link: https://imgur.com/a/iAzO4Zq
+    I broke down the task into two. 
+    1.  Write the code to fill up the screen with the black colour without any Keyboard input. I did this to make sure my understanding of the memory mapping
+        was correct. 
+    2.  Write code to probe keyboard RAM section for any input from the keyboard 
+
+    The first task has been completed. I will proceed to the second task
