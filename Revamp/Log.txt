@@ -81,3 +81,18 @@ creating the final design. Implementing the HDL was really easy and ran once.
     2.  Write code to probe keyboard RAM section for any input from the keyboard 
 
     The first task has been completed. I will proceed to the second task
+
+    ToDo: Take pictures of sketches of previous projects and attach
+
+    NOTE: While probing the RAM[24576] for Keyboard input, I noticed that the CPUEmulhator was a little buggy when you select the fast animation.
+    I was unable to see the keyboard pressed key appear on the screen or RAM[24576]
+    I had to kill the CPUEmulator and start it again. Seems to be working properly when animation speed is mid-way. 
+
+17/05/2022
+-   Second task is complete. I spent a lot of hours trying to optimize my code by using a variable to store the pixel colour value and changing it
+    depending on the keyboard press. I realized this was extremely difficult to achieve after spending a lot of hours on this. I decided to solve this problem
+    by creating two loops (one for black pixel and the other for white pixel) and then based on current value in RAM[24576] we will go to the particular row
+    This was supposed to be easy but it did not work and the reason was that I failed to initialize the row counter to zero in the Keyboard probing loop. 
+    Once I added those two lines of code ( @i , M=0) , everything worked. 
+
+    
