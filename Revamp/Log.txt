@@ -95,4 +95,6 @@ creating the final design. Implementing the HDL was really easy and ran once.
     This was supposed to be easy but it did not work and the reason was that I failed to initialize the row counter to zero in the Keyboard probing loop. 
     Once I added those two lines of code ( @i , M=0) , everything worked. 
 
-    
+
+22/05/2022
+-   CPU completed. 

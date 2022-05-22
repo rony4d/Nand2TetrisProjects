@@ -1,0 +1,123 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed by A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control bit is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously by the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected by the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // Put your code here:
+    
+    //  MUX for decoding instruction
+    Mux16(a=instruction, b=ALUOut, sel=instruction[15], out=ARegisterIn);             //  Instruction decoding
+
+    //  A-register
+    Not(in=instruction[15], out=NotInstruction15);
+    Or(a=NotInstruction15, b=instruction[5], out=ARegisterLoad);
+    ARegister(in=ARegisterIn, load=ARegisterLoad, out=ARegisterOut, out[0..14]=addressM);                //  instruction[5] == d1 (d-bit of c-instruction)
+
+
+    //  MUX for selecting between A-register output and In M ( RAM input ) and the output acts as input to ALU
+    //  The a-bit of the c-instruction is used to select this, when a=1, InM and when a=0, A-register. 
+
+    Mux16(a=ARegisterOut, b=inM, sel=instruction[12], out=InMAndARegisterMuxOut);    //  a-bit of c-instruction is instruction[12]
+
+    //  D-register : Acts as input to ALU
+    And(a=instruction[4], b=instruction[15], out=DRegisterLoad);
+    DRegister(in=ALUOut, load=DRegisterLoad, out=DRegisterOut);                       //  instruction[4] == d2 (d-bit of c-instruction)
+
+    //  ALU
+    ALU(x=DRegisterOut, y=InMAndARegisterMuxOut, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM, out=ALUOut, zr=ALUZero, ng=ALUNeg);
+
+
+    //  writeM
+    And(a=instruction[3], b=instruction[15], out=writeM);        //  WriteM is triggered by instruction[3] == d3 (d-bit of c-instruction) when writing to memory
+
+    //  PC
+
+    // Or(a=instruction[0], b=instruction[1], out=Out1);
+    // Or(a=Out1, b=instruction[2], out=jOut);
+
+    //  j-bits [j1,j2,j3] = instruction[2],instruction[1], instruction[0]
+
+    
+    //  No Jump () - [0,0,0] = false - Set input pin to false 
+
+    //  If out > 0; jump ; JGT - [0,0,1] 
+
+    // JGT circuit
+    Not(in=ALUNeg, out=NotALUNeg);
+    Not(in=ALUZero, out=NotALUZero, out=NotALUZero2);
+
+    And(a=NotALUNeg, b=NotALUZero, out=JGTOut); 
+
+
+    //  If out = 0; jump ; JEQ - [ 0,1,0 ] - Set input pin to Zr(ALUZero)
+
+    //  If out >= 0; jump ; JGE - [0,1,1] 
+
+    //  JGE circuit - This circuit will re-use the JGT circuit output
+
+    Or(a=JGTOut, b=ALUZero, out=JGEOut);
+
+    //  If out < 0; jump; JLT - [1,0,0] - Set input pin to Ng(ALUNeg)
+
+    //  If out is not equal to zero; jump ; JNE - [1,0,1]
+
+    //  JNE circuit - This circuit will re-use the JGT circuit output 
+
+    And(a=ALUNeg, b=NotALUZero, out=LessThanZeroOut);
+    Or(a=JGTOut, b=LessThanZeroOut, out=JNEOut);
+
+    //  If out <= 0; jump ; JLE - [1,1,0]
+
+    //  JLE circuit
+    Or(a=ALUZero, b=ALUNeg, out=JLEOut);
+
+    //  Compulsory Jump; JMP - [1,1,1] - Set the input pin to true
+
+
+
+
+    Mux8Way16(a[0]=false, b[0]=JGTOut, c[0]=ALUZero, d[0]=JGEOut, e[0]=ALUNeg, f[0]=JNEOut, g[0]=JLEOut, h[0]=true, sel=instruction[0..2], out[0]=muxOut);
+
+
+
+
+
+    And(a=muxOut, b=instruction[15], out=PCLoad);
+    PC(in=ARegisterOut, load=PCLoad, inc=true, reset=reset, out[0..14]=pc);
+}
