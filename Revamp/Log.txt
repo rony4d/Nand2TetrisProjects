@@ -97,4 +97,10 @@ creating the final design. Implementing the HDL was really easy and ran once.
 
 
 22/05/2022
--   CPU completed. 
+-   CPU completed. The CPU was really mind boggling. It took almost a week of multiple trials to getting the pattern. I made notes and attached the images
+    here. Please refer to the URL to have a better understanding of the mistakes I made and how I solved the entire CPU. 
+
+
+26/05/2022
+
+-   Memory completed. 

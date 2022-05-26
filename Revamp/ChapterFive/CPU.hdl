@@ -66,12 +66,7 @@ CHIP CPU {
     //  writeM
     And(a=instruction[3], b=instruction[15], out=writeM);        //  WriteM is triggered by instruction[3] == d3 (d-bit of c-instruction) when writing to memory
 
-    //  PC
-
-    // Or(a=instruction[0], b=instruction[1], out=Out1);
-    // Or(a=Out1, b=instruction[2], out=jOut);
-
-    //  j-bits [j1,j2,j3] = instruction[2],instruction[1], instruction[0]
+    //  PC - This logic involves Zr and Ng with a combination of the j-bits
 
     
     //  No Jump () - [0,0,0] = false - Set input pin to false 
