@@ -92,7 +92,7 @@ M=D                     //  Store keyboard base address in a variable
         D;JEQ
 
 
-        @addr           //  
+        @addr           //  Pointer manipulation
         A=M             //  Recall that addr points to a an address (i.e a pointer), so we have to go to the address pointed by the pointer and then change the value
         M=-1             //  Set all 16 bits in the current RAM chip addressed by A to value in setpixel variable. -1 for black and 0 for white
 

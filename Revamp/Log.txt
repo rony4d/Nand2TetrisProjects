@@ -114,3 +114,7 @@ creating the final design. Implementing the HDL was really easy and ran once.
 28/05/2022
 
 -   Computer completed. The computer is very easy. Just a direct connection of the previously built chips. 
+
+02/06/2022
+
+-   Chpater 6: Assember. Chapter 6 is purely software and requires refreshing knowledge of c-programming language whihc is the language I will use in implementing the assembler
