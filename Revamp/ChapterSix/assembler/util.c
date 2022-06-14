@@ -47,6 +47,9 @@ static char * eat_white_space(char *p1);
 void convert_decimal_to_binary(int n, char *binary_result);     //  converts decimal to 16-bit binary number
 void convert_to_string(int n, char* result);                      //  conver integer to string    
 void split_string(char * delimiter, char * source_string, char * dest_string);  
+int convert_string_to_number(char * input_str);
+
+
 
 void read_file(char *filename, int max_size)
 {
@@ -329,7 +332,9 @@ void convert_decimal_to_binary(int n, char *binary_result) {
 
 }
 
-
+/**
+ * @brief: Converts an integer to a string
+*/
 void convert_to_string(int n, char* result){
 
     if(result == NULL){
@@ -337,6 +342,21 @@ void convert_to_string(int n, char* result){
     }
     snprintf(result,BINARY_MAX_BITS,"%d",n);     
 
+}
+
+/**
+ * @brief: Converts string to an integer
+*/
+int convert_string_to_number(char * input_str)
+{
+    if (input_str != NULL)
+    {
+        int result;
+        sscanf(input_str,"%d", &result);
+        return result;
+    }
+    
+    return 0;
 }
 
 /**
@@ -391,6 +411,11 @@ void split_string(char * delimiter, char * source_string, char * dest_string)
 
 //     char src_str[MAX_FILE_SIZE] = "Bob#is studying in Stanford University";
 //     split_string("#",src_str,dest_str);
+
+//     char  input_str[MAX_FILE_SIZE] = "123456789";
+    
+//     int x = convert_string_to_number(input_str);
+//     printf("%d", x);
 
 //     // read_file_with_multiple_fgetc_calls(TEST_ASM_FILE,MAX_FILE_SIZE);   // this was done to test a query
 
