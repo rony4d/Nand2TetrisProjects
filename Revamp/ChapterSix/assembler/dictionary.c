@@ -268,32 +268,39 @@ void DictDelete(Dict dictionary, const char* key)
     
 }
 
-//  Test the dictionary data structure here
-int main(int agrc , char * argv[])
-{
-    //  create a dictionary
-    Dict myDictionary = DictCreate();
+
+/**
+ * @brief: This main function is used  to test the different functions here to ensure they work properly 
+ * Uncomment to test the dictionary data structure here 
+ * 
+*/
+
+
+// int main(int agrc , char * argv[])
+// {
+//     //  create a dictionary
+//     Dict myDictionary = DictCreate();
     
-    //  insert an element into a dictionary
-    DictInsert(myDictionary, "ugo", "ugochukwu aronu the one and only Jedi Master");
+//     //  insert an element into a dictionary
+//     DictInsert(myDictionary, "ugo", "ugochukwu aronu the one and only Jedi Master");
    
-   struct element * element_result = myDictionary->table[237];  //  testing out a direct access with hash value of ugo(237) as index to see if it returns element in the table and it does
+//    struct element * element_result = myDictionary->table[237];  //  testing out a direct access with hash value of ugo(237) as index to see if it returns element in the table and it does
 
-   const char* value = DictSearch(myDictionary,"ugo");
+//    const char* value = DictSearch(myDictionary,"ugo");
 
-    //  grow(myDictionary); //  test grow function. NOTE: comment after test as it can cause errors when other functions are called later. 
+//     //  grow(myDictionary); //  test grow function. NOTE: comment after test as it can cause errors when other functions are called later. 
    
-    // //  destroy the dictionary
-    DictDestroy(myDictionary);
+//     // //  destroy the dictionary
+//     DictDestroy(myDictionary);
 
-    //  perform hash
-    unsigned long result = hash_function("ugo");
-    unsigned long result2 = hash_function("ugochukwu aronu the one and only Jedi Master");
+//     //  perform hash
+//     unsigned long result = hash_function("ugo");
+//     unsigned long result2 = hash_function("ugochukwu aronu the one and only Jedi Master");
 
-    printf("size of unsigned long: %lu bits", sizeof(long) * __CHAR_BIT__);
+//     printf("size of unsigned long: %lu bits", sizeof(long) * __CHAR_BIT__);
 
     
 
 
-    return 0;
-}
+//     return 0;
+// }

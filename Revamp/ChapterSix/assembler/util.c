@@ -1,16 +1,21 @@
 /*
     This is a utility file for handling utility functions such as
 
-    1.  Reading files
-    2.  Writing to files
-    3.  Check for comments and remove comments from files
-    4.  Remove white space
+    1.  Reading files       -   done
+    2.  Writing to files    -   done
+    3.  Check for comments and remove comments from files   -   done
+    4.  Remove white space  -   done
 
     references
     -   https://www.geeksforgeeks.org/c-program-to-read-contents-of-whole-file/
     -   https://www.programiz.com/c-programming/c-file-input-output
     -   https://www.thedailyprogrammer.com/2016/02/c-program-to-remove-comments-from-file.html
     -   check man page: 'man fopen' and others to see documentation
+    -   https://linuxhint.com/split-strings-delimiter-c/
+
+
+    Todo: Improve printf by creating a logger or debug wrapper with colour codes, line numbers and different debug cateroies(info, warning, error). All debug to be turned off by
+    changing one variable 
 
 */
 
@@ -23,6 +28,8 @@
 
 
 #define MAX_FILE_SIZE 4096  
+#define BINARY_MAX_BITS 64
+#define WORD_SIZE 16
 #define TEST_NO_COMMENT_TXT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/assembler/test/test_no_comment.txt"
 #define TEST_NO_WHITESPACE_TXT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/assembler/test/test_no_whitespace.txt"
 #define TEST_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/assembler/test/Add.asm"
@@ -37,9 +44,9 @@ void block_comment_handler(FILE* input_file_pointer);           //  handles bloc
 void single_comment_handler(FILE* input_file_pointer);          //  handles single line comments
 void remove_white_spaces(char * input_file, char * output_file, int file_max_size);
 static char * eat_white_space(char *p1);
-
-
-
+void convert_decimal_to_binary(int n, char *binary_result);     //  converts decimal to 16-bit binary number
+void convert_to_string(int n, char* result);                      //  conver integer to string    
+void split_string(char * delimiter, char * source_string, char * dest_string);  
 
 void read_file(char *filename, int max_size)
 {
@@ -292,15 +299,100 @@ static char * eat_white_space(char *p1)
 }
 
 
-int main(int argc, char* argv[])
-{
+void convert_decimal_to_binary(int n, char *binary_result) {
+    char bin_str[BINARY_MAX_BITS] = {0};
+    long long bin = 0;
+    int rem, i = 1, step = 1;
+    while (n != 0) {
+        rem = n % 2;
+        n /= 2;
+        bin += rem * i;
+        i *= 10;
+    }
 
-    remove_comment(TEST_ASM_FILE,TEST_NO_COMMENT_TXT_FILE);                                     // remove comment from .asm file and write to a new text file without comment
-    remove_white_spaces(TEST_NO_COMMENT_TXT_FILE,TEST_NO_WHITESPACE_TXT_FILE,MAX_FILE_SIZE);    //  remove  whitespace from comment file and write to a new text file without whitespace
+    snprintf(bin_str,BINARY_MAX_BITS,"%llu",bin);     //NOTE: this is a simple line of code used to convert a number to a string AKA toString() :)
+
+    //pad the binary string to 16 bits
+
+    int bin_str_count = strlen(bin_str);
+    int pad_number = WORD_SIZE - bin_str_count;
+
+    for (size_t i = 0; i < pad_number; i++)
+    {
+        char zero = '0';
+        strncat(binary_result,&zero,1);
+    }
     
-    
+    int size = BINARY_MAX_BITS - strlen(binary_result) - 1; // maximum size of character to be contatenated to the src
 
-    // read_file_with_multiple_fgetc_calls(TEST_ASM_FILE,MAX_FILE_SIZE);   // this was done to test a query
+    strncat(binary_result,bin_str,size);            //  NOTE: binary_result pointer will be modified by this function 
 
-    return 0;
 }
+
+
+void convert_to_string(int n, char* result){
+
+    if(result == NULL){
+        printf("Initiazlize result ");
+    }
+    snprintf(result,BINARY_MAX_BITS,"%d",n);     
+
+}
+
+/**
+ * @brief: This functions uses a delimeter to split a string 
+*/
+void split_string(char * delimiter, char * source_string, char * dest_string)
+{
+    unsigned count = 0;
+    /* First call to strtok should be done with string and delimiter as first and second parameter*/
+    char *token = strtok(source_string,delimiter);
+    
+    /* Consecutive calls to the strtok should be with first parameter as NULL and second parameter as delimiter
+         * * return value of the strtok will be the split string based on delimiter*/
+    
+    while (token != NULL)
+    {
+        printf("Token no. %d : %s \n", count, token);
+        token = strtok(NULL, delimiter);
+        count++;
+    }
+    
+
+
+}
+
+
+
+/**
+ * @brief: This main function is used  to test the different functions here to ensure they work properly 
+ * Uncomment to test the dictionary data structure here 
+ * 
+*/
+
+// int main(int argc, char* argv[])
+// {
+
+//     remove_comment(TEST_ASM_FILE,TEST_NO_COMMENT_TXT_FILE);                                     // remove comment from .asm file and write to a new text file without comment
+//     remove_white_spaces(TEST_NO_COMMENT_TXT_FILE,TEST_NO_WHITESPACE_TXT_FILE,MAX_FILE_SIZE);    //  remove  whitespace from comment file and write to a new text file without whitespace
+    
+//     char result[WORD_SIZE] = {0};
+//     convert_decimal_to_binary(282,result);
+
+//     printf("Result: %s \n", result);
+
+//     char str[BINARY_MAX_BITS] = {0};
+    
+//     convert_to_string(345669,str);
+
+//     printf("String Value: %s \n", str);
+
+//     char dest_str[MAX_FILE_SIZE] = {0};
+
+//     char src_str[MAX_FILE_SIZE] = "Bob#is studying in Stanford University";
+//     split_string("#",src_str,dest_str);
+
+//     // read_file_with_multiple_fgetc_calls(TEST_ASM_FILE,MAX_FILE_SIZE);   // this was done to test a query
+
+//     return 0;
+// }
