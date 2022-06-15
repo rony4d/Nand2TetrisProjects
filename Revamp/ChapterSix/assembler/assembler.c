@@ -77,7 +77,7 @@ void parse_instruction(char * instruction, int counter);
 */
 void _remove_string(char * delimiter, char * source_string, char * dest_string);
 void _initialize_c_instruction_tables();
-
+void _split_c_instruction(char * source_string, char * dest, char * comp, char * jump);
 
 
 
@@ -274,7 +274,16 @@ int main(int argc, char * argv[])
     _initialize_c_instruction_tables();
     parse_input_file(ADD_ASM_FILE,ADD_NO_COMMENT_OUTPUT_ASM_FILE,ADD_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
-   
+    char dest_str[BINARY_MAX_BITS] = {0};
+    char comp_str[BINARY_MAX_BITS] = {0};
+    char jump_str[BINARY_MAX_BITS] = {0};
+
+    char src_str[BINARY_MAX_BITS] = "M=M+D";
+
+
+   _split_c_instruction(src_str,dest_str,comp_str,jump_str);
+
+   printf("Dest: %s ,Comp: %s , Jump: %s \n",dest_str,comp_str,jump_str);
     return 0;
 }
 
@@ -382,4 +391,113 @@ void _remove_string(char * delimiter, char * source_string, char * dest_string)
     strcpy(dest_string,token);
 
     printf("After split %s \n",dest_string);
+}
+
+
+/**
+ * @internal function
+ * @brief: This function will split the c-instruction into its component fields
+ * 
+ * -    c-instruction generally looks like this dest=comp;jump  . Either dest or jump fields may be empty
+ * 
+ * @note always use original source_string for comparison as strtok() function modifies the string. 
+ * @param source_string: This is the c_instruction we want to process
+ * @param dest_output: This is the variable that holds the return value for dest that will be accessed outside this function
+ * @param comp_output: This is the variable that holds the return value for comp that will be accessed outside this function
+ * @param jump_output: This is the variable that holds the return value for comp that will be accessed outside this function
+*/
+void _split_c_instruction(char * source_string, char * dest_output, char * comp_output, char * jump_output)
+{
+    char source_string_dest_copy[BINARY_MAX_BITS];
+    char source_string_jump_copy[BINARY_MAX_BITS];
+
+    memcpy(source_string_dest_copy,source_string,strlen(source_string)+1);
+    memcpy(source_string_jump_copy,source_string,strlen(source_string)+1);
+
+
+    char * equality_delimiter = "=";
+    char * semi_colon_delimiter = ";";
+
+    
+    char *dest = {0};
+    char *comp = {0};
+    char *jump = {0};
+
+    /*  Solve for dest  */
+    dest = strtok(source_string_dest_copy,equality_delimiter);  //  This should return dest if it exists and should return original string if dest does not exist
+
+    //  if dest == NULL then it means that dest is omitted
+
+    //  if dest != source_string_dest_copy then the next string is our comp instruction. 
+    if(strcmp(dest,source_string) != 0)
+    {
+        
+        comp = strtok(NULL,semi_colon_delimiter);
+    }else
+    {
+        //   if dest is equal then it means dest does not exist and then we set it to empty
+        dest = "";
+    }
+
+
+    /*  Solve for jump  */
+
+    char* jump_preceeding_characters = strtok(source_string_jump_copy,semi_colon_delimiter);  // This should return the characters before ";"
+
+
+    //  if jump_preceeding_characters != source_string_jump_copy then it means jump is omitted but if not, then we need to do one more operation to get jump symbol
+
+    if(strcmp(jump_preceeding_characters,source_string) != 0)
+    {
+        //  if jump_preceeding_characters is not null then the next string is simply the jump symbol and the previous string is the comp symbol
+
+        jump = strtok(NULL, semi_colon_delimiter);
+
+        //   process the jump_preceeding_characters string to get comp symbol by checking if it has a dest in it, if not then whole string is comp
+        //   also check if comp has value, if it does then no need assign value to it again
+        
+
+        char original_jump_preceeding_characters[BINARY_MAX_BITS];  // since we will work on the jump_preceeding_characters, lets create a copy that will not be modified by strtok(), see note above in function description
+        memcpy(original_jump_preceeding_characters,jump_preceeding_characters,strlen(jump_preceeding_characters)+1);    
+
+        //  there must be a comp field so splitting original_jump_preceeding_characters with semi_colon_delimiter will return the comp field
+        //  there can can also be a dest, so if dest is not empty, we know there is a dest, so we remove it
+        if(dest != "" && comp == "")
+        {
+            //  remove dest from jump_preceeding_characters and don't use it for anything
+           strtok(jump_preceeding_characters, equality_delimiter); 
+
+           //   move to the next string which will be the comp 
+           comp = strtok(NULL, jump_preceeding_characters);
+        }
+        if(strcmp(comp,"") == 0)
+        {
+            // no destination exists hence, we get comp from original_jump_preceeding_characters
+
+
+            //   move to the next string which will be the comp 
+            comp =  jump_preceeding_characters;
+        }
+        
+          
+    }
+    else
+    {
+        //   if dest is equal then it means dest does not exist and then we set it to empty
+        jump = "";
+    }
+    
+    
+    /*  Solve for comp if neither dest nor jump exists  */
+
+    //  if dest == "" and jump == "" it means that "=" and ";" do not exist, hence we have only comp instruction
+    if(dest == "" && jump == "" )
+    {
+        strcpy(comp,source_string);
+    }
+    
+
+    strncat(dest_output,dest,BINARY_MAX_BITS);
+    strncat(comp_output,comp,BINARY_MAX_BITS);
+    strncat(jump_output,jump,BINARY_MAX_BITS);
 }

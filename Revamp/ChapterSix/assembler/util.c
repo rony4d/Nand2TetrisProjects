@@ -409,15 +409,15 @@ void split_string(char * delimiter, char * source_string, char * dest_string)
 
 //     char dest_str[MAX_FILE_SIZE] = {0};
 
-//     char src_str[MAX_FILE_SIZE] = "Bob#is studying in Stanford University";
-//     split_string("#",src_str,dest_str);
+//     char src_str[MAX_FILE_SIZE] = "A=D+A;JGT";
+//     split_string(";",src_str,dest_str);
 
 //     char  input_str[MAX_FILE_SIZE] = "123456789";
     
 //     int x = convert_string_to_number(input_str);
 //     printf("%d", x);
 
-//     // read_file_with_multiple_fgetc_calls(TEST_ASM_FILE,MAX_FILE_SIZE);   // this was done to test a query
+//     read_file_with_multiple_fgetc_calls(TEST_ASM_FILE,MAX_FILE_SIZE);   // this was done to test a query
 
 //     return 0;
 // }
