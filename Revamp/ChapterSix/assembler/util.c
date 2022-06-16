@@ -112,8 +112,11 @@ void read_file_with_multiple_fgetc_calls(char *filename, int max_size)
 
 void write_to_file(char* location, char * content)
 {
+    // remove output file if already exists
+    remove(location);
+
     FILE* file_ptr;
-    file_ptr = fopen(location,"ab+");   //  ab+ mode creates a file if it does not exist and also opens it for for reading and writing
+    file_ptr = fopen(location,"w");   
     char str[MAX_FILE_SIZE];
 
     if (file_ptr == NULL)
@@ -122,7 +125,7 @@ void write_to_file(char* location, char * content)
         exit(1);
     }
 
-    fprintf(file_ptr,"%s", content);
+    fprintf(file_ptr,"%s\n", content);
     fclose(file_ptr);
     
 }
@@ -263,7 +266,8 @@ void remove_white_spaces(char * input_file, char * output_file, int file_max_siz
             
             if(strcmp(result,"\0") != 0){             
                 /*  
-                    This if statement check removes completely empty lines. Remove this if statement and see how the output file will look 
+                    This if statement check removes completely empty lines. Remove this if statement and see how the output file will look. 
+                    NOTE: This next line of code always adds an empty line at the end of the file.  
                 */              
                 fprintf(output_file_pointer,"%s\n", result);
             }

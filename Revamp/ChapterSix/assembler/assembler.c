@@ -36,6 +36,7 @@
 #define ADD_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/add/Add.asm"
 #define ADD_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/add/add_no_comment.asm"
 #define ADD_NO_WHITESPACE_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/add/add_no_whitespace.asm"
+#define ADD_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/add/add.hack"
 
 
 
@@ -64,7 +65,7 @@ void label_instruction_handler(char * instruction, int counter);
 */
 
 void generate_a_instruction_binary(char * a_instruction_str);
-void generate_c_instruction_binary(char * c_instruction_str);
+void generate_c_instruction_binary(char * dest, char * comp, char * jump);
 
 
 
@@ -78,7 +79,7 @@ void parse_instruction(char * instruction, int counter);
 void _remove_string(char * delimiter, char * source_string, char * dest_string);
 void _initialize_c_instruction_tables();
 void _split_c_instruction(char * source_string, char * dest, char * comp, char * jump);
-
+void _write_instructions_to_file(char * hack_output_filename);
 
 
 
@@ -139,6 +140,7 @@ void parse_input_file(char * input_asm_file, char * no_comment_output_asm_file, 
     
 }
 
+
 /**
  * @brief To detect instruction type we need to check the following
  * A-Instruction 
@@ -164,7 +166,8 @@ void parse_instruction(char * instruction, int counter)
 }
 
 /**
- * @brief: This handles the a-instruction through the steps below
+ * @brief: This function is under the Parser Module
+ * -    This handles the a-instruction through the steps below
  * -    Convert decimal to binary and store in sub table for a-instruction
  * -    If not decimal, check if it is a pre-defined symbol, check the pre-defined symbol table , get the decimal and store in sub table for a-instruction
  * -    If not a pre-defined symbol, then it is user-defined variable. Add this variable to the user defined variable sub table with its variable counter as key and also add it
@@ -185,9 +188,25 @@ void a_instruction_handler(char * instruction, int counter){
 
 }
 
+/**
+ * @brief: This function is under the Parser Module
+ * -    This function splits the c-instruction into dest, comp and jump symbols and then passes the symbols to the 
+ *      code generation module to produce the binaries
+*/
+
 void c_instruction_handler(char * instruction, int counter){
 
-    // printf("c-instruction: %s at line: %d \n", instruction, counter);
+    char dest_str[BINARY_MAX_BITS] = {0};
+    char comp_str[BINARY_MAX_BITS] = {0};
+    char jump_str[BINARY_MAX_BITS] = {0};
+
+    _split_c_instruction(instruction,dest_str,comp_str,jump_str);
+
+    // printf("Dest: %s ,Comp: %s , Jump: %s \n",dest_str,comp_str,jump_str);
+
+
+    generate_c_instruction_binary(dest_str,comp_str,jump_str);
+
 }
 
 void label_instruction_handler(char * instruction, int counter){
@@ -257,8 +276,62 @@ void generate_a_instruction_binary(char * a_instruction_str){
  * -    to determine the value of a, we need to perform a string operation on the comp function, if it contains M then "a=1" else "a=0"
  * -    once "a" is determined, we can do ahead and build the c-instruction in the format "111accccccdddjjj" then add it to the global instruction dictionary with counter as key
 */
-void generate_c_instruction_binary(char * c_instruction_str)
+void generate_c_instruction_binary(char * dest, char * comp, char * jump)
 {
+
+    if(strcmp(dest,"") == 0)
+        dest = "NULL";
+    if(strcmp(jump,"") == 0)
+        jump = "NULL";  
+
+    
+    eat_white_space(dest);
+    eat_white_space(comp);
+    eat_white_space(jump);
+
+    char *a;
+
+    //  check if comp contains M, if it contains M then "a=1" else "a=0"
+    if(strstr(comp,"M"))
+    {
+        a = "1";
+    }else{
+        a = "0";
+    }
+
+    //  Search the dest_instruction_dictionary
+    const char * dest_binary = DictSearch(dest_instruction_dictionary,dest);
+    
+    
+    //  Search the comp_instruction_dictionary
+    const char* comp_binary = DictSearch(comp_instruction_dictionary,comp);
+
+
+    //  Search the jump_instruction_dictionary
+    const char* jump_binary = DictSearch(jump_instruction_dictionary,jump);
+
+
+    // build c-instruction to look like this 111accccccdddjjj
+
+    char final_c_instruction_binary[BINARY_MAX_BITS] = {0};
+
+    strncat(final_c_instruction_binary,"111",strlen("111"));
+
+    strncat(final_c_instruction_binary,a,strlen(a));
+
+    strncat(final_c_instruction_binary,comp_binary,strlen(comp_binary));
+
+    strncat(final_c_instruction_binary,dest_binary,strlen(dest_binary));
+
+    strncat(final_c_instruction_binary,jump_binary,strlen(jump_binary));
+
+    //  insert into the global instruction dictionary
+
+    char counter_str[BINARY_MAX_BITS] = {0};
+
+    convert_to_string(counter,counter_str);
+
+    DictInsert(instruction_dictionary,counter_str,final_c_instruction_binary);
 
 }
 
@@ -272,18 +345,21 @@ void generate_c_instruction_binary(char * c_instruction_str)
 int main(int argc, char * argv[])
 {
     _initialize_c_instruction_tables();
+
     parse_input_file(ADD_ASM_FILE,ADD_NO_COMMENT_OUTPUT_ASM_FILE,ADD_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
-    char dest_str[BINARY_MAX_BITS] = {0};
-    char comp_str[BINARY_MAX_BITS] = {0};
-    char jump_str[BINARY_MAX_BITS] = {0};
+    _write_instructions_to_file(ADD_HACK_OUTPUT_FILE);
+    
+//     char dest_str[BINARY_MAX_BITS] = {0};
+//     char comp_str[BINARY_MAX_BITS] = {0};
+//     char jump_str[BINARY_MAX_BITS] = {0};
 
-    char src_str[BINARY_MAX_BITS] = "M=M+D";
+//     char src_str[BINARY_MAX_BITS] = "M=M+D";
 
 
-   _split_c_instruction(src_str,dest_str,comp_str,jump_str);
+//    _split_c_instruction(src_str,dest_str,comp_str,jump_str);
 
-   printf("Dest: %s ,Comp: %s , Jump: %s \n",dest_str,comp_str,jump_str);
+//    printf("Dest: %s ,Comp: %s , Jump: %s \n",dest_str,comp_str,jump_str);
     return 0;
 }
 
@@ -500,4 +576,53 @@ void _split_c_instruction(char * source_string, char * dest_output, char * comp_
     strncat(dest_output,dest,BINARY_MAX_BITS);
     strncat(comp_output,comp,BINARY_MAX_BITS);
     strncat(jump_output,jump,BINARY_MAX_BITS);
+}
+
+
+/**
+ * @internal function
+ * @brief   This function marches through the global instruction dictionary using the counter variable as the key in increasing order from 1 
+ *          till max count is reached to generate the .hack file with binary instructions
+ * 
+*/
+void _write_instructions_to_file(char * hack_output_filename){
+
+    int counter_copy = 1;
+    
+     // remove output file if already exists
+    remove(hack_output_filename);
+
+    FILE* file_ptr;
+    file_ptr = fopen(hack_output_filename,"w");   
+    char str[MAX_FILE_SIZE];
+
+    if (file_ptr == NULL)
+    {
+        printf("File not found !!! \n");
+        exit(1);
+    }
+
+    //  counter - 1 because there is always an extra line with empty space added when writing to the previous files ( no_whitespace and no_comment files)
+    while (counter_copy <= counter - 1)
+    {
+
+        char counter_str[BINARY_MAX_BITS] = {0};
+
+        convert_to_string(counter_copy,counter_str);
+
+        const char * binary_result = DictSearch(instruction_dictionary,counter_str);
+
+        if(binary_result != 0){
+
+            //  insert only when a result is returned 
+
+            fprintf(file_ptr,"%s\n", binary_result);
+
+        }
+
+        counter_copy += 1;
+    }
+
+    fclose(file_ptr);
+    
 }
