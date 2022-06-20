@@ -48,7 +48,7 @@ void convert_decimal_to_binary(int n, char *binary_result);     //  converts dec
 void convert_to_string(int n, char* result);                      //  conver integer to string    
 void split_string(char * delimiter, char * source_string, char * dest_string);  
 int convert_string_to_number(char * input_str);
-
+void remove_character(char * str, char char_to_remove);
 
 
 void read_file(char *filename, int max_size)
@@ -305,23 +305,61 @@ static char * eat_white_space(char *p1)
 
 }
 
+// void convert_decimal_to_binary(int n, char *binary_result) {
+//     char bin_str[BINARY_MAX_BITS] = {0};
+//     long long bin = 0;
+//     int rem, i = 1, step = 1;
+//     while (n != 0) {
+//         rem = n % 2;
+//         n /= 2;
+//         bin += rem * i;
+//         i *= 10;
+//     }
+
+//     snprintf(bin_str,BINARY_MAX_BITS,"%llu",bin);
+
+//     //pad the binary string to 16 bits
+
+//     int bin_str_count = strlen(bin_str);
+//     int pad_number = WORD_SIZE - bin_str_count;
+
+//     for (size_t i = 0; i < pad_number; i++)
+//     {
+//         char zero = '0';
+//         strncat(binary_result,&zero,1);
+//     }
+    
+//     int size = sizeof(binary_result) - strlen(binary_result) - 1; // maximum size of character to be contatenated to the src
+
+//     strncat(binary_result,bin_str,size);
+
+// }
 
 void convert_decimal_to_binary(int n, char *binary_result) {
     char bin_str[BINARY_MAX_BITS] = {0};
-    long long bin = 0;
-    int rem, i = 1, step = 1;
-    while (n != 0) {
-        rem = n % 2;
-        n /= 2;
-        bin += rem * i;
-        i *= 10;
-    }
+    char bin_str_rev[BINARY_MAX_BITS] = {0};
+    int i;
+    for(i=0;n>0;i++)    
+    {    
+        int num=n%2;   
+        char num_str[WORD_SIZE]; 
+        n=n/2;
+        convert_to_string(num,num_str);
+        strncat(bin_str, num_str,strlen(num_str));
+    }    
 
-    snprintf(bin_str,BINARY_MAX_BITS,"%llu",bin);     //NOTE: this is a simple line of code used to convert a number to a string AKA toString() :)
+    //reverse bin_str so the binary number will be in the correct order
+    int j = strlen(bin_str) - 1;
+
+    for (i = 0; i < strlen(bin_str); i++)
+    {
+        bin_str_rev[i] = bin_str[j];
+        j--;
+    }
 
     //pad the binary string to 16 bits
 
-    int bin_str_count = strlen(bin_str);
+    int bin_str_count = strlen(bin_str_rev);
     int pad_number = WORD_SIZE - bin_str_count;
 
     for (size_t i = 0; i < pad_number; i++)
@@ -332,7 +370,7 @@ void convert_decimal_to_binary(int n, char *binary_result) {
     
     int size = BINARY_MAX_BITS - strlen(binary_result) - 1; // maximum size of character to be contatenated to the src
 
-    strncat(binary_result,bin_str,size);            //  NOTE: binary_result pointer will be modified by this function 
+    strncat(binary_result,bin_str_rev,size);            //  NOTE: binary_result pointer will be modified by this function 
 
 }
 
@@ -385,8 +423,26 @@ void split_string(char * delimiter, char * source_string, char * dest_string)
 
 
 }
-
-
+/**
+ * @brief: This function removes all occurences of a character from the string
+*/
+void remove_character(char * str, char char_to_remove){
+    int i, j;
+    int len = strlen(str);
+    for(i=0; i<len; i++)
+    {
+        if(str[i] == char_to_remove)
+        {
+            for(j=i; j<len; j++)
+            {
+                str[j] = str[j+1];
+            }
+            len--;
+            i--;
+        }
+    }
+    
+}
 
 /**
  * @brief: This main function is used  to test the different functions here to ensure they work properly 
@@ -400,8 +456,8 @@ void split_string(char * delimiter, char * source_string, char * dest_string)
 //     remove_comment(TEST_ASM_FILE,TEST_NO_COMMENT_TXT_FILE);                                     // remove comment from .asm file and write to a new text file without comment
 //     remove_white_spaces(TEST_NO_COMMENT_TXT_FILE,TEST_NO_WHITESPACE_TXT_FILE,MAX_FILE_SIZE);    //  remove  whitespace from comment file and write to a new text file without whitespace
     
-//     char result[WORD_SIZE] = {0};
-//     convert_decimal_to_binary(282,result);
+//     char result[BINARY_MAX_BITS] = {0};
+//     convert_decimal_to_binary(23,result);
 
 //     printf("Result: %s \n", result);
 
@@ -422,6 +478,13 @@ void split_string(char * delimiter, char * source_string, char * dest_string)
 //     printf("%d", x);
 
 //     read_file_with_multiple_fgetc_calls(TEST_ASM_FILE,MAX_FILE_SIZE);   // this was done to test a query
+
+//     char input_str[BINARY_MAX_BITS] = "(RET_ADDRESS_CALL333)";
+
+//     remove_character(input_str,'(');
+//     remove_character(input_str,')');
+
+//     printf("Input str: %s\n",input_str);
 
 //     return 0;
 // }
