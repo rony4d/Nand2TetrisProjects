@@ -58,7 +58,10 @@
 #define MAX_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/Max.hack"
 
 
-
+#define RECT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/Rect.asm"
+#define RECT_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/Rect_no_comment.asm"
+#define RECT_NO_WHITESPACE_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/Rect_no_whitespace.asm"
+#define RECT_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/Rect.hack"
 
 
 
@@ -515,6 +518,11 @@ void generate_a_instruction_binary(char * a_instruction_str){
                 
                 int variable_occurence_count_int = convert_string_to_number(current_variable_occurence_count_str);
 
+                //  return if no occurences are found, this condition will happen when we have processed the variable in second march
+                if(variable_occurence_count_int == 0)
+                    return;
+
+                
                 while (variable_occurence_count_int >= 1)
                 {
                     
@@ -557,6 +565,10 @@ void generate_a_instruction_binary(char * a_instruction_str){
 
 
                 }
+
+                // After processing this variable delete it from the variable count dictionary 
+                DictDelete(variable_count_dictionary,a_instruction_str);
+                    
                 
             }
             else
@@ -576,6 +588,10 @@ void generate_a_instruction_binary(char * a_instruction_str){
                 //  create a loop and build the variable name format xxx-n for searching the global dictionary. Every other operation from here should happen within this loop
                 
                 int variable_occurence_count_int = convert_string_to_number(current_variable_occurence_count_str);
+                
+                //  return if no occurences are found, this condition will happen when we have processed the variable in second march
+                if(variable_occurence_count_int == 0)
+                    return;
 
                 while (variable_occurence_count_int >= 1)
                 {
@@ -616,7 +632,9 @@ void generate_a_instruction_binary(char * a_instruction_str){
                     variable_occurence_count_int -= 1;
                 }
 
-
+                // After processing this variable delete it from the variable count dictionary 
+                DictDelete(variable_count_dictionary,a_instruction_str);
+                    
                 //  9.  Increase the variable_counter(RAM) by 1
                 variable_counter = variable_counter + 1;
 
@@ -719,6 +737,10 @@ void generate_c_instruction_binary(char * dest, char * comp, char * jump)
 
 
 
+/**
+ * NOTE: Uncomment the parse_input_file function and the _write_instructions_to_file function for the file you want to parse
+*/
+
 int main(int argc, char * argv[])
 {
     //  intialize first march
@@ -736,7 +758,10 @@ int main(int argc, char * argv[])
         
         // parse_input_file(RECTL_ASM_FILE,RECTL_NO_COMMENT_OUTPUT_ASM_FILE,RECTL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
-        parse_input_file(MAX_ASM_FILE,MAX_NO_COMMENT_OUTPUT_ASM_FILE,MAX_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+        // parse_input_file(MAX_ASM_FILE,MAX_NO_COMMENT_OUTPUT_ASM_FILE,MAX_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+
+        // parse_input_file(RECT_ASM_FILE,RECT_NO_COMMENT_OUTPUT_ASM_FILE,RECT_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+
 
         first_march_complete = 1;
 
@@ -752,8 +777,9 @@ int main(int argc, char * argv[])
 
         // parse_input_file(RECTL_ASM_FILE,RECTL_NO_COMMENT_OUTPUT_ASM_FILE,RECTL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
-        parse_input_file(MAX_ASM_FILE,MAX_NO_COMMENT_OUTPUT_ASM_FILE,MAX_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+        // parse_input_file(MAX_ASM_FILE,MAX_NO_COMMENT_OUTPUT_ASM_FILE,MAX_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
+        // parse_input_file(RECT_ASM_FILE,RECT_NO_COMMENT_OUTPUT_ASM_FILE,RECT_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
     }
     
@@ -763,7 +789,9 @@ int main(int argc, char * argv[])
 
     // _write_instructions_to_file(RECTL_HACK_OUTPUT_FILE);
 
-    _write_instructions_to_file(MAX_HACK_OUTPUT_FILE);
+    // _write_instructions_to_file(MAX_HACK_OUTPUT_FILE);
+
+    // _write_instructions_to_file(RECT_HACK_OUTPUT_FILE);
 
     
 //     char dest_str[BINARY_MAX_BITS] = {0};
@@ -866,6 +894,8 @@ void _initialize_c_instruction_tables(){
     DictInsert(predefined_symbol_dictionary,"R13","13");
     DictInsert(predefined_symbol_dictionary,"R14","14");
     DictInsert(predefined_symbol_dictionary,"R15","15");
+    DictInsert(predefined_symbol_dictionary,"SCREEN","16384");
+    DictInsert(predefined_symbol_dictionary,"KBD","24576");
 
 
     instruction_dictionary = DictCreate();
