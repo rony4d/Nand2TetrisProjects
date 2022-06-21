@@ -49,7 +49,7 @@ void convert_to_string(int n, char* result);                      //  conver int
 void split_string(char * delimiter, char * source_string, char * dest_string);  
 int convert_string_to_number(char * input_str);
 void remove_character(char * str, char char_to_remove);
-
+static char * eat_comment(char *p1);
 
 void read_file(char *filename, int max_size)
 {
@@ -131,27 +131,54 @@ void write_to_file(char* location, char * content)
 }
 
 
+// void remove_comment(char* input_filename, char *output_filename){
+
+    
+//     // remove output file if already exists so it does not 
+//     remove(output_filename);
+
+//     FILE* input_file_pointer;
+//     FILE* output_file_pointer;
+//     char c;
+
+//     input_file_pointer = fopen(input_filename,"r");         //  open the input file in read mode
+//     output_file_pointer = fopen(output_filename, "w");     //  open the output file in read-write mode and if file does not exist, create it
+
+//     while ((c=fgetc(input_file_pointer)) && c!= EOF)              //  read the input file character by character
+//     {
+//         check_comment(c,input_file_pointer,output_file_pointer);                                   //  check each character to know if it is the beginning of a comment
+//     }
+    
+//     //  close both the files at the end of the program
+//     fclose(input_file_pointer);
+//     fclose(output_file_pointer);
+// }
+
 void remove_comment(char* input_filename, char *output_filename){
 
+    
     // remove output file if already exists so it does not 
     remove(output_filename);
 
     FILE* input_file_pointer;
     FILE* output_file_pointer;
-    char c;
+    char str[MAX_FILE_SIZE];
 
-    input_file_pointer = fopen(input_filename,"r");         //  open the input file in read mode
-    output_file_pointer = fopen(output_filename, "ab+");     //  open the output file in read-write mode and if file does not exist, create it
+    input_file_pointer = fopen(input_filename,"r");                             //  open the input file in read mode
+    output_file_pointer = fopen(output_filename, "w");                          //  open the output file in read-write mode and if file does not exist, create it
 
-    while ((c=fgetc(input_file_pointer)) && c!= EOF)              //  read the input file character by character
+    while (fgets(str,MAX_FILE_SIZE,input_file_pointer) != NULL)                 //  read the input file character by character
     {
-        check_comment(c,input_file_pointer,output_file_pointer);                                   //  check each character to know if it is the beginning of a comment
+        eat_comment(str);   
+        printf("%s\n",str);    
+        fprintf(output_file_pointer,"%s\n", str);                                                 //  check each character to know if it is the beginning of a comment
     }
-    
+
     //  close both the files at the end of the program
     fclose(input_file_pointer);
     fclose(output_file_pointer);
 }
+
 
 
 void check_comment(char c, FILE* input_file_pointer, FILE* output_file_pointer)
@@ -278,13 +305,15 @@ void remove_white_spaces(char * input_file, char * output_file, int file_max_siz
         fclose(output_file_pointer);
 }
 
-
+/**
+ * @brief This function eats both whitespace and comments
+*/
 static char * eat_white_space(char *p1)
 {
     char *p2, *p3;
 
 	p3 = p1;
-	while ((p2 = strchr(p3,'#')) != 0) {  /* strip the comment */
+	while ((p2 = strchr(p3,'/')) != 0) {  /* strip the comment */
 		/* but allow # to be escaped by \ */
 		if (p2 > p1 && (*(p2 - 1) == '\\')) {
 			p3 = p2 + 1;
@@ -299,6 +328,26 @@ static char * eat_white_space(char *p1)
 	/* strip trailing whitespace */
 	while(p1[0] != '\0' && isspace(p1[strlen(p1)-1]))
 		p1[strlen(p1)-1] = '\0';
+
+    
+	return p1;
+
+}
+
+static char * eat_comment(char *p1)
+{
+    char *p2, *p3;
+
+	p3 = p1;
+	while ((p2 = strchr(p3,'/')) != 0) {  /* strip the comment */
+		/* but allow # to be escaped by \ */
+		if (p2 > p1 && (*(p2 - 1) == '\\')) {
+			p3 = p2 + 1;
+			continue;
+		}
+		*p2 = '\0';
+		break;
+	}
 
     
 	return p1;

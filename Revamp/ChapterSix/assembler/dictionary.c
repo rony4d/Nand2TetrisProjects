@@ -250,7 +250,7 @@ void DictDelete(Dict dictionary, const char* key)
     struct element **prev;
     struct element *element;
 
-    for (prev = &(dictionary->table[hash_function(key)*dictionary->size]); *prev != 0; prev = &((*prev)->next))
+    for (prev = &(dictionary->table[hash_function(key)%dictionary->size]); *prev != 0; prev = &((*prev)->next))
     {
         if (!strcmp((*prev)->key,key))
         {

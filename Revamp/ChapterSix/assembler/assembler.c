@@ -52,10 +52,10 @@
 #define RECTL_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/RectL.hack"
 
 // Symbol ASM Files Below
-#define MAX_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/MaxL.asm"
-#define MAX_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/MaxL_no_comment.asm"
-#define MAX_NO_WHITESPACE_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/MaxL_no_whitespace.asm"
-#define MAX_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/MaxL.hack"
+#define MAX_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/Max.asm"
+#define MAX_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/Max_no_comment.asm"
+#define MAX_NO_WHITESPACE_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/Max_no_whitespace.asm"
+#define MAX_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/Max.hack"
 
 
 
@@ -275,10 +275,12 @@ void c_instruction_handler(char * instruction, int counter){
  * -    Steps
  * -    remove the () characters
  * -    take out the symbol name (xxx)
- * -    take the Next counter number which is the next ROM address and use it as key and the xxx symbol as value and insert into the  label_instruction_dictionary
+ * -    take the counter number which is the next ROM address and use it as value and the xxx symbol as Key and insert into the  label_instruction_dictionary
  * -    this key value pair will be used in the second pass of the variable handler.
  * -    NOTE: we will not increase counter here as this is not an instruction
+ * -    NOTE: (xxx) can only appear once in a code file but the @xxx call can appear multiple times. 
  * 
+ *      
 */
 void label_instruction_handler(char * instruction, int counter){
 
@@ -286,16 +288,20 @@ void label_instruction_handler(char * instruction, int counter){
     remove_character(instruction,'(');
     remove_character(instruction,')');
 
-    //  take the Next counter number which is the next ROM address and use it as key and the xxx symbol as value
+    //  take the counter number which is the next ROM address and use it as value and the xxx symbol as key
+    //  we are taking this counter address because the next instruction will have the same ROM address so we need to be sure that this label points to the same ROM address hence the instruction in that address
 
-    int next_rom_address = counter + 1;
+    int next_rom_address = counter ;
     char next_rom_address_str[BINARY_MAX_BITS] = {0};
 
-    convert_to_string(next_rom_address_str,next_rom_address);
+    convert_to_string(next_rom_address,next_rom_address_str);
 
-    //  next ROM address as key and the instruction xxx as the value. We will access this later in the second march during variable reading
-    DictInsert(label_instruction_dictionary,next_rom_address_str,instruction);
+    eat_white_space(instruction);
 
+    //  next ROM address as value and the instruction xxx as the key. we are not afraid of duplicate label instruction (xxx) because it can only appear once in a code file.
+    //  We will access this later in the second march during variable reading
+    DictInsert(label_instruction_dictionary,instruction,next_rom_address_str);
+    
 
 }
 
@@ -384,7 +390,10 @@ void generate_a_instruction_binary(char * a_instruction_str){
 
         /*  if first march
 
-            NOTE: In the first march, all we have to do is to track the counter(ROM address) of the @xxx variables so we can easily use the counter in the second march
+            NOTE:   In the first march, all we have to do is to track the counter(ROM address) of the @xxx variables so we can easily use the counter in the second march. We should also NOTE that this @xxx variable
+                    can be a label. for example @xxx can come before (xxx) in the code file. This means if the label comes after the @xxx variable, we will neeed to handle it during label instruction
+                    handling
+
             -   A.  Take variable of @xxx format and then store the counter variable in the global instruction dictionary with xxx as key and counter variable as value and increase counter variable by 1
             -   B.  In the second march we will search the global instruction dictionary by key and get the value, then use the value to replace the key and then get the actual value from second march operation below
             -       It will look like this:         swap key<->value and then determine value from second march operation below. See details below
@@ -402,28 +411,32 @@ void generate_a_instruction_binary(char * a_instruction_str){
 
         if (first_march_complete == 0)
         {
+            
             //  A.  Take variable of @Xxx format and then store the counter variable in the global instruction dictionary with xxx as key and counter variable as value and increase counter variable by 1
-
-          
 
             //  1.  Create a dictionary that tracks variables and the number of times they occur, so key is variable name and value is the number of times it occurs
 
             //  Get the current variable count, if it does not exist, it should return 0. So it means the first search will always return 0
-            char* variable_count_str = DictSearch(variable_count_dictionary,a_instruction_str);
+            const char* current_variable_occurence_count_str = DictSearch(variable_count_dictionary,a_instruction_str);
 
             //  convert this variable_count to int, increase it and convert back to string
 
-            int variable_count_int =  convert_string_to_number(variable_count_str);
+            int current_variable_occurence_count_int =  convert_string_to_number(current_variable_occurence_count_str);
 
-            variable_count_int = variable_count_int + 1;
+            current_variable_occurence_count_int = current_variable_occurence_count_int + 1;
 
-            convert_to_string(variable_count_int,variable_count_str);        
+            char variable_occurence_count_str[BINARY_MAX_BITS] = {0};
+
+            convert_to_string(current_variable_occurence_count_int,variable_occurence_count_str);        
 
             //  delete the existing entry of this variable on the variable_count_dictionary and add a new entry with the updated count
 
-            DictDelete(variable_count_dictionary,a_instruction_str);
+            if(current_variable_occurence_count_int > 1)
+            {
+                DictDelete(variable_count_dictionary,a_instruction_str);
+            }
 
-            DictInsert(variable_count_dictionary,a_instruction_str,variable_count_str);
+            DictInsert(variable_count_dictionary,a_instruction_str,variable_occurence_count_str);
 
 
 
@@ -438,7 +451,7 @@ void generate_a_instruction_binary(char * a_instruction_str){
             
             strncat(variable_name_format,"-",strlen("-"));
 
-            strncat(variable_name_format,variable_count_str,strlen(variable_count_str));
+            strncat(variable_name_format,variable_occurence_count_str,strlen(variable_occurence_count_str));
 
 
             char counter_str[BINARY_MAX_BITS] = {0};
@@ -480,10 +493,10 @@ void generate_a_instruction_binary(char * a_instruction_str){
             //  1. Get the variable a_instruction_str
 
             //  2.  Search the label dictionary to know if it is a label
-            char * label = DictSearch(label_instruction_dictionary,a_instruction_str);
+            const char * label_ROM_address_decimal = DictSearch(label_instruction_dictionary,a_instruction_str);
 
             //
-            if(label != 0)
+            if(label_ROM_address_decimal != 0)
             {
                 //  it is  a label instruction, hence let's handle label operation for second march
 
@@ -496,15 +509,17 @@ void generate_a_instruction_binary(char * a_instruction_str){
 
                 //  Get the current variable_occurence_count_str from variable_count_dictionary to know how many times this variable occured in the code file
 
-                char* variable_occurence_count_str = DictSearch(variable_count_dictionary,a_instruction_str);
+                const char* current_variable_occurence_count_str = DictSearch(variable_count_dictionary,a_instruction_str);
 
                 //  create a loop and build the variable name format xxx-n for searching the global dictionary. Every other operation from here should happen within this loop
                 
-                int variable_occurence_count_int = convert_string_to_number(variable_occurence_count_str);
+                int variable_occurence_count_int = convert_string_to_number(current_variable_occurence_count_str);
 
                 while (variable_occurence_count_int >= 1)
                 {
                     
+                    char variable_occurence_count_str[BINARY_MAX_BITS] = {0};
+
                     convert_to_string(variable_occurence_count_int,variable_occurence_count_str);
 
                     //  create xxx-n format variable name
@@ -517,13 +532,9 @@ void generate_a_instruction_binary(char * a_instruction_str){
 
                     strncat(variable_name_format,variable_occurence_count_str,strlen(variable_occurence_count_str)); 
 
-
-
-                    char * label_instruction_ROM_decimal_value_str = DictSearch(label_instruction_dictionary,variable_name_format);
-
                     
-                    //  convert decimal to binary
-                    int label_instruction_ROM_decimal_value = convert_string_to_number(label_instruction_ROM_decimal_value_str);
+                    //  convert label decimal to binary
+                    int label_instruction_ROM_decimal_value = convert_string_to_number(label_ROM_address_decimal);
 
                     char binary_result[BINARY_MAX_BITS] = {0};
 
@@ -531,15 +542,16 @@ void generate_a_instruction_binary(char * a_instruction_str){
 
                     //  4. Search the global instruction dictionary by key(which is the variable), then swap the key with the value and then use the value we got from the label_instruction_dictionary as value. 
                 
+                    //  NOTE: the variable here is the @xxx which is where the label is called,that is why we need replace all occurences of @xxx with binary value of the label ROM address which is binary_result above
+
 
                     char * variable_counter_ROM_address_str = DictSearch(instruction_dictionary,variable_name_format);
                     
                     //  To modify the current dictionary element, we will just delete the temporary holder and then add a new element with the binary_result from second march value
 
+                    DictInsert(instruction_dictionary,variable_counter_ROM_address_str,binary_result);
 
                     DictDelete(instruction_dictionary,variable_name_format);
-
-                    DictInsert(instruction_dictionary,variable_counter_ROM_address_str,binary_result);
 
                     variable_occurence_count_int -= 1;
 
@@ -559,14 +571,16 @@ void generate_a_instruction_binary(char * a_instruction_str){
 
                 //  Get the current variable_occurence_count_str from variable_count_dictionary to know how many times this variable occured in the code file
 
-                char * variable_occurence_count_str = DictSearch(variable_count_dictionary,a_instruction_str);
+                const char* current_variable_occurence_count_str  = DictSearch(variable_count_dictionary,a_instruction_str);
 
                 //  create a loop and build the variable name format xxx-n for searching the global dictionary. Every other operation from here should happen within this loop
                 
-                int variable_occurence_count_int = convert_string_to_number(variable_occurence_count_str);
+                int variable_occurence_count_int = convert_string_to_number(current_variable_occurence_count_str);
 
                 while (variable_occurence_count_int >= 1)
                 {
+
+                    char variable_occurence_count_str[BINARY_MAX_BITS] = {0};
 
                     convert_to_string(variable_occurence_count_int,variable_occurence_count_str);
 
@@ -581,7 +595,7 @@ void generate_a_instruction_binary(char * a_instruction_str){
                     strncat(variable_name_format,variable_occurence_count_str,strlen(variable_occurence_count_str)); 
 
                     
-                    char * variable_counter_ROM_address_str = DictSearch(instruction_dictionary,variable_name_format);
+                    const char * variable_counter_ROM_address_str = DictSearch(instruction_dictionary,variable_name_format);
 
 
                     //  7.  Since this is a user-defined variable, we need to get the current variable_counter value and this value will be converted to binary 
@@ -593,15 +607,14 @@ void generate_a_instruction_binary(char * a_instruction_str){
 
                     //  8.  We will modify the global instruction dictionary by deleting the temporary holder and then we will add a new element with the variable_counter_ROM_address_str as key and variable_counter binary as value
 
+                    DictInsert(instruction_dictionary,variable_counter_ROM_address_str,binary_result);
 
                     DictDelete(instruction_dictionary,variable_name_format);
 
-                    DictInsert(instruction_dictionary,variable_counter_ROM_address_str,binary_result);
 
                     
                     variable_occurence_count_int -= 1;
                 }
-
 
 
                 //  9.  Increase the variable_counter(RAM) by 1
@@ -717,11 +730,13 @@ int main(int argc, char * argv[])
     {
         /* if first march has not been completed, then start first march */
 
-        // parse_input_file(MAX_ASM_FILE,MAX_NO_COMMENT_OUTPUT_ASM_FILE,MAX_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+        // parse_input_file(ADD_ASM_FILE,ADD_NO_COMMENT_OUTPUT_ASM_FILE,ADD_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
         // parse_input_file(MAXL_ASM_FILE,MAXL_NO_COMMENT_OUTPUT_ASM_FILE,MAXL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
         
-        parse_input_file(RECTL_ASM_FILE,RECTL_NO_COMMENT_OUTPUT_ASM_FILE,RECTL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+        // parse_input_file(RECTL_ASM_FILE,RECTL_NO_COMMENT_OUTPUT_ASM_FILE,RECTL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+
+        parse_input_file(MAX_ASM_FILE,MAX_NO_COMMENT_OUTPUT_ASM_FILE,MAX_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
         first_march_complete = 1;
 
@@ -731,11 +746,13 @@ int main(int argc, char * argv[])
     {
         /* if the first march is complete and the second march has not started, then start second march */
 
-        // parse_input_file(MAX_ASM_FILE,MAX_NO_COMMENT_OUTPUT_ASM_FILE,MAX_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+        // parse_input_file(ADD_ASM_FILE,ADD_NO_COMMENT_OUTPUT_ASM_FILE,ADD_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
         
         // parse_input_file(MAXL_ASM_FILE,MAXL_NO_COMMENT_OUTPUT_ASM_FILE,MAXL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
-        parse_input_file(RECTL_ASM_FILE,RECTL_NO_COMMENT_OUTPUT_ASM_FILE,RECTL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+        // parse_input_file(RECTL_ASM_FILE,RECTL_NO_COMMENT_OUTPUT_ASM_FILE,RECTL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+
+        parse_input_file(MAX_ASM_FILE,MAX_NO_COMMENT_OUTPUT_ASM_FILE,MAX_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
 
     }
@@ -744,7 +761,10 @@ int main(int argc, char * argv[])
 
     // _write_instructions_to_file(MAXL_HACK_OUTPUT_FILE);
 
-    _write_instructions_to_file(RECTL_HACK_OUTPUT_FILE);
+    // _write_instructions_to_file(RECTL_HACK_OUTPUT_FILE);
+
+    _write_instructions_to_file(MAX_HACK_OUTPUT_FILE);
+
     
 //     char dest_str[BINARY_MAX_BITS] = {0};
 //     char comp_str[BINARY_MAX_BITS] = {0};
@@ -1039,6 +1059,8 @@ void _write_instructions_to_file(char * hack_output_filename){
 int _is_predefined_symbol(char* instruction){
 
     //  remove the @ symbol and then check if it exists in the predefined_symbol_dictionary
+    eat_white_space(instruction);
+
     char* a_instruction = strtok(instruction,"@");
 
     const char* result = DictSearch(predefined_symbol_dictionary,a_instruction);
