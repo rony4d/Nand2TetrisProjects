@@ -146,7 +146,7 @@ static void grow(Dict dictionary)
     int i;
     struct element* element;
 
-    dictionary_new = internalDictCreate(dictionary_new->size * GROWTH_FACTOR);
+    dictionary_new = internalDictCreate(dictionary->size * GROWTH_FACTOR);
 
     for (i = 0; i < dictionary->size; i++)
     {

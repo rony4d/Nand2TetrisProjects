@@ -170,7 +170,6 @@ void remove_comment(char* input_filename, char *output_filename){
     while (fgets(str,MAX_FILE_SIZE,input_file_pointer) != NULL)                 //  read the input file character by character
     {
         eat_comment(str);   
-        printf("%s\n",str);    
         fprintf(output_file_pointer,"%s\n", str);                                                 //  check each character to know if it is the beginning of a comment
     }
 
@@ -283,7 +282,6 @@ void remove_white_spaces(char * input_file, char * output_file, int file_max_siz
             exit(1);
         }
         
-        printf("Content below has no spaces!!! \n");
         //  read file line by line
         while (fgets(str,file_max_size,input_file_pointer) != NULL)    
         {
@@ -306,7 +304,8 @@ void remove_white_spaces(char * input_file, char * output_file, int file_max_siz
 }
 
 /**
- * @brief This function eats both whitespace and comments
+ * @brief This function eats both whitespace and comments. It removes trailing or leading whitespaces in each line
+ *          
 */
 static char * eat_white_space(char *p1)
 {

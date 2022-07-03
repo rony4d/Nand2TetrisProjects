@@ -51,6 +51,12 @@
 #define RECTL_NO_WHITESPACE_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/RectL_no_whitespace.asm"
 #define RECTL_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/RectL.hack"
 
+
+#define PONGL_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/pong/PongL.asm"
+#define PONGL_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/pong/PongL_no_comment.asm"
+#define PONGL_NO_WHITESPACE_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/pong/PongL_no_whitespace.asm"
+#define PONGL_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/pong/PongL.hack"
+
 // Symbol ASM Files Below
 #define MAX_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/Max.asm"
 #define MAX_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/max/Max_no_comment.asm"
@@ -62,6 +68,11 @@
 #define RECT_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/Rect_no_comment.asm"
 #define RECT_NO_WHITESPACE_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/Rect_no_whitespace.asm"
 #define RECT_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/rect/Rect.hack"
+
+#define PONG_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/pong/Pong.asm"
+#define PONG_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/pong/Pong_no_comment.asm"
+#define PONG_NO_WHITESPACE_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/pong/Pong_no_whitespace.asm"
+#define PONG_HACK_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/pong/Pong.hack"
 
 
 
@@ -762,6 +773,10 @@ int main(int argc, char * argv[])
 
         // parse_input_file(RECT_ASM_FILE,RECT_NO_COMMENT_OUTPUT_ASM_FILE,RECT_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
+        // parse_input_file(PONGL_ASM_FILE,PONGL_NO_COMMENT_OUTPUT_ASM_FILE,PONGL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+
+        parse_input_file(PONG_ASM_FILE,PONG_NO_COMMENT_OUTPUT_ASM_FILE,PONG_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+
 
         first_march_complete = 1;
 
@@ -781,6 +796,10 @@ int main(int argc, char * argv[])
 
         // parse_input_file(RECT_ASM_FILE,RECT_NO_COMMENT_OUTPUT_ASM_FILE,RECT_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
 
+        // parse_input_file(PONGL_ASM_FILE,PONGL_NO_COMMENT_OUTPUT_ASM_FILE,PONGL_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+
+        parse_input_file(PONG_ASM_FILE,PONG_NO_COMMENT_OUTPUT_ASM_FILE,PONG_NO_WHITESPACE_OUTPUT_ASM_FILE,MAX_FILE_SIZE);
+
     }
     
     // _write_instructions_to_file(ADD_HACK_OUTPUT_FILE);
@@ -793,7 +812,10 @@ int main(int argc, char * argv[])
 
     // _write_instructions_to_file(RECT_HACK_OUTPUT_FILE);
 
-    
+    // _write_instructions_to_file(PONGL_HACK_OUTPUT_FILE);
+
+    _write_instructions_to_file(PONG_HACK_OUTPUT_FILE);
+
 //     char dest_str[BINARY_MAX_BITS] = {0};
 //     char comp_str[BINARY_MAX_BITS] = {0};
 //     char jump_str[BINARY_MAX_BITS] = {0};

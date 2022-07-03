@@ -118,3 +118,8 @@ creating the final design. Implementing the HDL was really easy and ran once.
 02/06/2022
 
 -   Chpater 6: Assember. Chapter 6 is purely software and requires refreshing knowledge of c-programming language whihc is the language I will use in implementing the assembler
+
+21/06/2022
+
+-   Chpater 6:  Completed the Assember program and fully tested all the correctness of the result using the binary comparison feature in the assembler. 
+-               ToDo: I need to do a step by step pseudo code based algorithm that can easily be translated into code in any language to enable future implmentations. 
