@@ -103,6 +103,9 @@ void a_instruction_handler(char * instruction, int counter);
 void c_instruction_handler(char * instruction, int counter);
 void label_instruction_handler(char * instruction, int counter);
 
+void parse_input_file(char * input_asm_file, char * no_comment_output_asm_file, char * no_whitespace_output_asm_file, int max_file_zie);
+void parse_instruction(char * instruction, int counter);
+
 /**
  * Code Module Function Initializations
 */
@@ -112,8 +115,7 @@ void generate_c_instruction_binary(char * dest, char * comp, char * jump);
 
 
 
-void parse_input_file(char * input_asm_file, char * no_comment_output_asm_file, char * no_whitespace_output_asm_file, int max_file_zie);
-void parse_instruction(char * instruction, int counter);
+
 
 
 /**
