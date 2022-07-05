@@ -49,7 +49,7 @@ M=D
 @SP
 M=M+1
 
-//  lt ( if first operand is greater than second operand, return -1 which is true for the VM language and 0 which is 0 )
+//  gt ( if first operand is greater than second operand, return -1 which is true for the VM language and 0 which is 0 )
 
 @SP
 M=M-1

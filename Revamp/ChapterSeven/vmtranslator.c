@@ -33,6 +33,12 @@
 #define SIMPLE_ADD_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/SimpleAdd/SimpleAdd_no_whitespace.vm"
 #define SIMPLE_ADD_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/SimpleAdd/SimpleAdd.asm"
 
+#define STACK_TEST_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest.vm"
+#define STACK_TEST_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest_no_comment.vm"
+#define STACK_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest_no_whitespace.vm"
+#define STACK_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest.asm"
+
+
 //  Stack Arithmetic Commands
 #define ADD_COMMAND "add"
 #define SUB_COMMAND "sub"
@@ -181,35 +187,36 @@ void parse_vm_command(char * vm_command)
     }
     else if(strncmp(command_type,SUB_COMMAND,sizeof(SUB_COMMAND)) == 0)
     {
-
+        generate_sub_asm_command();
     }
     else if(strncmp(command_type,NEG_COMMAND,sizeof(NEG_COMMAND)) == 0)
     {
-
+        generate_neg_asm_command();
     }
     else if(strncmp(command_type,EQ_COMMAND,sizeof(EQ_COMMAND)) == 0)
     {
-
+        generate_eq_asm_command();
     }
     else if(strncmp(command_type,GT_COMMAND,sizeof(GT_COMMAND)) == 0)
     {
-
+        generate_gt_asm_command();
     }
     else if(strncmp(command_type,LT_COMMAND,sizeof(LT_COMMAND)) == 0)
     {
-
+        generate_lt_asm_command();
     }
     else if(strncmp(command_type,AND_COMMAND,sizeof(AND_COMMAND)) == 0)
     {
-
+        generate_and_asm_command();
     }
     else if(strncmp(command_type,OR_COMMAND,sizeof(OR_COMMAND)) == 0)
     {
-
+        generate_or_asm_command();
     }
-    else if(strncmp(command_type,SUB_COMMAND,sizeof(SUB_COMMAND)) == 0)
-    {
 
+    else if(strncmp(command_type,NOT_COMMAND,sizeof(NOT_COMMAND)) == 0)
+    {
+        generate_not_asm_command();
     }
     else if(strncmp(command_type,PUSH_COMMAND,sizeof(PUSH_COMMAND)) == 0)
     {
@@ -1299,6 +1306,21 @@ void generate_or_asm_command()
     counter = counter + 1;
 
     convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
     DictInsert(global_asm_dictionary,counter_str,"M=M+1");
 
     counter = counter + 1;
@@ -1583,7 +1605,7 @@ void _make_label_variable_unique(char * label_variable, char * unique_label_vari
     strncat(unique_label,"(",strlen("("));
     strncat(unique_label,label_variable,strlen(label_variable));
     strncat(unique_label,"_",strlen("_"));
-    strncat(unique_label_variable,counter_str,strlen(counter_str));
+    strncat(unique_label,counter_str,strlen(counter_str));
     strncat(unique_label,")",strlen(")"));
 
 
@@ -1598,9 +1620,15 @@ int main(int argc, char * argv[])
     _initialize_asm_command_tables();
 
     //  Simple Add
-    parse_input_file(SIMPLE_ADD_VM_FILE,SIMPLE_ADD_NO_COMMENT_OUTPUT_ASM_FILE,SIMPLE_ADD_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(SIMPLE_ADD_VM_FILE,SIMPLE_ADD_NO_COMMENT_OUTPUT_ASM_FILE,SIMPLE_ADD_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
 
-    _write_instructions_to_file(SIMPLE_ADD_ASM_OUTPUT_FILE);
+    // _write_instructions_to_file(SIMPLE_ADD_ASM_OUTPUT_FILE);
+
+
+    //  Stack Test
+    parse_input_file(STACK_TEST_VM_FILE,STACK_TEST_NO_COMMENT_OUTPUT_ASM_FILE,STACK_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+
+    _write_instructions_to_file(STACK_TEST_ASM_OUTPUT_FILE);
 
 
 
