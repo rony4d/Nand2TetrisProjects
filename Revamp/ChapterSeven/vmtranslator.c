@@ -69,7 +69,7 @@ Dict global_asm_dictionary;             //  this dictionary holds all the asm co
 //  Internal function declarations
 void _initialize_asm_command_tables();
 void _write_instructions_to_file(char * asm_output_filename);
-
+void _make_label_variable_unique(char * label_variable, char * unique_label_variable, char * unique_label, int _counter);
 
 /**
  * Parser Module Function Initializations
@@ -85,6 +85,15 @@ void parse_push_command(char *memory_segment,int i);    //  Recall: General comm
  * Code Module Function Initializations
 */
 void generate_add_asm_command();
+void generate_eq_asm_command();
+void generate_and_asm_command();
+void generate_gt_asm_command();
+void generate_lt_asm_command();
+void generate_neg_asm_command();
+void generate_not_asm_command();
+void generate_or_asm_command();
+void generate_sub_asm_command();
+
 void generate_constant_segment_asm_code(int constant_value);
 
 /**
@@ -360,6 +369,1031 @@ void generate_add_asm_command()
     counter = counter + 1;
 }
 
+void generate_eq_asm_command()
+{
+    
+    //  eq ( if operands are equal, return -1 which is true for the VM language and 0 which is 0 )
+
+    // @SP
+    // M=M-1
+
+    // A=M
+    // D=M
+
+    // @SP
+    // M=M-1
+
+    // A=M
+    // D=D-M
+
+
+    // @EQUAL
+    // D;JEQ
+
+    // @NOT_EQUAL
+    // D;JNE
+
+
+    // (EQUAL)
+    // @SP
+    // A=M
+    // M=-1
+    // @INCREMENT_SP
+    // 0;JMP
+
+
+
+    // (NOT_EQUAL)
+    // @SP
+    // A=M
+    // M=0
+    // @INCREMENT_SP
+    // 0;JMP
+
+
+    // (INCREMENT_SP)  //  Jump here after either Equal or Not Equal is processed to finish the code block
+
+    // @SP
+    // M=M+1
+
+
+    //   Ensure all user defined variables are unique in this code block to prevent conflict in the general codebase
+
+    char unique_label_variable_equal[BINARY_MAX_BITS] = {0}; 
+    char unique_label_equal[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("EQUAL",unique_label_variable_equal,unique_label_equal,counter);
+
+    char unique_label_variable_notequal[BINARY_MAX_BITS] = {0}; 
+    char unique_label_notequal[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("NOT_EQUAL",unique_label_variable_notequal,unique_label_notequal,counter);
+
+
+    char unique_label_variable_increment_sp[BINARY_MAX_BITS] = {0}; 
+    char unique_label_increment_sp[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("INCREMENT_SP",unique_label_variable_increment_sp,unique_label_increment_sp,counter);
+
+
+    char counter_str[BINARY_MAX_BITS] = {0}; 
+    convert_to_string(counter,counter_str);
+
+
+
+
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=D-M");
+
+    counter = counter + 1;
+
+
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_equal);    // (@EQUAL)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D;JEQ");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_notequal);   //  @NOT_EQUAL
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D;JNE");
+
+    counter = counter + 1;
+ 
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_equal); //  (EQUAL)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=-1");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_increment_sp);       //  @INCREMENT_SP
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_notequal);                    //  (NOT_EQUAL)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=0");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_increment_sp);       //  @INCREMENT_SP
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_increment_sp);                //  (INCREMENT_SP)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+
+    counter = counter + 1;
+}
+
+void generate_and_asm_command()
+{
+    //  and
+
+    // @SP
+    // M=M-1
+    // A=M
+    // D=M     //  operand two
+    // @SP
+    // M=M-1
+    // A=M
+    // D=D&M   //  operand one & operand two. Refer to Chapter 4 lecture note or text to see the table
+
+    // @SP
+    // A=M
+    // M=D
+
+
+    // @SP
+    // M=M+1
+
+    char counter_str[BINARY_MAX_BITS] = {0}; 
+    convert_to_string(counter,counter_str);
+
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=D&M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+
+    counter = counter + 1;
+
+
+}
+
+void generate_gt_asm_command()
+{
+    //  gt ( if first operand is greater than second operand, return -1 which is true for the VM language and 0 which is 0 )
+
+    // @SP
+    // M=M-1
+
+    // A=M
+    // D=M     //  second operand
+
+    // @SP
+    // M=M-1
+
+    // A=M
+    // D=M-D   //  first operand minus second operand 
+
+
+    // @GREATER_THAN      //  if first operand minus second operand is greater than zero, then gt is satisfied
+    // D;JGT
+
+    // @NOT_GREATER_THAN  //  if first operand minus second operand is less than zero or equal to zero, then gt is not satisfied
+    // D;JLE
+
+
+    // (GREATER_THAN)
+    // @SP
+    // A=M
+    // M=-1
+    // @INCREMENT_SP
+    // 0;JMP
+
+
+
+    // (NOT_GREATER_THAN)
+    // @SP
+    // A=M
+    // M=0
+    // @INCREMENT_SP
+    // 0;JMP
+
+
+    // (INCREMENT_SP)  //  Jump here after either Greater Than or Not Greater Than is processed to finish the code block
+
+    // @SP
+    // M=M+1
+
+
+
+    //   Ensure all user defined variables are unique in this code block to prevent conflict in the general codebase
+
+    char unique_label_variable_greater_than[BINARY_MAX_BITS] = {0}; 
+    char unique_label_greater_than[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("GREATER_THAN",unique_label_variable_greater_than,unique_label_greater_than,counter);
+
+    char unique_label_variable_not_greater_than[BINARY_MAX_BITS] = {0}; 
+    char unique_label_not_greater_than[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("NOT_GREATER_THAN",unique_label_variable_not_greater_than,unique_label_not_greater_than,counter);
+
+
+    char unique_label_variable_increment_sp[BINARY_MAX_BITS] = {0}; 
+    char unique_label_increment_sp[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("INCREMENT_SP",unique_label_variable_increment_sp,unique_label_increment_sp,counter);
+
+
+    char counter_str[BINARY_MAX_BITS] = {0}; 
+    convert_to_string(counter,counter_str);
+
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_greater_than);      //  @GREATER_THAN
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D;JGT");
+
+    counter = counter + 1;
+
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_not_greater_than);  //  @NOT_GREATER_THAN
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D;JLE");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_greater_than);     //  (GREATER_THAN)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=-1");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_increment_sp);      //  @INCREMENT_SP
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");
+
+    counter = counter + 1;
+
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_not_greater_than);     //  (NOT_GREATER_THAN)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=0");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_increment_sp);      //  @INCREMENT_SP
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_increment_sp);     //  (INCREMENT_SP)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+
+    counter = counter + 1;
+
+}
+
+void generate_lt_asm_command()
+{
+
+    //  lt ( if first operand is less than second operand, return -1 which is true for the VM language and 0 which is 0 )
+
+    // @SP
+    // M=M-1
+
+    // A=M
+    // D=M     //  second operand
+
+    // @SP
+    // M=M-1
+
+    // A=M
+    // D=M-D   //  first operand minus second operand 
+
+
+    // @LESS_THAN      //  if first operand minus second operand is less than zero, then lt is satisfied
+    // D;JLT
+
+    // @NOT_LESS_THAN  //  if first operand minus second operand is greater than zero or equal to zero, then lt is not satisfied
+    // D;JGE
+
+
+    // (LESS_THAN)
+    // @SP
+    // A=M
+    // M=-1
+    // @INCREMENT_SP
+    // 0;JMP
+
+
+
+    // (NOT_LESS_THAN)
+    // @SP
+    // A=M
+    // M=0
+    // @INCREMENT_SP
+    // 0;JMP
+
+
+    // (INCREMENT_SP)  //  Jump here after either Less Than or Not Less Than is processed to finish the code block
+
+    // @SP
+    // M=M+1
+
+
+    //   Ensure all user defined variables are unique in this code block to prevent conflict in the general codebase
+
+    char unique_label_variable_less_than[BINARY_MAX_BITS] = {0}; 
+    char unique_label_less_than[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("LESS_THAN",unique_label_variable_less_than,unique_label_less_than,counter);
+
+    char unique_label_variable_not_less_than[BINARY_MAX_BITS] = {0}; 
+    char unique_label_not_less_than[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("NOT_LESS_THAN",unique_label_variable_not_less_than,unique_label_not_less_than,counter);
+
+
+    char unique_label_variable_increment_sp[BINARY_MAX_BITS] = {0}; 
+    char unique_label_increment_sp[BINARY_MAX_BITS] = {0};
+
+    _make_label_variable_unique("INCREMENT_SP",unique_label_variable_increment_sp,unique_label_increment_sp,counter);
+
+
+    char counter_str[BINARY_MAX_BITS] = {0}; 
+    convert_to_string(counter,counter_str);
+
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_less_than);     //  @LESS_THAN
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D;JLT");
+
+    counter = counter + 1;
+
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_not_less_than);     //  @NOT_LESS_THAN
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D;JGE");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_less_than);        //  (LESS_THAN)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=-1");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_increment_sp);          //  @INCREMENT_SP"
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");
+
+    counter = counter + 1;
+
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_not_less_than);        //  (NOT_LESS_THAN)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=0");
+
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_variable_increment_sp);          //  @INCREMENT_SP
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,unique_label_increment_sp);         //  (INCREMENT_SP)
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+
+    counter = counter + 1;
+
+}
+
+void generate_neg_asm_command()
+{
+    //  neg
+
+    // @SP
+    // M=M-1
+    // A=M
+    // M=-M    //  negate the value stored in RAM[A]
+
+
+    // @SP
+    // M=M+1
+
+    char counter_str[BINARY_MAX_BITS] = {0}; 
+    convert_to_string(counter,counter_str);
+
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=-M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+
+    counter = counter + 1;
+
+
+}
+
+void generate_not_asm_command()
+{
+     
+    //  not
+
+    // @SP
+    // M=M-1
+    // A=M
+    // M=!M    //  not the value stored in RAM[A]
+
+
+    // @SP
+    // M=M+1
+
+
+    char counter_str[BINARY_MAX_BITS] = {0}; 
+    convert_to_string(counter,counter_str);
+
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=!M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+
+    counter = counter + 1;
+
+}
+
+void generate_or_asm_command()
+{
+    //  or
+
+    // @SP
+    // M=M-1
+    // A=M
+    // D=M     //  operand two
+    // @SP
+    // M=M-1
+    // A=M
+    // D=D|M   //  operand one | operand two. Refer to Chapter 4 lecture note or text to see the table
+
+    // @SP
+    // A=M
+    // M=D
+
+
+    // @SP
+    // M=M+1
+
+    char counter_str[BINARY_MAX_BITS] = {0}; 
+    convert_to_string(counter,counter_str);
+
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+    
+    counter = counter + 1;
+    
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=D|M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+
+    counter = counter + 1;
+
+}
+
+void generate_sub_asm_command()
+{
+    
+    
+    //  sub
+
+    // @SP
+    // M=M-1
+    // A=M
+    // D=M     //  operand two
+    // @SP
+    // M=M-1
+    // A=M
+    // D=M-D   //  operand one minus operand two
+    // @SP
+    // A=M
+    // M=D
+    // @SP
+    // M=M+1
+
+    char counter_str[BINARY_MAX_BITS] = {0}; 
+    convert_to_string(counter,counter_str);
+
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");
+    
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+
+    counter = counter + 1;
+}
+
 /**
  * @brief: This function pushes the 
  * @param constant_value: This is the value to be pushed into the stack virtual memory 
@@ -526,6 +1560,37 @@ void _write_instructions_to_file(char * asm_output_filename){
     fclose(file_ptr);
     
 }
+
+
+/**
+ * @brief   This function uses the current counter to make a label variable & label used in the code generators to be unique
+ *          eg. It will convert a variable from @NOTGREATER to @NOTGREATER_2 where 2 is the current counter string
+ *              It will convert a label from (NOTGREATER) to (NOTGREATER_2) where 2 is the current counter string
+*/
+void _make_label_variable_unique(char * label_variable, char * unique_label_variable, char * unique_label, int _counter)
+{
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    
+    convert_to_string(_counter,counter_str);
+
+    //  Generate unique label variable with format: @xxx_n
+    strncat(unique_label_variable,"@",strlen("@"));
+    strncat(unique_label_variable,label_variable,strlen(label_variable));
+    strncat(unique_label_variable,"_",strlen("_"));
+    strncat(unique_label_variable,counter_str,strlen(counter_str));
+
+    //  Generate unique label with format: (xxx_n)
+    strncat(unique_label,"(",strlen("("));
+    strncat(unique_label,label_variable,strlen(label_variable));
+    strncat(unique_label,"_",strlen("_"));
+    strncat(unique_label_variable,counter_str,strlen(counter_str));
+    strncat(unique_label,")",strlen(")"));
+
+
+
+}
+
+
 
 int main(int argc, char * argv[])
 {
