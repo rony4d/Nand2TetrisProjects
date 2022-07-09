@@ -38,6 +38,10 @@
 #define STACK_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest_no_whitespace.vm"
 #define STACK_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest.asm"
 
+#define BASIC_TEST_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest.vm"
+#define BASIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest_no_comment.vm"
+#define BASIC_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest_no_whitespace.vm"
+#define BASIC_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest.asm"
 
 //  Stack Arithmetic Commands
 #define ADD_COMMAND "add"
@@ -67,6 +71,9 @@
 #define POINTER     "pointer"
 
 
+
+
+
 int counter = 0;                        //  the universal counter for counting generated asm commands
 
 Dict global_asm_dictionary;             //  this dictionary holds all the asm commands
@@ -76,6 +83,8 @@ Dict global_asm_dictionary;             //  this dictionary holds all the asm co
 void _initialize_asm_command_tables();
 void _write_instructions_to_file(char * asm_output_filename);
 void _make_label_variable_unique(char * label_variable, char * unique_label_variable, char * unique_label, int _counter);
+void _make_variable_unique(char * variable, char * unique_variable, int _counter);
+
 
 /**
  * Parser Module Function Initializations
@@ -84,12 +93,13 @@ void _make_label_variable_unique(char * label_variable, char * unique_label_vari
 void parse_vm_command(char * vm_command);
 void parse_input_file(char * input_vm_file, char * no_comment_output_vm_file,char * no_whitespace_output_vm_file, int max_file_zie);
 
-void parse_push_command(char *memory_segment,int i);    //  Recall: General command structure is push segment i
-// void parse_pop_command(char *memory_segment,int i);     //  Recall: General command structure is pop segment i
+void parse_command(char *memory_segment,int i,char *memory_access_command );    
 
 /**
  * Code Module Function Initializations
 */
+
+//  Stack Arithmetic Code Generator Functions
 void generate_add_asm_command();
 void generate_eq_asm_command();
 void generate_and_asm_command();
@@ -100,7 +110,14 @@ void generate_not_asm_command();
 void generate_or_asm_command();
 void generate_sub_asm_command();
 
+//  Stack Memory Access Code Generator Functions
 void generate_constant_segment_asm_code(int constant_value);
+void generate_local_segment_asm_code(int local_value, char * memory_access_command);
+void generate_argument_segment_asm_code(int argument_value, char * memory_access_command);
+void generate_this_segment_asm_code(int this_value, char * memory_access_command);
+void generate_that_segment_asm_code(int that_value, char * memory_access_command);
+void generate_temp_segment_asm_code(int temp_value, char * memory_access_command);
+
 
 /**
  * @brief: Code Module: This module generates appropriate assembly code for each VM command
@@ -229,42 +246,48 @@ void parse_vm_command(char * vm_command)
 
         i = convert_string_to_number(i_str);
 
-        parse_push_command(memory_segment,i);
+        parse_command(memory_segment,i,PUSH_COMMAND);
 
     }
     else if(strncmp(command_type,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
     {
+        //  parse pop command code
+        memory_segment = strtok(NULL,empty_space_delimiter);
 
+        char * i_str = {0};
+
+        i_str = strtok(NULL,empty_space_delimiter);
+
+        i = convert_string_to_number(i_str);
+
+        parse_command(memory_segment,i,POP_COMMAND);
     }
 
 
-    
 }
 
 /**
  * @brief:  This function is under the Parser Module. It will process the push command based on the memory segment and then link the 
  *          code generation modeule to generate the appropriate assembly code
 */
-void parse_push_command(char *memory_segment,int i)
+void parse_command(char *memory_segment,int i, char* memory_access_command)
 {
     //  Check for appropriate memory segment of the stack we are pushing to
-    printf("Segment: %s , i: %d \n", memory_segment, i);
-
     if (strncmp(memory_segment,LOCAL,sizeof(LOCAL)) == 0)
     {
-        /* code */
+        generate_local_segment_asm_code(i,memory_access_command);
     }
     else if(strncmp(memory_segment,ARGUMENT,sizeof(ARGUMENT)) == 0)
     {
-
+        generate_argument_segment_asm_code(i,memory_access_command);
     }
     else if(strncmp(memory_segment,THIS,sizeof(THIS)) == 0)
     {
-
+        generate_this_segment_asm_code(i,memory_access_command);
     }
     else if(strncmp(memory_segment,THAT,sizeof(THAT)) == 0)
     {
-
+        generate_that_segment_asm_code(i,memory_access_command);
     }
     else if(strncmp(memory_segment,CONSTANT,sizeof(CONSTANT)) == 0)
     {
@@ -276,7 +299,7 @@ void parse_push_command(char *memory_segment,int i)
     }
     else if(strncmp(memory_segment,TEMP,sizeof(TEMP)) == 0)
     {
-
+        generate_temp_segment_asm_code(i,memory_access_command);
     }
     else if(strncmp(memory_segment,POINTER,sizeof(POINTER)) == 0)
     {
@@ -1488,7 +1511,1286 @@ void generate_constant_segment_asm_code(int constant_value)
     counter = counter + 1;
 }
 
+void generate_local_segment_asm_code(int local_value, char * memory_access_command)
+{
+    if (strncmp(memory_access_command,PUSH_COMMAND,sizeof(PUSH_COMMAND)) == 0)
+    {
+        // push local 0
 
+        // push local i -> addr = LCL + i; *SP = *addr ; SP++
+
+        // @0
+        // D=A         //  i
+
+        // @LCL
+        // D=D+M       //  LCL + i
+
+        // @addr
+        // M=D
+
+        // A=M
+        // D=M         //  *addr
+
+
+        // @SP
+        // A=M
+        // M=D         //  *SP = *addr
+
+        // @SP
+        // M=M+1       //  SP++
+
+        char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+        _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+        char local_value_str[BINARY_MAX_BITS] = {0};
+        convert_to_string(local_value,local_value_str);
+
+        char local_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the local_value. eg @7
+        strncat(local_value_asm_str,"@",strlen("@"));
+        strncat(local_value_asm_str,local_value_str,strlen(local_value_str));
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,local_value_asm_str);  //  @i
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@LCL");
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=D+M");                  //  LCL + i
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+        
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+
+        counter = counter + 1;
+
+    }
+    else if(strncmp(memory_access_command,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
+    {
+        //  pop local 0
+
+        // @0          //  i
+        // D=A
+
+        // @LCL    
+        // D=D+M       //  LCL + i
+
+        // @addr
+        // M=D         //  addr = LCL + i
+
+
+        // @SP
+        // M=M-1       //  SP--
+
+        // @SP
+        // A=M
+        // D=M         // *SP
+
+        // @addr
+        // A=M
+        // M=D         //  *addr = *SP 
+
+        char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+        _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+        char local_value_str[BINARY_MAX_BITS] = {0};
+        convert_to_string(local_value,local_value_str);
+
+        char local_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the local_value. eg @7
+        strncat(local_value_asm_str,"@",strlen("@"));
+        strncat(local_value_asm_str,local_value_str,strlen(local_value_str));
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,local_value_asm_str);  //  i
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@LCL");
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=D+M");                  //  LCL + i
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=M-1");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+    }
+    else
+    {
+        printf("Error finding local memory access command !!! \n");
+        return;
+    }
+    
+    
+}
+void generate_argument_segment_asm_code(int argument_value, char * memory_access_command)
+{
+    if (strncmp(memory_access_command,PUSH_COMMAND,sizeof(PUSH_COMMAND)) == 0)
+    {
+        // push argument 2
+
+        // @2
+        // D=A         //  i
+
+        // @ARG
+        // D=D+M       //  ARG + i
+
+
+        // @addr
+        // M=D
+
+        // A=M
+        // D=M         //  *addr
+
+
+        // @SP
+        // A=M
+        // M=D         //  *SP = *addr
+
+        // @SP
+        // M=M+1       //  SP++
+
+        char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+        _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+        char argument_value_str[BINARY_MAX_BITS] = {0};
+        convert_to_string(argument_value,argument_value_str);
+
+        char argument_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the argument_value. eg @7
+        strncat(argument_value_asm_str,"@",strlen("@"));
+        strncat(argument_value_asm_str,argument_value_str,strlen(argument_value_str));
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,argument_value_asm_str);  //  @i
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@ARG");
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=D+M");                  //  ARG + i
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+        
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+
+        counter = counter + 1;
+
+    }
+    else if(strncmp(memory_access_command,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
+    {
+        //  pop argument 1
+
+        // @1          //  i
+        // D=A
+
+        // @ARG    
+        // D=D+M       //  ARG + i
+
+        // @addr
+        // M=D         //  addr = ARG + i
+
+
+        // @SP
+        // M=M-1       //  SP--
+
+        // @SP
+        // A=M
+        // D=M         // *SP
+
+        // @addr
+        // A=M
+        // M=D         //  *addr = *SP  
+
+         char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+        _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+        char argument_value_str[BINARY_MAX_BITS] = {0};
+        convert_to_string(argument_value,argument_value_str);
+
+        char argument_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the argument_value. eg @7
+        strncat(argument_value_asm_str,"@",strlen("@"));
+        strncat(argument_value_asm_str,argument_value_str,strlen(argument_value_str));
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,argument_value_asm_str);  //  @i
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@ARG");
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=D+M");                  //  ARG + i
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=M-1");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+    }
+    else
+    {
+        printf("Error finding argument memory access command !!! \n");
+        return;
+    }
+}
+void generate_this_segment_asm_code(int this_value, char * memory_access_command)
+{
+    if (strncmp(memory_access_command,PUSH_COMMAND,sizeof(PUSH_COMMAND)) == 0)
+    {
+        // push this 6
+
+        // @6
+        // D=A         //  i
+
+        // @THIS
+        // D=D+M       //  THIS + i
+
+
+        // @addr
+        // M=D
+
+        // A=M
+        // D=M         //  *addr
+
+
+        // @SP
+        // A=M
+        // M=D         //  *SP = *addr
+
+        // @SP
+        // M=M+1       //  SP++
+
+        char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+        _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+        char this_value_str[BINARY_MAX_BITS] = {0};
+        convert_to_string(this_value,this_value_str);
+
+        char this_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the this_value. eg @7
+        strncat(this_value_asm_str,"@",strlen("@"));
+        strncat(this_value_asm_str,this_value_str,strlen(this_value_str));
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,this_value_asm_str);  //  @i
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@THIS");
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=D+M");                  //  THIS + i
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+        
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+
+        counter = counter + 1;
+
+    }
+    else if(strncmp(memory_access_command,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
+    {
+        //  pop this 6
+
+        // @6          //  i
+        // D=A
+
+        // @THIS    
+        // D=D+M       //  THIS + i
+
+        // @addr
+        // M=D         //  addr = THIS + i
+
+
+        // @SP
+        // M=M-1       //  SP--
+
+        // @SP
+        // A=M
+        // D=M         // *SP
+
+        // @addr
+        // A=M
+        // M=D         //  *addr = *SP    
+
+        char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+        _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+        char this_value_str[BINARY_MAX_BITS] = {0};
+        convert_to_string(this_value,this_value_str);
+
+        char this_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the this_value. eg @7
+        strncat(this_value_asm_str,"@",strlen("@"));
+        strncat(this_value_asm_str,this_value_str,strlen(this_value_str));
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,this_value_asm_str);  //  @i
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@THIS");
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=D+M");                  //  THIS + i
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=M-1");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+    }
+    else
+    {
+        printf("Error finding this memory access command !!! \n");
+        return;
+    } 
+}
+void generate_that_segment_asm_code(int that_value, char * memory_access_command)
+{
+    if(strncmp(memory_access_command,PUSH_COMMAND,sizeof(PUSH_COMMAND)) == 0)
+        {
+
+            // push that 6
+
+            // @6
+            // D=A         //  i
+
+            // @THAT
+            // D=D+M       //  THIS + i
+
+
+            // @addr
+            // M=D
+
+            // A=M
+            // D=M         //  *addr
+
+
+            // @SP
+            // A=M
+            // M=D         //  *SP = *addr
+
+            // @SP
+            // M=M+1       //  SP++
+
+            char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+            _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+            char that_value_str[BINARY_MAX_BITS] = {0};
+            convert_to_string(that_value,that_value_str);
+
+            char that_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the that_value. eg @7
+            strncat(that_value_asm_str,"@",strlen("@"));
+            strncat(that_value_asm_str,that_value_str,strlen(that_value_str));
+
+            char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+            convert_to_string(counter,counter_str);
+            DictInsert(global_asm_dictionary,counter_str,that_value_asm_str);  //  @i
+
+            counter = counter + 1;
+
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@THAT");
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=D+M");                  //  THAT + i
+
+            counter = counter + 1;
+
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+            counter = counter + 1;
+
+            
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+            counter = counter + 1;
+            
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+
+            counter = counter + 1;
+
+        }
+        else if(strncmp(memory_access_command,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
+        {
+            //  pop that 4
+
+            // @4         //  i
+            // D=A
+
+            // @THAT    
+            // D=D+M       //  THAT + i
+
+            // @addr
+            // M=D         //  addr = THAT + i
+
+
+            // @SP
+            // M=M-1       //  SP--
+
+            // @SP
+            // A=M
+            // D=M         // *SP
+
+            // @addr
+            // A=M
+            // M=D         //  *addr = *SP      
+
+            char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+            _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+            char that_value_str[BINARY_MAX_BITS] = {0};
+            convert_to_string(that_value,that_value_str);
+
+            char that_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the that_value. eg @7
+            strncat(that_value_asm_str,"@",strlen("@"));
+            strncat(that_value_asm_str,that_value_str,strlen(that_value_str));
+
+            char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+            convert_to_string(counter,counter_str);
+            DictInsert(global_asm_dictionary,counter_str,that_value_asm_str);  //  @i
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+            counter = counter + 1;
+
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@THAT");
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=D+M");                  //  THAT + i
+
+            counter = counter + 1;
+
+            
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+            counter = counter + 1;
+
+            
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=M-1");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+            counter = counter + 1;
+
+        }
+        else
+        {
+            printf("Error finding that memory access command !!! \n");
+            return;
+        } 
+}
+void generate_temp_segment_asm_code(int temp_value, char * memory_access_command)
+{
+        if (strncmp(memory_access_command,PUSH_COMMAND,sizeof(PUSH_COMMAND)) == 0)
+        {
+
+            // push temp 7
+
+            // @7
+            // D=A         //  i
+
+            // @5
+            // D=D+A       //  Temp + i
+
+
+            // @addr
+            // M=D
+
+            // A=M
+            // D=M         //  *addr
+
+
+            // @SP
+            // A=M
+            // M=D         //  *SP = *addr
+
+            // @SP
+            // M=M+1       //  SP++
+
+            char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+            _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+            char temp_value_str[BINARY_MAX_BITS] = {0};
+            convert_to_string(temp_value,temp_value_str);
+
+            char temp_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the temp_value. eg @7
+            strncat(temp_value_asm_str,"@",strlen("@"));
+            strncat(temp_value_asm_str,temp_value_str,strlen(temp_value_str));
+
+            char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+            convert_to_string(counter,counter_str);
+            DictInsert(global_asm_dictionary,counter_str,temp_value_asm_str);  //  @i
+
+            counter = counter + 1;
+
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@5");
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=D+A");                  //  Temp + i
+
+            counter = counter + 1;
+
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+            counter = counter + 1;
+
+            
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+            counter = counter + 1;
+            
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+
+            counter = counter + 1;
+
+        }
+        else if(strncmp(memory_access_command,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
+        {
+            //  pop temp 7
+
+            // @7         //  i
+            // D=A
+
+            // @5    
+            // D=D+A       //  Temp + i
+
+            // @addr
+            // M=D         //  addr = Temp + i
+
+
+            // @SP
+            // M=M-1       //  SP--
+
+            // @SP
+            // A=M
+            // D=M         // *SP
+
+            // @addr
+            // A=M
+            // M=D         //  *addr = *SP      
+
+            char unique_addr_variable[BINARY_MAX_BITS] = {0}; 
+
+            _make_variable_unique("addr",unique_addr_variable,counter);
+
+
+            char temp_value_str[BINARY_MAX_BITS] = {0};
+            convert_to_string(temp_value,temp_value_str);
+
+            char temp_value_asm_str[BINARY_MAX_BITS] = {0}; //  asm code for the temp_value. eg @7
+            strncat(temp_value_asm_str,"@",strlen("@"));
+            strncat(temp_value_asm_str,temp_value_str,strlen(temp_value_str));
+
+            char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+            convert_to_string(counter,counter_str);
+            DictInsert(global_asm_dictionary,counter_str,temp_value_asm_str);  //  @i
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=A");                
+
+            counter = counter + 1;
+
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@5");
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=D+A");                  //  Temp + i
+
+            counter = counter + 1;
+
+            
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+            counter = counter + 1;
+
+            
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=M-1");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,unique_addr_variable);     //  @addr            
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+            counter = counter + 1;
+
+            convert_to_string(counter,counter_str);
+
+            DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+            counter = counter + 1;
+
+        }
+        else
+        {
+            printf("Error finding temp memory access command !!! \n");
+            return;
+        } 
+}
 /**
  * @internal function
  * @brief: This function initializes the dictionaries for holding the assembly languages from the translated vm commands
@@ -1611,8 +2913,26 @@ void _make_label_variable_unique(char * label_variable, char * unique_label_vari
 
 
 }
+/**
+ * @brief   This function uses the current counter to make a  variable used in the code generators to be unique
+ *          eg. It will convert a variable from @NOTGREATER to @NOTGREATER_2 where 2 is the current counter string
+ *              
+*/
+void _make_variable_unique(char * variable, char * unique_variable, int _counter)
+{
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    
+    convert_to_string(_counter,counter_str);
+
+    //  Generate unique variable with format: @xxx_n
+    strncat(unique_variable,"@",strlen("@"));
+    strncat(unique_variable,variable,strlen(variable));
+    strncat(unique_variable,"_",strlen("_"));
+    strncat(unique_variable,counter_str,strlen(counter_str));
 
 
+
+}
 
 int main(int argc, char * argv[])
 {
@@ -1626,11 +2946,15 @@ int main(int argc, char * argv[])
 
 
     //  Stack Test
-    parse_input_file(STACK_TEST_VM_FILE,STACK_TEST_NO_COMMENT_OUTPUT_ASM_FILE,STACK_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(STACK_TEST_VM_FILE,STACK_TEST_NO_COMMENT_OUTPUT_ASM_FILE,STACK_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
 
-    _write_instructions_to_file(STACK_TEST_ASM_OUTPUT_FILE);
+    // _write_instructions_to_file(STACK_TEST_ASM_OUTPUT_FILE);
 
 
+    //  Basic Test
 
+    parse_input_file(BASIC_TEST_VM_FILE,BASIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE,BASIC_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+
+    _write_instructions_to_file(BASIC_TEST_ASM_OUTPUT_FILE); 
     return 0;
 }

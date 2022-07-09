@@ -17,9 +17,9 @@
 //  push segment i -> addr = segmentPointer + i; *SP = *addr ; SP++
 //  pop  segment i -> addr = segmentPointer + i; SP-- ; *addr = *SP
 
-//  Now, where segment is local
-//  push that i -> addr = LCL + i; *SP = *addr ; SP++
-//  pop  that i -> addr = LCL + i; SP-- ; *addr = *SP
+//  Now, where segment is that
+//  push that i -> addr = THAT + i; *SP = *addr ; SP++
+//  pop  that i -> addr = THAT + i; SP-- ; *addr = *SP
 
 
 //  NOTE[IMPORTANT]: You must run the BasicTest.tst file in the current directory so it can initialize the memory segments base addresses
@@ -70,10 +70,10 @@ M=M+1
 D=A
 
 @THAT    
-D=D+M       //  THIS + i
+D=D+M       //  THAT + i
 
 @addr
-M=D         //  addr = THIS + i
+M=D         //  addr = THAT + i
 
 
 @SP
@@ -94,10 +94,10 @@ M=D         //  *addr = *SP
 D=A
 
 @THAT    
-D=D+M       //  THIS + i
+D=D+M       //  THAT + i
 
 @addr
-M=D         //  addr = THIS + i
+M=D         //  addr = THAT + i
 
 
 @SP
@@ -120,7 +120,7 @@ M=D         //  *addr = *SP
 D=A         //  i
 
 @THAT
-D=D+M       //  THIS + i
+D=D+M       //  THAT + i
 
 
 @addr
