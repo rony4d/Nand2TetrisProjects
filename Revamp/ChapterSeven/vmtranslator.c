@@ -49,6 +49,14 @@
 #define POINTER_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest_no_whitespace.vm"
 #define POINTER_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest.asm"
 
+
+#define STATIC_TEST_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest.vm"
+#define STATIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest_no_comment.vm"
+#define STATIC_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest_no_whitespace.vm"
+#define STATIC_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest.asm"
+#define STATIC_FILENAME "StaticTest"    //  This will be used to build the static variable names : ToDo Write function to get this name from file path
+
+
 //  Stack Arithmetic Commands
 #define ADD_COMMAND "add"
 #define SUB_COMMAND "sub"
@@ -96,10 +104,10 @@ void _make_variable_unique(char * variable, char * unique_variable, int _counter
  * Parser Module Function Initializations
 */
 
-void parse_vm_command(char * vm_command);
-void parse_input_file(char * input_vm_file, char * no_comment_output_vm_file,char * no_whitespace_output_vm_file, int max_file_zie);
+void parse_vm_command(char * vm_command, char *filename);
+void parse_input_file(char * filename, char * input_vm_file, char * no_comment_output_vm_file,char * no_whitespace_output_vm_file, int max_file_zie);
 
-void parse_command(char *memory_segment,int i,char *memory_access_command );    
+void parse_command(char *memory_segment,int i,char *memory_access_command, char * filename );    
 
 /**
  * Code Module Function Initializations
@@ -124,6 +132,7 @@ void generate_this_segment_asm_code(int this_value, char * memory_access_command
 void generate_that_segment_asm_code(int that_value, char * memory_access_command);
 void generate_temp_segment_asm_code(int temp_value, char * memory_access_command);
 void generate_pointer_segment_asm_code(int pointer_value, char * memory_access_command);
+void generate_static_segment_asm_code(int static_value, char * memory_access_command, char * filename);
 
 
 /**
@@ -144,7 +153,7 @@ void generate_pointer_segment_asm_code(int pointer_value, char * memory_access_c
 
 
 
-void parse_input_file(char * input_vm_file, char * no_comment_output_vm_file,char * no_whitespace_output_vm_file, int max_file_zie)
+void parse_input_file(char * filename, char * input_vm_file, char * no_comment_output_vm_file,char * no_whitespace_output_vm_file, int max_file_zie)
 {  
     //  1. remove comments and store in no_comment vm file
 
@@ -170,8 +179,7 @@ void parse_input_file(char * input_vm_file, char * no_comment_output_vm_file,cha
     //  read file line by line
     while (fgets(str,MAX_FILE_SIZE,file_ptr) != NULL)    
     {
-        
-        parse_vm_command(str);        
+        parse_vm_command(str,filename);        
         
     }
 
@@ -185,7 +193,7 @@ void parse_input_file(char * input_vm_file, char * no_comment_output_vm_file,cha
  *          
  *          
 */
-void parse_vm_command(char * vm_command)
+void parse_vm_command(char * vm_command, char * filename)
 {
     char * empty_space_delimiter = " ";
 
@@ -253,7 +261,7 @@ void parse_vm_command(char * vm_command)
 
         i = convert_string_to_number(i_str);
 
-        parse_command(memory_segment,i,PUSH_COMMAND);
+        parse_command(memory_segment,i,PUSH_COMMAND,filename);
 
     }
     else if(strncmp(command_type,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
@@ -267,7 +275,7 @@ void parse_vm_command(char * vm_command)
 
         i = convert_string_to_number(i_str);
 
-        parse_command(memory_segment,i,POP_COMMAND);
+        parse_command(memory_segment,i,POP_COMMAND,filename);
     }
 
 
@@ -277,7 +285,7 @@ void parse_vm_command(char * vm_command)
  * @brief:  This function is under the Parser Module. It will process the push command based on the memory segment and then link the 
  *          code generation modeule to generate the appropriate assembly code
 */
-void parse_command(char *memory_segment,int i, char* memory_access_command)
+void parse_command(char *memory_segment,int i, char* memory_access_command, char * filename)
 {
     //  Check for appropriate memory segment of the stack we are pushing to
     if (strncmp(memory_segment,LOCAL,sizeof(LOCAL)) == 0)
@@ -302,7 +310,7 @@ void parse_command(char *memory_segment,int i, char* memory_access_command)
     }
     else if(strncmp(memory_segment,STATIC,sizeof(STATIC)) == 0)
     {
-
+        generate_static_segment_asm_code(i,memory_access_command,filename);
     }
     else if(strncmp(memory_segment,TEMP,sizeof(TEMP)) == 0)
     {
@@ -2948,6 +2956,205 @@ void generate_pointer_segment_asm_code(int pointer_value, char * memory_access_c
     
     
 }
+
+void generate_static_segment_asm_code(int static_value, char * memory_access_command, char * filename)
+{
+    if (strncmp(memory_access_command,PUSH_COMMAND,sizeof(PUSH_COMMAND)) == 0)
+    {
+        // push static 3
+
+        // @3
+        // D=A         //  i
+
+        // @16
+        // D=D+A       //  16 + i
+
+
+        // @MemoryAccessStatic.3
+        // A=D
+        // D=M         //  *addr
+
+
+        // @SP
+        // A=M
+        // M=D         //  *SP = *addr
+
+        // @SP
+        // M=M+1       //  SP++
+
+        char static_value_str[BINARY_MAX_BITS] = {0};
+        convert_to_string(static_value,static_value_str);
+
+        char static_value_asm_str[BINARY_MAX_BITS] = {0};   //  asm code for the temp_value. eg @7
+        strncat(static_value_asm_str,"@",strlen("@"));
+        strncat(static_value_asm_str,static_value_str,strlen(static_value_str));
+
+        char static_variable_str[BINARY_MAX_BITS] = {0};        //  static variable format - @filename.n eg. @StaticTest.3
+        strncat(static_variable_str,"@",strlen("@"));
+        strncat(static_variable_str,filename,strlen(filename));
+        strncat(static_variable_str,".",strlen("."));
+        strncat(static_variable_str,static_value_str,strlen(static_value_str));
+
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,static_value_asm_str);  //  @i
+
+        counter = counter + 1;    
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@16");                        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=D+A");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,static_variable_str);                 //   eg @StaticTest.3
+        counter = counter + 1;     
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=D");                  
+        counter = counter + 1;  
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+        counter = counter + 1;  
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;  
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+        counter = counter + 1;         
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+        counter = counter + 1;  
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1; 
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+        counter = counter + 1; 
+    }
+    else if(strncmp(memory_access_command,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
+    {
+        //  pop static 1
+
+        // @1          //  i
+        // D=A
+
+        // @16          
+        // D=D+A       //  16 + i
+
+        // @MemoryAccessStatic.1
+        // M=D         //  addr = Temp + i
+
+
+        // @SP
+        // M=M-1       //  SP--
+
+        // @SP
+        // A=M
+        // D=M         // *SP
+
+
+        // @MemoryAccessStatic.1
+        // A=M
+        // M=D         //  *addr = *SP
+
+        char static_value_str[BINARY_MAX_BITS] = {0};
+        convert_to_string(static_value,static_value_str);
+
+        char static_value_asm_str[BINARY_MAX_BITS] = {0};   //  asm code for the temp_value. eg @7
+        strncat(static_value_asm_str,"@",strlen("@"));
+        strncat(static_value_asm_str,static_value_str,strlen(static_value_str));
+
+        char static_variable_str[BINARY_MAX_BITS] = {0};        //  static variable format - @filename.n eg. @StaticTest.3
+        strncat(static_variable_str,"@",strlen("@"));
+        strncat(static_variable_str,filename,strlen(filename));
+        strncat(static_variable_str,".",strlen("."));
+        strncat(static_variable_str,static_value_str,strlen(static_value_str));
+
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,static_value_asm_str);  //  @i
+
+        counter = counter + 1; 
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@16");                        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=D+A");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,static_variable_str);                 //   eg @StaticTest.3
+        counter = counter + 1;     
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+        counter = counter + 1; 
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;  
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M-1");                  
+        counter = counter + 1;         
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;  
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+        counter = counter + 1; 
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,static_variable_str);                 //   eg @StaticTest.3
+        counter = counter + 1; 
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+        counter = counter + 1; 
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+        counter = counter + 1;
+    }
+    else
+    {
+        printf("Error finding static memory access command !!! \n");
+        return;
+    }
+    
+
+}
 /**
  * @internal function
  * @brief: This function initializes the dictionaries for holding the assembly languages from the translated vm commands
@@ -3097,28 +3304,36 @@ int main(int argc, char * argv[])
     _initialize_asm_command_tables();
 
     //  Simple Add
-    // parse_input_file(SIMPLE_ADD_VM_FILE,SIMPLE_ADD_NO_COMMENT_OUTPUT_ASM_FILE,SIMPLE_ADD_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(NULL,SIMPLE_ADD_VM_FILE,SIMPLE_ADD_NO_COMMENT_OUTPUT_ASM_FILE,SIMPLE_ADD_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
 
     // _write_instructions_to_file(SIMPLE_ADD_ASM_OUTPUT_FILE);
 
 
     //  Stack Test
-    // parse_input_file(STACK_TEST_VM_FILE,STACK_TEST_NO_COMMENT_OUTPUT_ASM_FILE,STACK_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(NULL,STACK_TEST_VM_FILE,STACK_TEST_NO_COMMENT_OUTPUT_ASM_FILE,STACK_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
 
     // _write_instructions_to_file(STACK_TEST_ASM_OUTPUT_FILE);
 
 
     //  Basic Test
 
-    // parse_input_file(BASIC_TEST_VM_FILE,BASIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE,BASIC_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(NULL,BASIC_TEST_VM_FILE,BASIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE,BASIC_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
 
     // _write_instructions_to_file(BASIC_TEST_ASM_OUTPUT_FILE); 
 
     
     //  Pointer Test
 
-    parse_input_file(POINTER_TEST_VM_FILE,POINTER_TEST_NO_COMMENT_OUTPUT_ASM_FILE,POINTER_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(NULL,POINTER_TEST_VM_FILE,POINTER_TEST_NO_COMMENT_OUTPUT_ASM_FILE,POINTER_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
 
-    _write_instructions_to_file(POINTER_TEST_ASM_OUTPUT_FILE); 
+    // _write_instructions_to_file(POINTER_TEST_ASM_OUTPUT_FILE); 
+
+
+    //  Static Test
+
+    parse_input_file(STATIC_FILENAME,STATIC_TEST_VM_FILE,STATIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE,STATIC_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+
+    _write_instructions_to_file(STATIC_TEST_ASM_OUTPUT_FILE); 
+
     return 0;
 }
