@@ -123,3 +123,7 @@ creating the final design. Implementing the HDL was really easy and ran once.
 
 -   Chpater 6:  Completed the Assember program and fully tested all the correctness of the result using the binary comparison feature in the assembler. 
 -               ToDo: I need to do a step by step pseudo code based algorithm that can easily be translated into code in any language to enable future implmentations. 
+
+10/07/2022
+
+-   Chapter 7: Completed all aspects of the first part of the VM translator with full tests
