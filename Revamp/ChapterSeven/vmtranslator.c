@@ -43,6 +43,12 @@
 #define BASIC_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest_no_whitespace.vm"
 #define BASIC_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest.asm"
 
+
+#define POINTER_TEST_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest.vm"
+#define POINTER_TEST_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest_no_comment.vm"
+#define POINTER_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest_no_whitespace.vm"
+#define POINTER_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest.asm"
+
 //  Stack Arithmetic Commands
 #define ADD_COMMAND "add"
 #define SUB_COMMAND "sub"
@@ -117,6 +123,7 @@ void generate_argument_segment_asm_code(int argument_value, char * memory_access
 void generate_this_segment_asm_code(int this_value, char * memory_access_command);
 void generate_that_segment_asm_code(int that_value, char * memory_access_command);
 void generate_temp_segment_asm_code(int temp_value, char * memory_access_command);
+void generate_pointer_segment_asm_code(int pointer_value, char * memory_access_command);
 
 
 /**
@@ -303,7 +310,7 @@ void parse_command(char *memory_segment,int i, char* memory_access_command)
     }
     else if(strncmp(memory_segment,POINTER,sizeof(POINTER)) == 0)
     {
-
+        generate_pointer_segment_asm_code(i,memory_access_command);
     }
     
 }
@@ -2791,6 +2798,156 @@ void generate_temp_segment_asm_code(int temp_value, char * memory_access_command
             return;
         } 
 }
+
+void generate_pointer_segment_asm_code(int pointer_value, char * memory_access_command)
+{
+    char * memory_segment;
+
+    if (pointer_value == 0) 
+    {
+        memory_segment = strdup("@THIS");
+    }
+    else if(pointer_value == 1)
+    {
+        memory_segment = strdup("@THAT");
+    }
+
+    if (strncmp(memory_access_command,PUSH_COMMAND,sizeof(PUSH_COMMAND)) == 0)
+    {
+        //  push pointer 0/1
+        //  push pointer 0/1 -> *SP = THIS; SP++
+
+        // @THIS/@THAT
+        // D=M
+
+
+        // @SP
+        // A=M
+        // M=D         //  *SP = THIS/THAT
+
+        // @SP
+        // M=M+1       //  SP++
+
+
+
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,memory_segment);  //  @THIS or @THAT
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+
+        counter = counter + 1;
+        
+    }
+    else if(strncmp(memory_access_command,POP_COMMAND,sizeof(POP_COMMAND)) == 0)
+    {
+
+        //  pop pointer 0/1
+        //  pop pointer 0/1 -> SP--; THAT = *SP
+
+
+        // @SP
+        // M=M-1       //  SP--
+
+
+        // @SP
+        // A=M
+        // D=M         // *SP
+
+        // @THAT/@THIS
+        // M=D         //  THIS/THAT = *SP  
+
+
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");
+
+        counter = counter + 1;
+        
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M-1");  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,memory_segment);  //  @THIS or @THAT
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+
+        counter = counter + 1;      
+
+    }
+    else
+    {
+        printf("Error finding pointer memory access command !!! \n");
+        return;
+    }
+    
+    
+    
+}
 /**
  * @internal function
  * @brief: This function initializes the dictionaries for holding the assembly languages from the translated vm commands
@@ -2953,8 +3110,15 @@ int main(int argc, char * argv[])
 
     //  Basic Test
 
-    parse_input_file(BASIC_TEST_VM_FILE,BASIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE,BASIC_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(BASIC_TEST_VM_FILE,BASIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE,BASIC_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
 
-    _write_instructions_to_file(BASIC_TEST_ASM_OUTPUT_FILE); 
+    // _write_instructions_to_file(BASIC_TEST_ASM_OUTPUT_FILE); 
+
+    
+    //  Pointer Test
+
+    parse_input_file(POINTER_TEST_VM_FILE,POINTER_TEST_NO_COMMENT_OUTPUT_ASM_FILE,POINTER_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+
+    _write_instructions_to_file(POINTER_TEST_ASM_OUTPUT_FILE); 
     return 0;
 }
