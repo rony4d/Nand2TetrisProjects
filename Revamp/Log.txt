@@ -126,4 +126,11 @@ creating the final design. Implementing the HDL was really easy and ran once.
 
 10/07/2022
 
--   Chapter 7: Completed all aspects of the first part of the VM translator with full tests
+-   Chapter 7:  Completed all aspects of the first part of the VM translator with full tests. Chapter 7 was quite challenging in terms of reading
+                time as I had to read the texts,  generate notes and read the lecture notes as well. My physical notes have very clear explanations
+                of different parts of this chapter and is really worth taking a look at. I created a Test folder in the project directory and this 
+                Test folder allowed me to create manual versions of each assembly implementation, test it before writing the code generator. 
+                Very important tools I used simultaneously are the VM Emulator tool for watching the behviour of the VM Code I am supposed to 
+                translate to asm code. The next tool was the CPU Emulator, this allowed me to test the behaviour of my manually written assembly
+                code and compare the results by watching the RAM unit and comparing it with the RAM unit of the VM Emulator. 
+                ToDo: Take pictures or scan the physical notes and upload

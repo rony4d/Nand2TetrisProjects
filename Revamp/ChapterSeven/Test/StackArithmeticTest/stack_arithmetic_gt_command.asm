@@ -11,7 +11,7 @@
 
 // push constant 892
 // push constant 891
-// lt
+// gt
 
 //  Initialize SP to 256
 

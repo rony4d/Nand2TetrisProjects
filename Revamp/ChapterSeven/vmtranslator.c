@@ -6,6 +6,8 @@
 
     translation of VM Code code to assembly language. 
 
+    This same VM Translator will be used to translate chapter seven VM Files
+    
     This is where the magic happens. 
 
     @author: ugochukwu aronu

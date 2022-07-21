@@ -21,7 +21,7 @@
 //  push static i -> addr = 16 + i; *SP = *addr ; SP++
 //  pop  static i -> addr = 16 + i; SP-- ; *addr = *SP
 
-
+//  NOTE: addr = filename.i 
 //  NOTE[IMPORTANT]: You must run the StaticTest.tst file in the current directory so it can initialize the memory segments base addresses
 
 
