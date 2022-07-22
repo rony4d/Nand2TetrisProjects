@@ -260,16 +260,39 @@ M=D
 //  (retAddrLabel)
 (Sys.init$retAddrLabel)
 
-D=A+1
 //  return here and continue running the caller function's code
 
 // pop temp 1
 
+@1         //  i
+D=A
+
+@5    
+D=D+A       //  Temp + i
+
+@addr
+M=D         //  addr = Temp + i
 
 
+@SP
+M=M-1       //  SP--
+
+@SP
+A=M
+D=M         // *SP
+
+@addr
+A=M
+M=D         //  *addr = *SP
 
 // label LOOP
+(Sys.init$LOOP)
+
+//  ==== Inifite Loop Zone  The man who knew infinity lives here :) :D :(  =====
+
 // goto LOOP
+@Sys.init$LOOP
+0;JMP
 
 //==================================================================    WE ARE ABOUT TO EXECUTE call Sys.main 0   ==============================================================
 
