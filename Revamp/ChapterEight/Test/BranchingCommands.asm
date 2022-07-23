@@ -4,13 +4,13 @@
 
 //  The command below is what our add VM code should generate from the code generator
 
-// Computes the sum 1 + 2 + ... + argument[0] and pushes the 
-// result onto the stack. Argument[0] is initialized by the test 
+// Computes the sum 1 + 2 + ... + argument[0] and pushes the
+// result onto the stack. Argument[0] is initialized by the test
 // script before this code starts running.
-// push constant 0    
+// push constant 0
 // pop local 0         // initializes sum = 0
 // label LOOP_START
-// push argument 0    
+// push argument 0
 // push local 0
 // add
 // pop local 0	        // sum = sum + counter
@@ -31,7 +31,7 @@ D=A
 @SP
 M=D
 
-// push constant 0 
+// push constant 0
 
 @0
 D=A
@@ -50,7 +50,7 @@ M=M+1
 @0          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr_local_0
@@ -66,7 +66,7 @@ D=M         // *SP
 
 @addr_local_0
 A=M
-M=D         //  *addr = *SP     
+M=D         //  *addr = *SP
 
 //label LOOP_START
 
@@ -141,7 +141,7 @@ M=M+1
 @0          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr_pop_local_01
@@ -157,7 +157,7 @@ D=M         // *SP
 
 @addr_pop_local_01
 A=M
-M=D         //  *addr = *SP  
+M=D         //  *addr = *SP
 
 
 
@@ -220,7 +220,7 @@ M=M+1
 @0          //  i
 D=A
 
-@ARG    
+@ARG
 D=D+M       //  ARG + i
 
 @addr_pop_arg_02
@@ -236,7 +236,7 @@ D=M         // *SP
 
 @addr_pop_arg_02
 A=M
-M=D         //  *addr = *SP 
+M=D         //  *addr = *SP
 
 
 // push argument 0
@@ -291,4 +291,3 @@ M=D         //  *SP = *addr
 
 @SP
 M=M+1       //  SP++
-

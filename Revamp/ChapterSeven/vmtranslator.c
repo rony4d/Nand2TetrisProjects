@@ -31,32 +31,40 @@
 
 
 #define SIMPLE_ADD_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/SimpleAdd/SimpleAdd.vm"
-#define SIMPLE_ADD_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/SimpleAdd/SimpleAdd_no_comment.vm"
-#define SIMPLE_ADD_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/SimpleAdd/SimpleAdd_no_whitespace.vm"
+#define SIMPLE_ADD_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/SimpleAdd/SimpleAdd_no_comment.vm"
+#define SIMPLE_ADD_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/SimpleAdd/SimpleAdd_no_whitespace.vm"
 #define SIMPLE_ADD_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/SimpleAdd/SimpleAdd.asm"
 
 #define STACK_TEST_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest.vm"
-#define STACK_TEST_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest_no_comment.vm"
-#define STACK_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest_no_whitespace.vm"
+#define STACK_TEST_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest_no_comment.vm"
+#define STACK_TEST_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest_no_whitespace.vm"
 #define STACK_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/StackArithmetic/StackTest/StackTest.asm"
 
 #define BASIC_TEST_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest.vm"
-#define BASIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest_no_comment.vm"
-#define BASIC_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest_no_whitespace.vm"
+#define BASIC_TEST_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest_no_comment.vm"
+#define BASIC_TEST_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest_no_whitespace.vm"
 #define BASIC_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/BasicTest/BasicTest.asm"
 
 
 #define POINTER_TEST_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest.vm"
-#define POINTER_TEST_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest_no_comment.vm"
-#define POINTER_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest_no_whitespace.vm"
+#define POINTER_TEST_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest_no_comment.vm"
+#define POINTER_TEST_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest_no_whitespace.vm"
 #define POINTER_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/PointerTest/PointerTest.asm"
 
 
 #define STATIC_TEST_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest.vm"
-#define STATIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest_no_comment.vm"
-#define STATIC_TEST_NO_WHITESPACE_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest_no_whitespace.vm"
+#define STATIC_TEST_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest_no_comment.vm"
+#define STATIC_TEST_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest_no_whitespace.vm"
 #define STATIC_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSeven/MemoryAccess/StaticTest/StaticTest.asm"
 #define STATIC_FILENAME "StaticTest"    //  This will be used to build the static variable names : ToDo Write function to get this name from file path
+
+
+//  Chapter 8 Projects
+#define BASIC_LOOP_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/BasicLoop/BasicLoop.vm"
+#define BASIC_LOOP_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/BasicLoop/BasicLoop_no_comment.vm"
+#define BASIC_LOOP_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/BasicLoop/BasicLoop_no_whitespace.vm"
+#define BASIC_LOOP_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/BasicLoop/BasicLoop.asm"
+
 
 
 //  Stack Arithmetic Commands
@@ -86,6 +94,17 @@
 #define TEMP        "temp"
 #define POINTER     "pointer"
 
+//  Program Control Commands - Branching Commands
+#define GOTO_LABEL_COMMAND    "goto"
+#define IF_GOTO_LABEL_COMMAND    "if-goto"
+#define LABEL_COMMAND    "label"
+
+
+//  Program Control Commands - Function Commands
+#define CALL_FUNCTION_COMMAND   "call"                          //  call 'function'
+#define FUNCTION_FUNCTION_COMMAND   "function"                  //  function 'function_name'
+#define RETURN_FUNCTION_COMMAND   "return"
+
 
 
 
@@ -93,6 +112,8 @@
 int counter = 0;                        //  the universal counter for counting generated asm commands
 
 Dict global_asm_dictionary;             //  this dictionary holds all the asm commands
+
+char * current_function_name = {0};     //  this is the current function which is being processed. NOTE: This function should change once a return is hit
 
 
 //  Internal function declarations
@@ -135,6 +156,18 @@ void generate_that_segment_asm_code(int that_value, char * memory_access_command
 void generate_temp_segment_asm_code(int temp_value, char * memory_access_command);
 void generate_pointer_segment_asm_code(int pointer_value, char * memory_access_command);
 void generate_static_segment_asm_code(int static_value, char * memory_access_command, char * filename);
+
+
+//  Program Control Command Code Generator Functions
+
+void generate_goto_label_command(char * function_name, char * label);
+void generate_if_goto_label_command(char * function_name, char * label);
+void generate_label_command(char * function_name, char * label);
+
+void generate_call_function_command(char * function_name);
+void generate_function_function_command(char * function_name);
+void generate_return_function_command(char * function_name);
+
 
 
 /**
@@ -204,6 +237,13 @@ void parse_vm_command(char * vm_command, char * filename)
     int i;
 
     command_type = strtok(vm_command,empty_space_delimiter);
+
+
+        
+
+    int current_function_argument_count = {0};      //  Number of Arguments that were pushed to stack for this function
+
+    char * current_label = {0};                     //  This is the current label 
 
     if(strncmp(command_type,"",sizeof(BINARY_MAX_BITS)) == 0)
     {
@@ -281,6 +321,78 @@ void parse_vm_command(char * vm_command, char * filename)
     }
 
 
+    
+    //  Check for appropriate program control command
+
+    
+    if (strncmp(command_type,FUNCTION_FUNCTION_COMMAND,sizeof(FUNCTION_FUNCTION_COMMAND)) == 0)
+    {
+       //   if current_function_name already exists then we will continuous use the name till another function name replaces or we hit a return statement ( we will process return later )
+
+        current_function_name = strtok(NULL, empty_space_delimiter);
+
+        char * function_argument_count_str = {0};
+
+
+        function_argument_count_str = strtok(NULL,empty_space_delimiter);
+
+        current_function_argument_count = convert_string_to_number(function_argument_count_str);
+
+
+    }
+    
+    if (strncmp(command_type,GOTO_LABEL_COMMAND,sizeof(GOTO_LABEL_COMMAND)) == 0)
+    {
+
+        //  if current_function_name is empty then use null as function name
+
+        if (current_function_name == NULL)
+        {          
+            current_function_name = strndup("null",strlen("null"));
+        }
+        
+        current_label = strtok(NULL, empty_space_delimiter);
+
+        eat_white_space(current_label);
+    
+        generate_goto_label_command(current_function_name,current_label);
+    }
+
+    else if (strncmp(command_type,IF_GOTO_LABEL_COMMAND,sizeof(IF_GOTO_LABEL_COMMAND)) == 0)
+    {
+
+        //  if current_function_name is empty then use null as function name
+
+        if (current_function_name == NULL)
+        {           
+            current_function_name = strndup("null",strlen("null"));
+        }
+
+        current_label = strtok(NULL, empty_space_delimiter);
+
+        eat_white_space(current_label);
+
+        generate_if_goto_label_command(current_function_name,current_label);
+    }
+
+    else if (strncmp(command_type,LABEL_COMMAND,sizeof(LABEL_COMMAND)) == 0)
+    {
+        //  if current_function_name is empty then use null as function name
+
+        if (current_function_name == NULL)
+        {           
+            current_function_name = strndup("null",strlen("null"));
+        }
+
+        current_label = strtok(NULL, empty_space_delimiter);
+
+        eat_white_space(current_label);
+
+        generate_label_command(current_function_name,current_label);
+    }
+    
+    
+    
 }
 
 /**
@@ -3157,6 +3269,140 @@ void generate_static_segment_asm_code(int static_value, char * memory_access_com
     
 
 }
+
+void generate_goto_label_command(char * function_name, char * label)
+{
+
+    // @null$LOOP_START
+    // 0;JMP
+
+    // if the function_name is null, which means that this command is not under any declared function name then use null to build the label command with format: @function_name$label
+    // hence ->  (null$label) 
+
+    char internal_function_name[BINARY_MAX_BITS] = {0};
+
+    if (strncmp(function_name,"null",sizeof("null")) == 0)
+    {
+        strncat(internal_function_name,"null",strlen("null"));
+    }
+    else{
+        strncat(internal_function_name,function_name,strlen(function_name));
+    }
+
+    char label_command[BINARY_MAX_BITS] = {0};
+    strncat(label_command,"@",strlen("@"));
+    strncat(label_command,internal_function_name,strlen(internal_function_name));
+    strncat(label_command,"$",strlen("$"));
+    strncat(label_command,label,strlen(label));
+
+
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,label_command);                  //    @function_name$label
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");                          //  0;JMP
+    counter = counter + 1;
+}
+
+void generate_if_goto_label_command(char * function_name, char * label)
+{
+    // if-goto LOOP_START  // If counter > 0, goto LOOP_START
+
+    // @SP
+    // M=M-1
+    // A=M
+    // D=M
+    // @null$LOOP_START
+    // D;JNE
+
+    // if the function_name is null, which means that this command is not under any declared function name then use null to build the label command with format: @function_name$label
+    // hence ->  (null$label) 
+
+    char internal_function_name[BINARY_MAX_BITS] = {0};
+
+    if (strncmp(function_name,"null",sizeof("null")) == 0)
+    {
+        strncat(internal_function_name,"null",strlen("null"));
+    }
+    else{
+        strncat(internal_function_name,function_name,strlen(function_name));
+    }
+
+    char label_command[BINARY_MAX_BITS] = {0};
+    strncat(label_command,"@",strlen("@"));
+    strncat(label_command,internal_function_name,strlen(internal_function_name));
+    strncat(label_command,"$",strlen("$"));
+    strncat(label_command,label,strlen(label));
+
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");                  
+    counter = counter + 1;     
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,label_command);  //  @function_name$label
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D;JNE");                  
+    counter = counter + 1; 
+}
+
+void generate_label_command(char * function_name, char * label)
+{
+    //  (null$LOOP_START)
+
+
+    char internal_function_name[BINARY_MAX_BITS] = {0};
+
+    // if the function_name is null, which means that this command is not under any declared function name then use null to build the label command with format: (function_name$label) 
+    // hence ->  (null$label) 
+
+    if (strncmp(function_name,"null",sizeof("null")) == 0)
+    {
+        strncat(internal_function_name,"null",strlen("null"));
+    }
+    else{
+        strncat(internal_function_name,function_name,strlen(function_name));
+    }
+
+    char label_command[BINARY_MAX_BITS] = {0};
+    strncat(label_command,"(",strlen("("));
+    strncat(label_command,internal_function_name,strlen(internal_function_name));
+    strncat(label_command,"$",strlen("$"));
+    strncat(label_command,label,strlen(label));
+    strncat(label_command,")",strlen(")"));
+
+
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+        
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,label_command);  //  (function_name$label) 
+
+    counter = counter + 1; 
+
+
+}
+
 /**
  * @internal function
  * @brief: This function initializes the dictionaries for holding the assembly languages from the translated vm commands
@@ -3306,36 +3552,46 @@ int main(int argc, char * argv[])
     _initialize_asm_command_tables();
 
     //  Simple Add
-    // parse_input_file(NULL,SIMPLE_ADD_VM_FILE,SIMPLE_ADD_NO_COMMENT_OUTPUT_ASM_FILE,SIMPLE_ADD_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    //  parse_input_file(NULL,SIMPLE_ADD_VM_FILE,SIMPLE_ADD_NO_COMMENT_OUTPUT_VM_FILE,SIMPLE_ADD_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
-    // _write_instructions_to_file(SIMPLE_ADD_ASM_OUTPUT_FILE);
+    //  _write_instructions_to_file(SIMPLE_ADD_ASM_OUTPUT_FILE);
 
 
     //  Stack Test
-    // parse_input_file(NULL,STACK_TEST_VM_FILE,STACK_TEST_NO_COMMENT_OUTPUT_ASM_FILE,STACK_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    //  parse_input_file(NULL,STACK_TEST_VM_FILE,STACK_TEST_NO_COMMENT_OUTPUT_VM_FILE,STACK_TEST_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
-    // _write_instructions_to_file(STACK_TEST_ASM_OUTPUT_FILE);
+    //  _write_instructions_to_file(STACK_TEST_ASM_OUTPUT_FILE);
 
 
     //  Basic Test
 
-    // parse_input_file(NULL,BASIC_TEST_VM_FILE,BASIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE,BASIC_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    //  parse_input_file(NULL,BASIC_TEST_VM_FILE,BASIC_TEST_NO_COMMENT_OUTPUT_VM_FILE,BASIC_TEST_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
-    // _write_instructions_to_file(BASIC_TEST_ASM_OUTPUT_FILE); 
+    //  _write_instructions_to_file(BASIC_TEST_ASM_OUTPUT_FILE); 
 
     
     //  Pointer Test
 
-    // parse_input_file(NULL,POINTER_TEST_VM_FILE,POINTER_TEST_NO_COMMENT_OUTPUT_ASM_FILE,POINTER_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    //  parse_input_file(NULL,POINTER_TEST_VM_FILE,POINTER_TEST_NO_COMMENT_OUTPUT_VM_FILE,POINTER_TEST_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
-    // _write_instructions_to_file(POINTER_TEST_ASM_OUTPUT_FILE); 
+    //  _write_instructions_to_file(POINTER_TEST_ASM_OUTPUT_FILE); 
 
 
     //  Static Test
 
-    parse_input_file(STATIC_FILENAME,STATIC_TEST_VM_FILE,STATIC_TEST_NO_COMMENT_OUTPUT_ASM_FILE,STATIC_TEST_NO_WHITESPACE_ASM_FILE,MAX_FILE_SIZE);
+    //  parse_input_file(STATIC_FILENAME,STATIC_TEST_VM_FILE,STATIC_TEST_NO_COMMENT_OUTPUT_VM_FILE,STATIC_TEST_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
-    _write_instructions_to_file(STATIC_TEST_ASM_OUTPUT_FILE); 
+    //  _write_instructions_to_file(STATIC_TEST_ASM_OUTPUT_FILE); 
+
+
+    //  Chapter 8 Projects Below
+
+
+    //  Static Test
+
+     parse_input_file(NULL,BASIC_LOOP_VM_FILE,BASIC_LOOP_NO_COMMENT_OUTPUT_VM_FILE,BASIC_LOOP_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+
+     _write_instructions_to_file(BASIC_LOOP_ASM_OUTPUT_FILE); 
 
     return 0;
 }
