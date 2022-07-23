@@ -66,6 +66,12 @@
 #define BASIC_LOOP_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/BasicLoop/BasicLoop.asm"
 
 
+#define FIBONACCI_SERIES_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/FibonacciSeries/FibonacciSeries.vm"
+#define FIBONACCI_SERIES_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/FibonacciSeries/FibonacciSeries_no_comment.vm"
+#define FIBONACCI_SERIES_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/FibonacciSeries/FibonacciSeries_no_whitespace.vm"
+#define FIBONACCI_SERIES_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/FibonacciSeries/FibonacciSeries.asm"
+
+
 
 //  Stack Arithmetic Commands
 #define ADD_COMMAND "add"
@@ -3587,11 +3593,18 @@ int main(int argc, char * argv[])
     //  Chapter 8 Projects Below
 
 
-    //  Static Test
+    //  Basic Loop
 
-     parse_input_file(NULL,BASIC_LOOP_VM_FILE,BASIC_LOOP_NO_COMMENT_OUTPUT_VM_FILE,BASIC_LOOP_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+    //  parse_input_file(NULL,BASIC_LOOP_VM_FILE,BASIC_LOOP_NO_COMMENT_OUTPUT_VM_FILE,BASIC_LOOP_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
-     _write_instructions_to_file(BASIC_LOOP_ASM_OUTPUT_FILE); 
+    //  _write_instructions_to_file(BASIC_LOOP_ASM_OUTPUT_FILE); 
+
+
+    //  Fibonnaci Series 
+
+    parse_input_file(NULL,FIBONACCI_SERIES_VM_FILE,FIBONACCI_SERIES_NO_COMMENT_OUTPUT_VM_FILE,FIBONACCI_SERIES_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+
+    _write_instructions_to_file(FIBONACCI_SERIES_ASM_OUTPUT_FILE);  
 
     return 0;
 }
