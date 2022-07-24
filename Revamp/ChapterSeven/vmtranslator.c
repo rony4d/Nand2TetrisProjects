@@ -72,6 +72,12 @@
 #define FIBONACCI_SERIES_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/ProgramFlow/FibonacciSeries/FibonacciSeries.asm"
 
 
+#define SIMPLE_FUNCTION_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/SimpleFunction/SimpleFunction.vm"
+#define SIMPLE_FUNCTION_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/SimpleFunction/SimpleFunction_no_comment.vm"
+#define SIMPLE_FUNCTION_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/SimpleFunction/SimpleFunction_no_whitespace.vm"
+#define SIMPLE_FUNCTION_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/SimpleFunction/SimpleFunction.asm"
+
+
 
 //  Stack Arithmetic Commands
 #define ADD_COMMAND "add"
@@ -119,7 +125,8 @@ int counter = 0;                        //  the universal counter for counting g
 
 Dict global_asm_dictionary;             //  this dictionary holds all the asm commands
 
-char * current_function_name = {0};     //  this is the current function which is being processed. NOTE: This function should change once a return is hit
+char * current_function_name = {0};         //  this is the current function which is being processed. NOTE: This function should change once a return is hit
+char * previous_function_name = {0};        //  this variable holds a previous functions name when a new function is about to be executed
 
 
 //  Internal function declarations
@@ -171,8 +178,8 @@ void generate_if_goto_label_command(char * function_name, char * label);
 void generate_label_command(char * function_name, char * label);
 
 void generate_call_function_command(char * function_name);
-void generate_function_function_command(char * function_name);
-void generate_return_function_command(char * function_name);
+void generate_function_function_command(char * function_name, int local_variables);
+void generate_return_function_command(char * current_function_name, char * caller_function_name);
 
 
 
@@ -344,8 +351,28 @@ void parse_vm_command(char * vm_command, char * filename)
 
         current_function_argument_count = convert_string_to_number(function_argument_count_str);
 
+        generate_function_function_command(current_function_name,current_function_argument_count);
 
     }
+    else if (strncmp(command_type,CALL_FUNCTION_COMMAND,sizeof(CALL_FUNCTION_COMMAND)) == 0)
+    {
+        /* code */
+    }
+
+    else if (strncmp(command_type,RETURN_FUNCTION_COMMAND,sizeof(RETURN_FUNCTION_COMMAND)) == 0)
+    {
+        //  NOTE:   Before a return command is triggered a function command must have been processed, hence the assumption that current_function_name can't be NULL. 
+        //          But previous_function_name can be NULL if there is no caller function and this function is the first function in the VM Code
+
+        if (previous_function_name == NULL)
+        {
+            previous_function_name = strdup("null");
+        }
+        
+        generate_return_function_command(current_function_name,previous_function_name);
+    }
+    
+    
     
     if (strncmp(command_type,GOTO_LABEL_COMMAND,sizeof(GOTO_LABEL_COMMAND)) == 0)
     {
@@ -397,6 +424,7 @@ void parse_vm_command(char * vm_command, char * filename)
         generate_label_command(current_function_name,current_label);
     }
     
+
     
     
 }
@@ -3410,6 +3438,374 @@ void generate_label_command(char * function_name, char * label)
 }
 
 /**
+ * @brief   This function processes a command with format : 'function SimpleFunction.test 2'. 
+ *          Steps involved
+ *          1. Use function name to create a translator-generated label with format: (functionname) 
+ *          2. Update the current_function gloabl variable with this function name
+ *          3. Create a for-loop that generates local variable initialization asm code based on the number of local variables in local_variables param
+ *          
+ *          
+ * 
+ * @param   function_name: This is the name of the function 
+ * @param   local_variables: This is the number of local variables the function will require to perform its operation
+*/
+void generate_function_function_command(char * function_name, int local_variables)
+{
+    //  1. Use function name to create a translator-generated label with format: (functionname)
+
+    char label_command[BINARY_MAX_BITS] = {0};
+    strncat(label_command,"(",strlen("("));
+    strncat(label_command,function_name,strlen(function_name));
+    strncat(label_command,")",strlen(")"));
+
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,label_command);                  
+    counter = counter + 1;
+
+
+    //  2. Update the current_function gloabl variable with this function name 
+
+    // if (current_function_name != NULL)
+    // {
+    //     previous_function_name = strdup(current_function_name);
+    // }
+
+    current_function_name = strdup(function_name);
+
+    //  3. Create for-loop for local variable initialization
+
+    for (int i = 0; i < local_variables; i++)
+    {
+        //  push constant 0
+
+        generate_constant_segment_asm_code(0);
+
+        //  pop local i
+
+        generate_local_segment_asm_code(i,POP_COMMAND);
+
+        //  Increment SP since we are initializing the local variables
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+        counter = counter + 1; 
+        
+    }
+    
+}
+
+/**
+ * @brief   This function implements the return design as seen below
+ *          //  endFrame = LCL              //  endFrame is a temporary variable
+            //  retAddr = *(endFrame-5)     //  gets the return address of caller function
+            //  *ARG = pop()                //  pops the current value from the stack which is the return value and then puts that value inside ARG 0
+            //  SP = ARG + 1                //  repositions to SP of the caller.
+            //  THAT = *(endFrame - 1)      //  restores THAT of the caller
+            //  THIS = *(endFrame - 2)      //  restores THIS of the caller
+            //  ARG =  *(endFrame - 3)      //  restores ARG of the caller
+            //  LCL =  *(endFrame - 4)      //  restores LCL of the caller
+            //  goto retAddr                //  goes to the caller's return address.This is the first item in the caller's saved frame and this address should be
+                                            //  next line of code that continues the caller's execution
+
+                        
+    @param  current_function_name : This is the current function or the callee function that has the return statement within it
+    @param  caller_function_name  : This is the caller function that called the callee and the callee must return control to the caller function. NOTE: if there is not caller function
+                                    then caller_function_name will be null
+    
+*/
+
+void generate_return_function_command(char * current_function_name, char * caller_function_name)
+{
+
+    //  endFrame = LCL
+
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@LCL");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@endFrame");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    //  retAddr = *(endFrame-5)
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@5");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@endFrame");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+
+
+    char return_address_label_command[BINARY_MAX_BITS] = {0};
+
+    strncat(return_address_label_command,"@",strlen("@"));
+    strncat(return_address_label_command,caller_function_name,strlen(caller_function_name));
+    strncat(return_address_label_command,"$",strlen("$"));
+    strncat(return_address_label_command,"retAddrLabel",strlen("retAddrLabel"));        // @function$retAddrLabel
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,return_address_label_command);                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    //  *ARG = pop() 
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M-1");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+    
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@ARG");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    //  SP = ARG + 1 
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@1");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@ARG");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M+D");                  
+    counter = counter + 1;
+
+    
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    //  THAT = *(endFrame - 1)
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@1");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@endFrame");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");                  
+    counter = counter + 1;
+
+    
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@THAT");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    //  THIS = *(endFrame - 2)
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@2");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@endFrame");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");                  
+    counter = counter + 1;
+
+    
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@THIS");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+
+    //  ARG =  *(endFrame - 3)
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@3");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@endFrame");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");                  
+    counter = counter + 1;
+
+    
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@ARG");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+
+    //  LCL =  *(endFrame - 4) 
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@4");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@endFrame");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");                  
+    counter = counter + 1;
+
+    
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@LCL");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    //  goto retAddr 
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,return_address_label_command);                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");                  
+    counter = counter + 1;
+}
+
+/**
  * @internal function
  * @brief: This function initializes the dictionaries for holding the assembly languages from the translated vm commands
 */
@@ -3602,9 +3998,15 @@ int main(int argc, char * argv[])
 
     //  Fibonnaci Series 
 
-    parse_input_file(NULL,FIBONACCI_SERIES_VM_FILE,FIBONACCI_SERIES_NO_COMMENT_OUTPUT_VM_FILE,FIBONACCI_SERIES_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(NULL,FIBONACCI_SERIES_VM_FILE,FIBONACCI_SERIES_NO_COMMENT_OUTPUT_VM_FILE,FIBONACCI_SERIES_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
-    _write_instructions_to_file(FIBONACCI_SERIES_ASM_OUTPUT_FILE);  
+    // _write_instructions_to_file(FIBONACCI_SERIES_ASM_OUTPUT_FILE);  
+
+    //  Simple Function 
+
+    parse_input_file(NULL,SIMPLE_FUNCTION_VM_FILE,SIMPLE_FUNCTION_NO_COMMENT_OUTPUT_VM_FILE,SIMPLE_FUNCTION_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+
+    _write_instructions_to_file(SIMPLE_FUNCTION_ASM_OUTPUT_FILE); 
 
     return 0;
 }
