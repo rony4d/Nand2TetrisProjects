@@ -4,7 +4,7 @@
 
 //  The command below is what our nestedcall VM code should generate from the code generator
 
-//  NOTE: The best way to test this large codebase is in chunks. I will add markers to show how I am testing the code. 
+//  NOTE: The best way to test this large codebase is in chunks. I will add markers to show how I am testing the code.
 
 // // Sys.vm for NestedCall test.
 
@@ -73,7 +73,7 @@
 
 
 
-//  NOTE:This is not a function call simce there is no 'call function_name n' code but the return will be handled like any normal function return. 
+//  NOTE:This is not a function call since there is no 'call function_name n' code but the return will be handled like any normal function return.
 
 //  The test file has already handled caller state saving, so it is assumed that this function was called by another function. 
 
@@ -83,7 +83,7 @@
 
 
 
-//  ===================================================     Function Start       ========================================================================  
+//  ===================================================     Function Start       ========================================================================
 // function Sys.init 0
 
 (Sys.init)
@@ -114,7 +114,7 @@ A=M
 D=M         // *SP
 
 @THIS
-M=D         //  THIS = *SP   
+M=D         //  THIS = *SP
 
 // push constant 5000
 
@@ -144,7 +144,7 @@ A=M
 D=M         // *SP
 
 @THAT
-M=D         //  THIS = *SP  
+M=D         //  THIS = *SP
 
 
 
@@ -155,7 +155,7 @@ M=D         //  THIS = *SP
 //  Handling call -> call 'functionname nArgs'  (From Slide 100 on Lecture Note)
 
 
-//  push retAddrLabel   //  Push the ROM address where execution will commence for this caller function. 
+//  push retAddrLabel   //  Push the ROM address where execution will commence for this caller function.
 
 @Sys.init$retAddrLabel
 D=A
@@ -252,7 +252,7 @@ M=D
 @1         //  i
 D=A
 
-@5    
+@5
 D=D+A       //  Temp + i
 
 @addr
@@ -268,7 +268,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP 
+M=D         //  *addr = *SP
 
 // label LOOP
 (Sys.init$LOOP)
@@ -307,7 +307,7 @@ M=M+1
 @0          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr
@@ -323,7 +323,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP  
+M=D         //  *addr = *SP
 
 //  Increment SP since we are initializing the local variables
 
@@ -351,7 +351,7 @@ M=M+1
 @1          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr
@@ -367,7 +367,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP  
+M=D         //  *addr = *SP
 
 //  Increment SP since we are initializing the local variables
 
@@ -395,7 +395,7 @@ M=M+1
 @2          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr
@@ -411,7 +411,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP  
+M=D         //  *addr = *SP
 
 //  Increment SP since we are initializing the local variables
 
@@ -439,7 +439,7 @@ M=M+1
 @3          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr
@@ -455,7 +455,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP  
+M=D         //  *addr = *SP
 
 //  Increment SP since we are initializing the local variables
 
@@ -483,7 +483,7 @@ M=M+1
 @4          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr
@@ -499,7 +499,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP  
+M=D         //  *addr = *SP
 
 //  Increment SP since we are initializing the local variables
 
@@ -547,7 +547,7 @@ A=M
 D=M         // *SP
 
 @THIS
-M=D         //  THIS = *SP    
+M=D         //  THIS = *SP
 
 // push constant 5001
 @5001
@@ -575,7 +575,7 @@ A=M
 D=M         // *SP
 
 @THAT
-M=D         //  THIS = *SP  
+M=D         //  THIS = *SP
 
 
 // push constant 200
@@ -598,7 +598,7 @@ M=M+1
 @1          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr
@@ -614,7 +614,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP  
+M=D         //  *addr = *SP
 
 
 
@@ -638,7 +638,7 @@ M=M+1
 @2          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr
@@ -654,7 +654,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP  
+M=D         //  *addr = *SP
 
 
 
@@ -676,7 +676,7 @@ M=M+1
 @3          //  i
 D=A
 
-@LCL    
+@LCL
 D=D+M       //  LCL + i
 
 @addr
@@ -692,7 +692,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP 
+M=D         //  *addr = *SP
 
 
 // push constant 123
@@ -718,7 +718,7 @@ M=M+1
 //  Handling call -> call 'functionname nArgs'  (From Slide 100 on Lecture Note)
 
 
-//  push retAddrLabel   //  Push the ROM address where execution will commence for this caller function. 
+//  push retAddrLabel   //  Push the ROM address where execution will commence for this caller function.
 
 
 @Sys.main$retAddrLabel
@@ -817,7 +817,7 @@ M=D
 @0         //  i
 D=A
 
-@5    
+@5
 D=D+A       //  Temp + i
 
 @addr
@@ -833,7 +833,7 @@ D=M         // *SP
 
 @addr
 A=M
-M=D         //  *addr = *SP 
+M=D         //  *addr = *SP
 
 // push local 0
 
@@ -1025,12 +1025,12 @@ M=M+1
 //  endFrame = LCL              //  endFrame is a temporary variable
 //  retAddr = *(endFrame-5)     //  gets the return address of caller function
 //  *ARG = pop()                //  pops the current value from the stack which is the return value and then puts that value inside ARG 0
-//  SP = ARG + 1                //  repositions to SP of the caller. 
+//  SP = ARG + 1                //  repositions to SP of the caller.
 //  THAT = *(endFrame - 1)      //  restores THAT of the caller
 //  THIS = *(endFrame - 2)      //  restores THIS of the caller
 //  ARG =  *(endFrame - 3)      //  restores ARG of the caller
 //  LCL =  *(endFrame - 4)      //  restores LCL of the caller
-//  goto retAddr                //  goes to the caller's return address.This is the first item in the caller's saved frame and this address should be 
+//  goto retAddr                //  goes to the caller's return address.This is the first item in the caller's saved frame and this address should be
                                 //  next line of code that continues the caller's execution
 
 //  endFrame = LCL
@@ -1040,16 +1040,16 @@ D=M
 @endFrame
 M=D
 
-//  retAddr = *(endFrame-5)      //  gets the return address of caller function   
+//  retAddr = *(endFrame-5)      //  gets the return address of caller function
 @5
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
-@Sys.init$retAddrLabel             //@retAddr  
-M=D                             
+@Sys.init$retAddrLabel             //@retAddr
+M=D
 
 //  *ARG = pop()                //  pops the current value from the stack which is the return value and then puts that value inside ARG 0
 @SP
@@ -1062,7 +1062,7 @@ A=M
 M=D
 
 
-//  SP = ARG + 1                //  repositions to SP of the caller. 
+//  SP = ARG + 1                //  repositions to SP of the caller.
 @1
 D=A
 
@@ -1070,56 +1070,56 @@ D=A
 D=M+D
 
 @SP
-M=D             
+M=D
 
 //  THAT = *(endFrame - 1)      //  restores THAT of the caller
 @1
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
 @THAT
-M=D 
+M=D
 
 //  THIS = *(endFrame - 2)      //  restores THIS of the caller
 @2
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
 @THIS
-M=D 
+M=D
 
 //  ARG =  *(endFrame - 3)      //  restores ARG of the caller
 @3
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
 @ARG
-M=D 
+M=D
 
 //  LCL =  *(endFrame - 4)      //  restores LCL of the caller
 @4
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
 @LCL
-M=D 
+M=D
 
 
 //  goto retAddr                //  goes to the caller's return address.
 
-@Sys.init$retAddrLabel              //@retAddr  
+@Sys.init$retAddrLabel              //@retAddr
 A=M
 0;JMP
 
@@ -1172,7 +1172,7 @@ A=M
 D=M         // *SP
 
 @THIS
-M=D         //  THIS = *SP  
+M=D         //  THIS = *SP
 
 // push constant 5002
 
@@ -1201,7 +1201,7 @@ A=M
 D=M         // *SP
 
 @THAT
-M=D         //  THIS = *SP  
+M=D         //  THIS = *SP
 
 // push argument 0 ( Problem de here: It is pushing the return address Sys.main$returnAddr instead of constant 123 that was the argument pushed before this function was called)
 
@@ -1264,12 +1264,12 @@ M=M+1
 //  endFrame = LCL              //  endFrame is a temporary variable
 //  retAddr = *(endFrame-5)     //  gets the return address of caller function
 //  *ARG = pop()                //  pops the current value from the stack which is the return value and then puts that value inside ARG 0
-//  SP = ARG + 1                //  repositions to SP of the caller. 
+//  SP = ARG + 1                //  repositions to SP of the caller.
 //  THAT = *(endFrame - 1)      //  restores THAT of the caller
 //  THIS = *(endFrame - 2)      //  restores THIS of the caller
 //  ARG =  *(endFrame - 3)      //  restores ARG of the caller
 //  LCL =  *(endFrame - 4)      //  restores LCL of the caller
-//  goto retAddr                //  goes to the caller's return address.This is the first item in the caller's saved frame and this address should be 
+//  goto retAddr                //  goes to the caller's return address.This is the first item in the caller's saved frame and this address should be
                                 //  next line of code that continues the caller's execution
 
 
@@ -1280,16 +1280,16 @@ D=M
 @endFrame
 M=D
 
-//  retAddr = *(endFrame-5)      //  gets the return address of caller function   
+//  retAddr = *(endFrame-5)      //  gets the return address of caller function
 @5
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
-@Sys.main$retAddrLabel             //@retAddr  
-M=D                             
+@Sys.main$retAddrLabel             //@retAddr
+M=D
 
 //  *ARG = pop()                //  pops the current value from the stack which is the return value and then puts that value inside ARG 0
 @SP
@@ -1302,7 +1302,7 @@ A=M
 M=D
 
 
-//  SP = ARG + 1                //  repositions to SP of the caller. 
+//  SP = ARG + 1                //  repositions to SP of the caller.
 @1
 D=A
 
@@ -1310,60 +1310,58 @@ D=A
 D=M+D
 
 @SP
-M=D             
+M=D
 
 //  THAT = *(endFrame - 1)      //  restores THAT of the caller
 @1
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
 @THAT
-M=D 
+M=D
 
 //  THIS = *(endFrame - 2)      //  restores THIS of the caller
 @2
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
 @THIS
-M=D 
+M=D
 
 //  ARG =  *(endFrame - 3)      //  restores ARG of the caller
 @3
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
 @ARG
-M=D 
+M=D
 
 //  LCL =  *(endFrame - 4)      //  restores LCL of the caller
 @4
 D=A
 @endFrame
-D=M-D       
+D=M-D
 A=D
 D=M
 
 @LCL
-M=D 
+M=D
 
 
 //  goto retAddr                //  goes to the caller's return address.
 
-@Sys.main$retAddrLabel              //@retAddr  
+@Sys.main$retAddrLabel              //@retAddr
 A=M
 0;JMP
 
 
 //  Test all asm code before this comment before proceeding. Test the code by comparing the memory values
-
-

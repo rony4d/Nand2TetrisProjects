@@ -77,6 +77,16 @@
 #define SIMPLE_FUNCTION_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/SimpleFunction/SimpleFunction_no_whitespace.vm"
 #define SIMPLE_FUNCTION_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/SimpleFunction/SimpleFunction.asm"
 
+#define NESTED_CALL_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/NestedCall/Sys.vm"
+#define NESTED_CALL_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/NestedCall/NestedCall_no_comment.vm"
+#define NESTED_CALL_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/NestedCall/NestedCall_no_whitespace.vm"
+#define NESTED_CALL_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/NestedCall/NestedCall.asm"
+
+
+// todo: please remove 
+#define NESTED_CALL_TEST_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/Test/NestedCall.asm"
+#define NESTED_CALL_TEST_ASM_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/Test/NestedCall_Test_no_comment.asm"
+#define NESTED_CALL_TEST_ASM_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/Test/NestedCall_Test_no_whitespace.asm"
 
 
 //  Stack Arithmetic Commands
@@ -119,14 +129,14 @@
 
 
 
+#define INITIALIZE_STACK_POINTER    0                                   //  set to 1 if you want the code to do the stack pointer initialization
 
+int counter = 0;                                //  the universal counter for counting generated asm commands
 
-int counter = 0;                        //  the universal counter for counting generated asm commands
-
-Dict global_asm_dictionary;             //  this dictionary holds all the asm commands
+Dict global_asm_dictionary;                     //  this dictionary holds all the asm commands
+Dict global_caller_callee_function_dictionary;  
 
 char * current_function_name = {0};         //  this is the current function which is being processed. NOTE: This function should change once a return is hit
-char * previous_function_name = {0};        //  this variable holds a previous functions name when a new function is about to be executed
 
 
 //  Internal function declarations
@@ -177,9 +187,9 @@ void generate_goto_label_command(char * function_name, char * label);
 void generate_if_goto_label_command(char * function_name, char * label);
 void generate_label_command(char * function_name, char * label);
 
-void generate_call_function_command(char * function_name);
+void generate_call_function_command(char * caller_function_name, char * callee_function_name, int nArgs);  
 void generate_function_function_command(char * function_name, int local_variables);
-void generate_return_function_command(char * current_function_name, char * caller_function_name);
+void generate_return_function_command(char * current_function_name);
 
 
 
@@ -356,20 +366,33 @@ void parse_vm_command(char * vm_command, char * filename)
     }
     else if (strncmp(command_type,CALL_FUNCTION_COMMAND,sizeof(CALL_FUNCTION_COMMAND)) == 0)
     {
-        /* code */
+        char * caller_function_name = {0};        
+        char * callee_function_name = {0}; 
+        caller_function_name = current_function_name;
+
+        callee_function_name = strtok(NULL, empty_space_delimiter);
+
+        char * function_argument_count_str = {0};
+
+
+        function_argument_count_str = strtok(NULL,empty_space_delimiter);
+
+        current_function_argument_count = convert_string_to_number(function_argument_count_str);
+
+        generate_call_function_command(caller_function_name,callee_function_name,current_function_argument_count);
     }
 
     else if (strncmp(command_type,RETURN_FUNCTION_COMMAND,sizeof(RETURN_FUNCTION_COMMAND)) == 0)
     {
-        //  NOTE:   Before a return command is triggered a function command must have been processed, hence the assumption that current_function_name can't be NULL. 
-        //          But previous_function_name can be NULL if there is no caller function and this function is the first function in the VM Code
+        // //  NOTE:   Before a return command is triggered a function command must have been processed, hence the assumption that current_function_name can't be NULL. 
+        // //          But previous_function_name can be NULL if there is no caller function and this function is the first function in the VM Code
 
-        if (previous_function_name == NULL)
-        {
-            previous_function_name = strdup("null");
-        }
+        // if (previous_function_name == NULL)
+        // {
+        //     previous_function_name = strdup("null");
+        // }
         
-        generate_return_function_command(current_function_name,previous_function_name);
+        generate_return_function_command(current_function_name);
     }
     
     
@@ -3502,16 +3525,22 @@ void generate_function_function_command(char * function_name, int local_variable
 
 /**
  * @brief   This function implements the return design as seen below
- *          //  endFrame = LCL              //  endFrame is a temporary variable
-            //  retAddr = *(endFrame-5)     //  gets the return address of caller function
-            //  *ARG = pop()                //  pops the current value from the stack which is the return value and then puts that value inside ARG 0
-            //  SP = ARG + 1                //  repositions to SP of the caller.
-            //  THAT = *(endFrame - 1)      //  restores THAT of the caller
-            //  THIS = *(endFrame - 2)      //  restores THIS of the caller
-            //  ARG =  *(endFrame - 3)      //  restores ARG of the caller
-            //  LCL =  *(endFrame - 4)      //  restores LCL of the caller
-            //  goto retAddr                //  goes to the caller's return address.This is the first item in the caller's saved frame and this address should be
+ *          
+ *          @note: Build the return address  by searching the dictionary for the caller function (value) associated with this callee function (key) . Delete entry after building the return address
+ * 
+ *          //  1. endFrame = LCL              //  endFrame is a temporary variable
+            //  2. retAddr = *(endFrame-5)     //  gets the return address of caller function
+            //  3. *ARG = pop()                //  pops the current value from the stack which is the return value and then puts that value inside ARG 0
+            //  4. SP = ARG + 1                //  repositions to SP of the caller.
+            //  5. THAT = *(endFrame - 1)      //  restores THAT of the caller
+            //  6. THIS = *(endFrame - 2)      //  restores THIS of the caller
+            //  7. ARG =  *(endFrame - 3)      //  restores ARG of the caller
+            //  8. LCL =  *(endFrame - 4)      //  restores LCL of the caller
+            //  9. goto retAddr                //  goes to the caller's return address.This is the first item in the caller's saved frame and this address should be
                                             //  next line of code that continues the caller's execution
+            
+            //  
+            
 
                         
     @param  current_function_name : This is the current function or the callee function that has the return statement within it
@@ -3520,8 +3549,27 @@ void generate_function_function_command(char * function_name, int local_variable
     
 */
 
-void generate_return_function_command(char * current_function_name, char * caller_function_name)
+void generate_return_function_command(char * current_function_name)
 {
+
+    //  Build the retAddr by searching the dictionary for the caller function (value) associated with this callee function (key)
+
+    const char * caller_function_name = DictSearch(global_caller_callee_function_dictionary,current_function_name); //  search with callee as key
+
+    if(caller_function_name == 0)
+    {
+        caller_function_name = strdup("null");
+    }
+    char return_address_label_command[BINARY_MAX_BITS] = {0};
+
+    strncat(return_address_label_command,"@",strlen("@"));
+    strncat(return_address_label_command,caller_function_name,strlen(caller_function_name));
+    strncat(return_address_label_command,"$",strlen("$"));
+    strncat(return_address_label_command,"retAddrLabel",strlen("retAddrLabel"));        // @function$retAddrLabel
+
+
+
+
 
     //  endFrame = LCL
 
@@ -3571,12 +3619,7 @@ void generate_return_function_command(char * current_function_name, char * calle
 
 
 
-    char return_address_label_command[BINARY_MAX_BITS] = {0};
 
-    strncat(return_address_label_command,"@",strlen("@"));
-    strncat(return_address_label_command,caller_function_name,strlen(caller_function_name));
-    strncat(return_address_label_command,"$",strlen("$"));
-    strncat(return_address_label_command,"retAddrLabel",strlen("retAddrLabel"));        // @function$retAddrLabel
 
     convert_to_string(counter,counter_str);
     DictInsert(global_asm_dictionary,counter_str,return_address_label_command);                  
@@ -3803,7 +3846,299 @@ void generate_return_function_command(char * current_function_name, char * calle
     convert_to_string(counter,counter_str);
     DictInsert(global_asm_dictionary,counter_str,"0;JMP");                  
     counter = counter + 1;
+
+
+    //  delete entry from dictionary
+    DictDelete(global_caller_callee_function_dictionary,current_function_name);
 }
+
+
+/**
+ * @brief   This function generates the asm code when a 'call function_name nArgs' command is triggered. There are operations that have before and after a call is triggered. 
+ *          
+ *         
+ *          Handling call -> call 'functionname nArgs'  
+ *          
+ *          Before call: These are operations that need to occur to save the state of the caller function
+ * 
+ *          1. push retAddrLabel        - Push the return address label of the caller function
+ *          2. push LCL                 - Saves LCL of the caller
+ *          3. push ARG                 - Saves ARG of the caller
+ *          4. push THIS                - Saves THIS of the caller
+ *          5. push THAT                - Saves THAT of the caller
+ *          6. ARG = SP - 5 - nArgs     - Repositions ARG. This repositioning is important because we need to set ARG to the correct base address so the called function can access 
+ *                                        its arguments that were pushed to stack by caller
+ *          7. LCL = SP                 - Repositions LCL. Repositions LCL for the callee (called function)
+ *          8. goto Functionname        - Transfers control to the called function
+ *          9. retAddrLabel             - return here and continue caller function's code after executing callee function
+ *          10. map the caller function and the callee function using a dictionary . @note: whenever return is called, we should delete this entry from the dictionary . Key: callee_function_name , Value: caller_function_name 
+ * 
+ * @todo use key value pairs to hold function call and return mapping. Once return is executed, remove from dictionary
+ * 
+ * @param caller_function_name : This is the current function that is being executed and now wants to call a new function
+ * @param callee_function_name : This is the function that is called here:  call 'functionname nArgs' . This function is the function that the caller will transfer control to. 
+ * @param nArgs : This is the number of arguments or nArgs pushed to the stack by the caller for the callee to use to run its operations effectively
+*/
+void generate_call_function_command(char * caller_function_name, char * callee_function_name, int nArgs)
+{
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+
+    //   1. push retAddrLabel        - Push the return address label of the caller function
+    char return_address_command[BINARY_MAX_BITS] = {0};
+
+    strncat(return_address_command,"@",strlen("@"));
+    strncat(return_address_command,caller_function_name,strlen(caller_function_name));
+    strncat(return_address_command,"$",strlen("$"));
+    strncat(return_address_command,"retAddrLabel",strlen("retAddrLabel"));        // @function$retAddrLabel
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,return_address_command);                  
+    counter = counter + 1;
+
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+    counter = counter + 1;
+
+    //  2. push LCL                 - Saves LCL of the caller
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@LCL");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+    counter = counter + 1;
+
+    //  3. push ARG                 - Saves ARG of the caller
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@ARG");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+    counter = counter + 1;
+
+
+    //  4. push THIS                - Saves THIS of the caller
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@THIS");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+    counter = counter + 1;
+
+    //  5. push THAT                - Saves THAT of the caller
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@THAT");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+    counter = counter + 1;   
+
+    //  6. ARG = SP - 5 - nArgs     - Repositions ARG. nArgs is the number of arguments pushed by the caller to the stack for the callee to use to function properly
+
+    convert_to_string(counter,counter_str);
+    char nArgs_str[BINARY_MAX_BITS] = {0};
+
+    convert_to_string(nArgs,nArgs_str);
+
+    char nArgs_command[BINARY_MAX_BITS] = {0};
+
+    strncat(nArgs_command,"@",strlen("@"));
+    strncat(nArgs_command,nArgs_str,strlen(nArgs_str));
+
+
+    DictInsert(global_asm_dictionary,counter_str,nArgs_command);    //  @nArgs eg. @1                
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@5");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=D+A");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M-D");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@ARG");                  
+    counter = counter + 1; 
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1; 
+
+    //  7. LCL = SP         - Repositions LCL. Repositions LCL for the callee (called function)
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"@LCL");                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+    counter = counter + 1;
+
+
+    //  8. goto Functionname        - Transfers control to the called or callee function
+
+    char called_function_label_command[BINARY_MAX_BITS] = {0};
+
+    strncat(called_function_label_command,"@",strlen("@"));
+    strncat(called_function_label_command,callee_function_name,strlen(callee_function_name));
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,called_function_label_command);                  
+    counter = counter + 1;
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,"0;JMP");                  
+    counter = counter + 1;  
+
+    //  9. retAddrLabel             - return here and continue caller function's code after executing callee function
+
+    char return_address_label_command[BINARY_MAX_BITS] = {0};
+
+    strncat(return_address_label_command,"(",strlen("("));
+    strncat(return_address_label_command,caller_function_name,strlen(caller_function_name));
+    strncat(return_address_label_command,"$",strlen("$"));
+    strncat(return_address_label_command,"retAddrLabel",strlen("retAddrLabel"));        
+    strncat(return_address_label_command,")",strlen(")"));        // (function$retAddrLabel)
+
+    convert_to_string(counter,counter_str);
+    DictInsert(global_asm_dictionary,counter_str,return_address_label_command);                  
+    counter = counter + 1;
+
+    //  10. map the caller function and the callee function using a dictionary . Key: callee_function_name  , Value:  caller_function_name 
+
+    DictInsert(global_caller_callee_function_dictionary,callee_function_name,caller_function_name);
+}
+
 
 /**
  * @internal function
@@ -3814,7 +4149,7 @@ void _initialize_asm_command_tables(){
 
     global_asm_dictionary = DictCreate();
 
-   
+   global_caller_callee_function_dictionary = DictCreate();
 
     //  Initialize SP to 256
 
@@ -3825,27 +4160,34 @@ void _initialize_asm_command_tables(){
     // M=D
 
     //  Initialize SP to 256
-    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
-    
-    convert_to_string(counter,counter_str);
-    DictInsert(global_asm_dictionary,counter_str,"@256");
 
-    counter = counter + 1;
+    if (INITIALIZE_STACK_POINTER)
+    {
 
-    convert_to_string(counter,counter_str);
-    DictInsert(global_asm_dictionary,counter_str,"D=A");
+        char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
     
-    counter = counter + 1;
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@256");
 
-    convert_to_string(counter,counter_str);
-    DictInsert(global_asm_dictionary,counter_str,"@SP");
-    
-    counter = counter + 1;
+        counter = counter + 1;
 
-    convert_to_string(counter,counter_str);
-    DictInsert(global_asm_dictionary,counter_str,"M=D");
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=A");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");
+        
+        counter = counter + 1;
+    }
     
-    counter = counter + 1;
+
     
 
 }
@@ -4004,9 +4346,19 @@ int main(int argc, char * argv[])
 
     //  Simple Function 
 
-    parse_input_file(NULL,SIMPLE_FUNCTION_VM_FILE,SIMPLE_FUNCTION_NO_COMMENT_OUTPUT_VM_FILE,SIMPLE_FUNCTION_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+    // parse_input_file(NULL,SIMPLE_FUNCTION_VM_FILE,SIMPLE_FUNCTION_NO_COMMENT_OUTPUT_VM_FILE,SIMPLE_FUNCTION_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
-    _write_instructions_to_file(SIMPLE_FUNCTION_ASM_OUTPUT_FILE); 
+    // _write_instructions_to_file(SIMPLE_FUNCTION_ASM_OUTPUT_FILE); 
+
+
+
+    //  Nested Call
+    parse_input_file(NULL,NESTED_CALL_VM_FILE,NESTED_CALL_NO_COMMENT_OUTPUT_VM_FILE,NESTED_CALL_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+
+    _write_instructions_to_file(NESTED_CALL_ASM_OUTPUT_FILE);   
+
+
+
 
     return 0;
 }
