@@ -25,9 +25,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <dirent.h>
 
 
-#define MAX_FILE_SIZE 4096  
+#define MAX_FILE_SIZE 4096
+#define MAX_ARRAY_SIZE 1024
 #define BINARY_MAX_BITS 64
 #define WORD_SIZE 16
 #define TEST_NO_COMMENT_TXT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/assembler/test/test_no_comment.txt"
@@ -50,6 +52,9 @@ void split_string(char * delimiter, char * source_string, char * dest_string);
 int convert_string_to_number(char * input_str);
 void remove_character(char * str, char char_to_remove);
 static char * eat_comment(char *p1);
+void read_directory(char * directory_path, char ** filename_array );
+void print_double_pointer_array(char ** double_pointer_array);
+
 
 void read_file(char *filename, int max_size)
 {
@@ -353,6 +358,7 @@ static char * eat_comment(char *p1)
 
 }
 
+
 // void convert_decimal_to_binary(int n, char *binary_result) {
 //     char bin_str[BINARY_MAX_BITS] = {0};
 //     long long bin = 0;
@@ -492,6 +498,59 @@ void remove_character(char * str, char char_to_remove){
     
 }
 
+
+/**
+ * @brief : This function reads all the files in a directory and stores them in a string array implemented as double pointer char
+*/
+void read_directory(char * directory_path, char ** filename_array )
+{
+    struct dirent *directory_entry;           //  pointer for directory entry
+
+
+    // opendir() returns a pointer of DIR type.
+    DIR * dir = opendir(directory_path);
+
+    if (dir == NULL )    // opendir returns NULL if couldn't open directory
+    {
+        printf ("Could not open directory %s \n",directory_path);
+        exit(0);
+    }
+
+    int counter = 0;
+    while ((directory_entry = readdir(dir)) != NULL)
+    {
+
+        if((strcmp(directory_entry->d_name,".")==0 || strcmp(directory_entry->d_name,"..")==0 || (*directory_entry->d_name) == '.' ))
+        {
+            // do nothing
+        }
+        else
+        
+        {
+            //  store the filename in the array
+            filename_array[counter] = strdup(directory_entry->d_name);
+            counter ++;
+        }
+                    
+       
+    }
+    
+}
+
+
+/**
+ * @brief This function prints out the elements of the double pointer array
+*/
+void print_double_pointer_array(char ** double_pointer_array){
+    int line_counter = 0;
+    while (double_pointer_array[line_counter] != NULL)
+    {
+        printf("%s \n",double_pointer_array[line_counter]);
+        line_counter++;
+    }
+}
+
+
 /**
  * @brief: This main function is used  to test the different functions here to ensure they work properly 
  * Uncomment to test the dictionary data structure here 
@@ -501,38 +560,56 @@ void remove_character(char * str, char char_to_remove){
 // int main(int argc, char* argv[])
 // {
 
-//     remove_comment(TEST_ASM_FILE,TEST_NO_COMMENT_TXT_FILE);                                     // remove comment from .asm file and write to a new text file without comment
-//     remove_white_spaces(TEST_NO_COMMENT_TXT_FILE,TEST_NO_WHITESPACE_TXT_FILE,MAX_FILE_SIZE);    //  remove  whitespace from comment file and write to a new text file without whitespace
+//     // remove_comment(TEST_ASM_FILE,TEST_NO_COMMENT_TXT_FILE);                                     // remove comment from .asm file and write to a new text file without comment
+//     // remove_white_spaces(TEST_NO_COMMENT_TXT_FILE,TEST_NO_WHITESPACE_TXT_FILE,MAX_FILE_SIZE);    //  remove  whitespace from comment file and write to a new text file without whitespace
     
-//     char result[BINARY_MAX_BITS] = {0};
-//     convert_decimal_to_binary(23,result);
+//     // char result[BINARY_MAX_BITS] = {0};
+//     // convert_decimal_to_binary(23,result);
 
-//     printf("Result: %s \n", result);
+//     // printf("Result: %s \n", result);
 
-//     char str[BINARY_MAX_BITS] = {0};
+//     // char str[BINARY_MAX_BITS] = {0};
     
-//     convert_to_string(345669,str);
+//     // convert_to_string(345669,str);
 
-//     printf("String Value: %s \n", str);
+//     // printf("String Value: %s \n", str);
 
-//     char dest_str[MAX_FILE_SIZE] = {0};
+//     // char dest_str[MAX_FILE_SIZE] = {0};
 
-//     char src_str[MAX_FILE_SIZE] = "A=D+A;JGT";
-//     split_string(";",src_str,dest_str);
+//     // char src_str[MAX_FILE_SIZE] = "A=D+A;JGT";
+//     // split_string(";",src_str,dest_str);
 
-//     char  input_str[MAX_FILE_SIZE] = "123456789";
+//     // char  input_str[MAX_FILE_SIZE] = "123456789";
     
-//     int x = convert_string_to_number(input_str);
-//     printf("%d", x);
+//     // int x = convert_string_to_number(input_str);
+//     // printf("%d", x);
 
-//     read_file_with_multiple_fgetc_calls(TEST_ASM_FILE,MAX_FILE_SIZE);   // this was done to test a query
+//     // read_file_with_multiple_fgetc_calls(TEST_ASM_FILE,MAX_FILE_SIZE);   // this was done to test a query
 
-//     char input_str[BINARY_MAX_BITS] = "(RET_ADDRESS_CALL333)";
+//     // char input_str[BINARY_MAX_BITS] = "(RET_ADDRESS_CALL333)";
 
-//     remove_character(input_str,'(');
-//     remove_character(input_str,')');
+//     // remove_character(input_str,'(');
+//     // remove_character(input_str,')');
 
-//     printf("Input str: %s\n",input_str);
+//     // printf("Input str: %s\n",input_str);
 
-//     return 0;
+//     // char ** filename_array = malloc(sizeof(char *) * MAX_FILE_SIZE);
+
+//     // read_directory("/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement", filename_array);
+
+//     // print_double_pointer_array(filename_array);
+
+
+//     // char filename[BINARY_MAX_BITS] = "fibonacci.vm";
+
+//     // char * name_no_extension = {0};
+//     // char * extension = {0};
+    
+//     // name_no_extension = strtok(filename, ".");
+
+//     // extension = strtok(NULL, ".");
+
+//     // printf("Filename no extension : %s , Extension : %s", name_no_extension, extension);
+
+//     // return 0;
 // }

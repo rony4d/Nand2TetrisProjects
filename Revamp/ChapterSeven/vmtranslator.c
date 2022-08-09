@@ -83,10 +83,17 @@
 #define NESTED_CALL_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/NestedCall/NestedCall.asm"
 
 
-// todo: please remove 
-#define NESTED_CALL_TEST_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/Test/NestedCall.asm"
-#define NESTED_CALL_TEST_ASM_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/Test/NestedCall_Test_no_comment.asm"
-#define NESTED_CALL_TEST_ASM_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/Test/NestedCall_Test_no_whitespace.asm"
+
+#define FIBONACCI_ELEMENT_DIRECTORY "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement"
+#define FIBONACCI_ELEMENT_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/FibonacciElement.asm"
+
+
+
+//  Remove after testing
+#define NEW_SYS_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/NewSys.vm"
+#define NEW_SYS_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/NewSys_no_comment.vm"
+#define NEW_SYS_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/NewSys_no_whitespace.vm"
+#define NEW_SYS_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/FibonacciElement.asm"
 
 
 //  Stack Arithmetic Commands
@@ -128,23 +135,30 @@
 #define RETURN_FUNCTION_COMMAND   "return"
 
 
+#define SYS_VM_FILENAME "Sys.vm"
+#define SYS_VM_FILENAME_NO_EXTENSION "Sys"
+#define SYS_INIT_FUNCTION_NAME "Sys.init"
 
-#define INITIALIZE_STACK_POINTER    0                                   //  set to 1 if you want the code to do the stack pointer initialization
+#define RUN_BOOTSTRAP_CODE    1                                   //  set to 1 if you want the code to do the stack pointer initialization and call Sys.init function and set to 0 if you don't need bootstrap code
 
 int counter = 0;                                //  the universal counter for counting generated asm commands
 
 Dict global_asm_dictionary;                     //  this dictionary holds all the asm commands
 Dict global_caller_callee_function_dictionary;  
+char ** caller_function_tree;                       //  this gloabl array keeps a consecutive track of all the caller functions, once a 'call function_name' command is triggered, the caller is added as the last element in the tree
+char ** callee_function_tree;                       //  this gloabl array keeps a consecutive track of all the callee functions, once a 'call function_name' command is triggered, the callee is added as the last element in the tree
+int call_function_counter = 0;                      //  this keeps track of the number of times 'call function_name' appears in a vm code. This will be used to manage return statements. Once a return statement is called, it decreases by 1
 
-char * current_function_name = {0};         //  this is the current function which is being processed. NOTE: This function should change once a return is hit
 
+char * current_function_name = {0};                 //  this is the current function which is being processed. NOTE: This function should change once a return is hit
+char * current_caller_function_name = {0};          //  this is the current caller function which has called a callee
 
 //  Internal function declarations
 void _initialize_asm_command_tables();
 void _write_instructions_to_file(char * asm_output_filename);
 void _make_label_variable_unique(char * label_variable, char * unique_label_variable, char * unique_label, int _counter);
 void _make_variable_unique(char * variable, char * unique_variable, int _counter);
-
+void _build_vm_files_collection(char * directory_path, char ** vm_filename_array);
 
 /**
  * Parser Module Function Initializations
@@ -189,7 +203,7 @@ void generate_label_command(char * function_name, char * label);
 
 void generate_call_function_command(char * caller_function_name, char * callee_function_name, int nArgs);  
 void generate_function_function_command(char * function_name, int local_variables);
-void generate_return_function_command(char * current_function_name);
+void generate_return_function_command();
 
 
 
@@ -240,6 +254,7 @@ void parse_input_file(char * filename, char * input_vm_file, char * no_comment_o
         parse_vm_command(str,filename);        
         
     }
+
 
     fclose(file_ptr);
     
@@ -350,27 +365,71 @@ void parse_vm_command(char * vm_command, char * filename)
     
     if (strncmp(command_type,FUNCTION_FUNCTION_COMMAND,sizeof(FUNCTION_FUNCTION_COMMAND)) == 0)
     {
-       //   if current_function_name already exists then we will continuous use the name till another function name replaces or we hit a return statement ( we will process return later )
+        //  Todo:   We should not assign current function name here because this is not an action. An action is either a call or a return. This just implements a function
 
-        current_function_name = strtok(NULL, empty_space_delimiter);
+        //  if current_function_name already exists then we will continue to use the name till another function name replaces or we hit a return statement ( we will process return later )
+
+
+        //  current function should be assigned only during function implementation
+
+        // if (current_caller_function_name == NULL)
+        // {
+        //     //  This will occur if there is no bootstrap code 
+
+        //     current_caller_function_name = strdup("null_caller");
+        // }
+
+        //  get the call_function_counter and if the value is zero, it means either no call was made or we have returned to the first or origin caller Sys.init
+
+        if(call_function_counter == 0)
+        {
+            //  we are back to Sys.init as caller
+            current_caller_function_name = strdup(SYS_INIT_FUNCTION_NAME);
+        }else
+        {
+            //  get the current_caller_function_name from caller_function_tree
+
+            current_caller_function_name = caller_function_tree[call_function_counter - 1];
+        }
+        
+
+        
+        char * function_name = strtok(NULL, empty_space_delimiter);  
+
+        current_function_name = strdup(function_name);     
 
         char * function_argument_count_str = {0};
 
 
         function_argument_count_str = strtok(NULL,empty_space_delimiter);
 
-        current_function_argument_count = convert_string_to_number(function_argument_count_str);
+        int function_argument_count = convert_string_to_number(function_argument_count_str);
 
-        generate_function_function_command(current_function_name,current_function_argument_count);
+        generate_function_function_command(function_name,function_argument_count);
 
     }
     else if (strncmp(command_type,CALL_FUNCTION_COMMAND,sizeof(CALL_FUNCTION_COMMAND)) == 0)
     {
+        //  ToDo: for any call command , the current_function needs to change to the called or callee function eg 'call function_name n' . The current function will become function_name
+
         char * caller_function_name = {0};        
         char * callee_function_name = {0}; 
-        caller_function_name = current_function_name;
 
+        // if(current_function_name == NULL)
+        // {
+        //     current_function_name = strdup("null");  //  null means the function was not initiated by the OS. This can be assumed if there is no Sys.init call from bootstrap code. 
+        // }
+
+        //  caller_function_name = current_function_name;
+
+        
+
+
+
+        caller_function_name = current_caller_function_name;
         callee_function_name = strtok(NULL, empty_space_delimiter);
+
+        // current_function_name = strdup(callee_function_name);
 
         char * function_argument_count_str = {0};
 
@@ -379,20 +438,16 @@ void parse_vm_command(char * vm_command, char * filename)
 
         current_function_argument_count = convert_string_to_number(function_argument_count_str);
 
+
         generate_call_function_command(caller_function_name,callee_function_name,current_function_argument_count);
+
+
     }
 
     else if (strncmp(command_type,RETURN_FUNCTION_COMMAND,sizeof(RETURN_FUNCTION_COMMAND)) == 0)
     {
-        // //  NOTE:   Before a return command is triggered a function command must have been processed, hence the assumption that current_function_name can't be NULL. 
-        // //          But previous_function_name can be NULL if there is no caller function and this function is the first function in the VM Code
-
-        // if (previous_function_name == NULL)
-        // {
-        //     previous_function_name = strdup("null");
-        // }
-        
-        generate_return_function_command(current_function_name);
+        //  return function is generated based on the caller_function_tree 
+        generate_return_function_command();
     }
     
     
@@ -3464,7 +3519,7 @@ void generate_label_command(char * function_name, char * label)
  * @brief   This function processes a command with format : 'function SimpleFunction.test 2'. 
  *          Steps involved
  *          1. Use function name to create a translator-generated label with format: (functionname) 
- *          2. Update the current_function gloabl variable with this function name
+ *          2. Update the current_function gloabl variable with this function name: ToDo - Remove this line
  *          3. Create a for-loop that generates local variable initialization asm code based on the number of local variables in local_variables param
  *          
  *          
@@ -3495,7 +3550,7 @@ void generate_function_function_command(char * function_name, int local_variable
     //     previous_function_name = strdup(current_function_name);
     // }
 
-    current_function_name = strdup(function_name);
+    // current_function_name = strdup(function_name);
 
     //  3. Create for-loop for local variable initialization
 
@@ -3523,6 +3578,9 @@ void generate_function_function_command(char * function_name, int local_variable
     
 }
 
+
+
+
 /**
  * @brief   This function implements the return design as seen below
  *          
@@ -3539,27 +3597,45 @@ void generate_function_function_command(char * function_name, int local_variable
             //  9. goto retAddr                //  goes to the caller's return address.This is the first item in the caller's saved frame and this address should be
                                             //  next line of code that continues the caller's execution
             
-            //  
+            //  10. return control to the caller hence, the caller becomes the current function running in the global stack
             
 
                         
-    @param  current_function_name : This is the current function or the callee function that has the return statement within it
-    @param  caller_function_name  : This is the caller function that called the callee and the callee must return control to the caller function. NOTE: if there is not caller function
+    @param  current_function_name : This is the current function or the callee function that has the return statement within it //  ToDo: remove this
+    @param  caller_function_name  : This is the caller function that called the callee and the callee must return control to the caller function. NOTE: if there is not caller function //  ToDo: remove this
                                     then caller_function_name will be null
     
 */
 
-void generate_return_function_command(char * current_function_name)
+void generate_return_function_command() 
 {
 
-    //  Build the retAddr by searching the dictionary for the caller function (value) associated with this callee function (key)
+    //  Get the caller function function based on the call_function_counter value from the caller_tree, it will give us the actual function to return to and then reduce it by 1. Then use it to build the retAddr below
 
-    const char * caller_function_name = DictSearch(global_caller_callee_function_dictionary,current_function_name); //  search with callee as key
+    //  reduce call_function_counter by 1
 
-    if(caller_function_name == 0)
-    {
-        caller_function_name = strdup("null");
-    }
+    call_function_counter -= 1;
+
+    const char * caller_function_name = caller_function_tree[call_function_counter];
+
+
+
+    //  Build the retAddr by using the caller function name from the tree above
+
+
+    //  delete the commented code below
+
+    // //  Build the retAddr by searching the dictionary for the caller function (value) associated with this callee function (key)
+
+    // const char * caller_function_name = DictSearch(global_caller_callee_function_dictionary,current_function_name); //  search with callee as key
+
+    // if(caller_function_name == 0)
+    // {
+    //     caller_function_name = strdup("null");
+    // }
+
+
+    //  Build the return address
     char return_address_label_command[BINARY_MAX_BITS] = {0};
 
     strncat(return_address_label_command,"@",strlen("@"));
@@ -3848,8 +3924,11 @@ void generate_return_function_command(char * current_function_name)
     counter = counter + 1;
 
 
-    //  delete entry from dictionary
-    DictDelete(global_caller_callee_function_dictionary,current_function_name);
+    //  return control to the caller hence, the caller becomes the current function running in the global stack
+    // current_function_name = strdup(caller_function_name);
+    
+    //  delete entry from dictionary    : ToDo  delete commented code below
+    // DictDelete(global_caller_callee_function_dictionary,current_function_name);
 }
 
 
@@ -3871,7 +3950,7 @@ void generate_return_function_command(char * current_function_name)
  *          7. LCL = SP                 - Repositions LCL. Repositions LCL for the callee (called function)
  *          8. goto Functionname        - Transfers control to the called function
  *          9. retAddrLabel             - return here and continue caller function's code after executing callee function
- *          10. map the caller function and the callee function using a dictionary . @note: whenever return is called, we should delete this entry from the dictionary . Key: callee_function_name , Value: caller_function_name 
+ *          10. map the caller function and the callee function using a the caller and callee tree array
  * 
  * @todo use key value pairs to hold function call and return mapping. Once return is executed, remove from dictionary
  * 
@@ -3882,6 +3961,7 @@ void generate_return_function_command(char * current_function_name)
 void generate_call_function_command(char * caller_function_name, char * callee_function_name, int nArgs)
 {
     char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    convert_to_string(counter,counter_str);
 
     //   1. push retAddrLabel        - Push the return address label of the caller function
     char return_address_command[BINARY_MAX_BITS] = {0};
@@ -3889,7 +3969,10 @@ void generate_call_function_command(char * caller_function_name, char * callee_f
     strncat(return_address_command,"@",strlen("@"));
     strncat(return_address_command,caller_function_name,strlen(caller_function_name));
     strncat(return_address_command,"$",strlen("$"));
-    strncat(return_address_command,"retAddrLabel",strlen("retAddrLabel"));        // @function$retAddrLabel
+    strncat(return_address_command,"retAddrLabel",strlen("retAddrLabel"));          
+    strncat(return_address_command,"_",strlen("_"));  
+    strncat(return_address_command,counter_str,strlen(counter_str));                                // @function$retAddrLabel_counter
+
 
 
     convert_to_string(counter,counter_str);
@@ -4122,21 +4205,34 @@ void generate_call_function_command(char * caller_function_name, char * callee_f
 
     //  9. retAddrLabel             - return here and continue caller function's code after executing callee function
 
-    char return_address_label_command[BINARY_MAX_BITS] = {0};
 
+    remove_character(return_address_command,'@');
+
+    char return_address_label_command[BINARY_MAX_BITS] = {0};
     strncat(return_address_label_command,"(",strlen("("));
-    strncat(return_address_label_command,caller_function_name,strlen(caller_function_name));
-    strncat(return_address_label_command,"$",strlen("$"));
-    strncat(return_address_label_command,"retAddrLabel",strlen("retAddrLabel"));        
-    strncat(return_address_label_command,")",strlen(")"));        // (function$retAddrLabel)
+    strncat(return_address_label_command,return_address_command,strlen(return_address_command));  
+    strncat(return_address_label_command,")",strlen(")"));                                              // (function$retAddrLabel_counter)
+
+
+
 
     convert_to_string(counter,counter_str);
     DictInsert(global_asm_dictionary,counter_str,return_address_label_command);                  
     counter = counter + 1;
 
+    //  ToDo  delete commented code below
     //  10. map the caller function and the callee function using a dictionary . Key: callee_function_name  , Value:  caller_function_name 
+    //  DictInsert(global_caller_callee_function_dictionary,callee_function_name,caller_function_name);
 
-    DictInsert(global_caller_callee_function_dictionary,callee_function_name,caller_function_name);
+
+    //  10. map the caller function and the callee function using a the caller and callee tree array
+
+    callee_function_tree[call_function_counter] = strdup(callee_function_name);
+    caller_function_tree[call_function_counter] = strdup(caller_function_name);
+
+
+    //  Increment call_function_counter
+    call_function_counter += 1;
 }
 
 
@@ -4149,7 +4245,12 @@ void _initialize_asm_command_tables(){
 
     global_asm_dictionary = DictCreate();
 
-   global_caller_callee_function_dictionary = DictCreate();
+    global_caller_callee_function_dictionary = DictCreate();
+
+
+    //  Initialize caller and callee function trees to track consecutive function calls
+    callee_function_tree = malloc(sizeof(char *) * MAX_ARRAY_SIZE);
+    caller_function_tree = malloc(sizeof(char *) * MAX_ARRAY_SIZE);
 
     //  Initialize SP to 256
 
@@ -4159,10 +4260,16 @@ void _initialize_asm_command_tables(){
     // @SP
     // M=D
 
-    //  Initialize SP to 256
 
-    if (INITIALIZE_STACK_POINTER)
+    // call Sys.init 0
+
+    
+    //  Set current_function global variable here to Sys.init because it was called by the OS(Operating System)
+
+    if (RUN_BOOTSTRAP_CODE)
     {
+
+        //  Initialize SP to 256
 
         char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
     
@@ -4185,6 +4292,276 @@ void _initialize_asm_command_tables(){
         DictInsert(global_asm_dictionary,counter_str,"M=D");
         
         counter = counter + 1;
+
+
+        //  call Sys.init 0
+
+        //  NOTE: During call Sys.init, we will initialize the current function to Sys.init since it is called by Bootstrap code which will come from OS
+
+        //  push return address
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@returnBootstrap");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+        counter = counter + 1;
+
+        //  push LCL
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@LCL");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=M");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=M");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");        
+        
+        counter = counter + 1;
+
+
+
+        
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+        
+        counter = counter + 1;     
+
+
+        //  push ARG
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@ARG");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=M");
+        
+        counter = counter + 1; 
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=M");
+        
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");           
+        
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");
+        
+        counter = counter + 1;     
+
+
+        //  push THIS   
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@THIS");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=M");
+        
+        counter = counter + 1; 
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=M");
+        
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");       
+        
+        counter = counter + 1;
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");     
+
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");      
+
+        counter = counter + 1;
+
+
+    
+        //  5. push THAT                - Saves THAT of the caller
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@THAT");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=M+1");                  
+        counter = counter + 1; 
+
+
+        //  6. ARG = SP - 5 - nArgs     : Here nArgs is 0 since Sys.init has 0 arguments
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@0");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=A");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@5");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=D+A");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=M-D");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@ARG");                  
+        counter = counter + 1; 
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+        counter = counter + 1; 
+
+        //  7. LCL = SP         - Repositions LCL. Repositions LCL for the callee (called function)
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@SP");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"D=M");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@LCL");                  
+        counter = counter + 1;
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
+        counter = counter + 1;
+
+
+        //  8. goto Functionname        - Transfers control to the called or callee function
+
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"@Sys.init");                  
+        counter = counter + 1;  
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"0;JMP");                  
+        counter = counter + 1;  
+
+        //  9. retAddrLabel             - return here and continue caller function's code after executing callee function          
+
+        convert_to_string(counter,counter_str);
+        DictInsert(global_asm_dictionary,counter_str,"(returnBootstrap)");           
+        counter = counter + 1;   
+
+
+        //  10. Set current function to Sys.init
+
+        current_function_name = strdup(SYS_INIT_FUNCTION_NAME);
+
+        //  11. Set current caller function to Sys.init . We do this since we assume this will be the caller of any other function within the Sys.init function which is the genesis function we must call. 
+
+        current_caller_function_name = strdup(SYS_INIT_FUNCTION_NAME);
+        
+      
     }
     
 
@@ -4290,6 +4667,57 @@ void _make_variable_unique(char * variable, char * unique_variable, int _counter
 
 }
 
+/**
+ * @brief   This function looks at a folder , gets a collection of VM files within the folder and generates a single asm file to be executed.
+ *          Steps :
+ *          1.  Read the directory that contains the .vm files and store the filenames in a string array
+ *          
+
+*/
+void _build_vm_files_collection(char * directory_path, char ** vm_filename_array)
+{
+
+    //  1.  Read the directory that contains the .vm files and store the filenames in a string array
+
+    char ** filename_array = malloc(sizeof(char *) * MAX_ARRAY_SIZE);
+
+    read_directory(directory_path,filename_array);
+
+    int line_counter = 0;
+    
+    char * filename;
+
+    int vm_array_counter = 0;   // track the vm files added to the vm array     
+
+    while ((filename = filename_array[line_counter]) != NULL)
+    {
+        eat_white_space(filename);
+
+        //  remove .vm extension . NOTE: other file extensions might exist so we need to ensure it is the vm files we are handling
+
+        char *filename_copy = strdup(filename);
+        char* filename_no_extension = strtok(filename_copy,".");
+
+        //  confirm it is a vm file 
+        char* extension = strtok(NULL, ".");
+
+        //  add all other vm files except Sys.vm because that will be processed first
+        if (strncmp(extension,"vm",sizeof("vm")) == 0 && strncmp(filename,SYS_VM_FILENAME,sizeof(SYS_VM_FILENAME)) != 0)
+        {
+            //  add filename to array of vm files if it is a .vm extension
+
+            vm_filename_array[vm_array_counter] = strdup(filename);
+            vm_array_counter++;
+        }
+        
+
+        line_counter++;
+    }
+
+
+}
+
+
 int main(int argc, char * argv[])
 {
 
@@ -4358,7 +4786,86 @@ int main(int argc, char * argv[])
     _write_instructions_to_file(NESTED_CALL_ASM_OUTPUT_FILE);   
 
 
+    //  Test Fibonacci Element 
+    // parse_input_file(NULL,NEW_SYS_VM_FILE,NEW_SYS_NO_COMMENT_OUTPUT_VM_FILE,NEW_SYS_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
+    // _write_instructions_to_file(NEW_SYS_ASM_OUTPUT_FILE);   
+
+    // //  Fibonnaci Element - NOTE: This handles processing a collection of VM files in a folder with Sys.vm processed first
+
+    // char ** filename_array = malloc(sizeof(char *) * MAX_FILE_SIZE);
+
+    // //  Get the list of other vm files to be processed 
+    // _build_vm_files_collection(FIBONACCI_ELEMENT_DIRECTORY,filename_array);
+
+    // //  Process Sys.init file  
+    // char sys_filepath[MAX_FILE_SIZE] = {0};
+    // char sys_filepath_no_comment[MAX_FILE_SIZE] = {0};
+    // char sys_filepath_no_whitespace[MAX_FILE_SIZE] = {0};
+
+    // strncat(sys_filepath,FIBONACCI_ELEMENT_DIRECTORY,strlen(FIBONACCI_ELEMENT_DIRECTORY));
+    // strncat(sys_filepath,"/",strlen("/")); 
+    // strncat(sys_filepath,SYS_VM_FILENAME,strlen(SYS_VM_FILENAME));   
+        
+    // strncat(sys_filepath_no_comment,FIBONACCI_ELEMENT_DIRECTORY,strlen(FIBONACCI_ELEMENT_DIRECTORY));
+    // strncat(sys_filepath_no_comment,"/",strlen("/")); 
+    // strncat(sys_filepath_no_comment,SYS_VM_FILENAME_NO_EXTENSION,strlen(SYS_VM_FILENAME_NO_EXTENSION)); 
+    // strncat(sys_filepath_no_comment,"_no_comment",strlen("_no_comment")); 
+    // strncat(sys_filepath_no_comment,".vm",strlen(".vm")); 
+
+    // strncat(sys_filepath_no_whitespace,FIBONACCI_ELEMENT_DIRECTORY,strlen(FIBONACCI_ELEMENT_DIRECTORY));
+    // strncat(sys_filepath_no_whitespace,"/",strlen("/")); 
+    // strncat(sys_filepath_no_whitespace,SYS_VM_FILENAME_NO_EXTENSION,strlen(SYS_VM_FILENAME_NO_EXTENSION)); 
+    // strncat(sys_filepath_no_whitespace,"_no_whitespace",strlen("_no_whitespace")); 
+    // strncat(sys_filepath_no_whitespace,".vm",strlen(".vm")); 
+    
+    // parse_input_file(SYS_VM_FILENAME_NO_EXTENSION,sys_filepath,sys_filepath_no_comment,sys_filepath_no_whitespace,MAX_FILE_SIZE);
+
+
+    // char *filename;
+
+    // int line_counter = 0;
+
+    // while ((filename = filename_array[line_counter]) != NULL)
+    // {
+    //     char *filename_copy = strdup(filename);
+
+    //     char* filename_no_extension = strtok(filename_copy,".");
+
+    //     //  confirm it is a vm file 
+    //     char* extension = strtok(NULL, ".");
+
+    //     //  build the filepath for each vm file
+
+    //     char filepath[MAX_FILE_SIZE] = {0};
+    //     char filepath_no_comment[MAX_FILE_SIZE] = {0};
+    //     char filepath_no_whitespace[MAX_FILE_SIZE] = {0};
+
+    //     strncat(filepath,FIBONACCI_ELEMENT_DIRECTORY,strlen(FIBONACCI_ELEMENT_DIRECTORY));
+    //     strncat(filepath,"/",strlen("/")); 
+    //     strncat(filepath,filename,strlen(filename));   
+        
+    //     strncat(filepath_no_comment,FIBONACCI_ELEMENT_DIRECTORY,strlen(FIBONACCI_ELEMENT_DIRECTORY));
+    //     strncat(filepath_no_comment,"/",strlen("/")); 
+    //     strncat(filepath_no_comment,filename_no_extension,strlen(filename_no_extension)); 
+    //     strncat(filepath_no_comment,"_no_comment",strlen("_no_comment")); 
+    //     strncat(filepath_no_comment,".vm",strlen(".vm")); 
+
+    //     strncat(filepath_no_whitespace,FIBONACCI_ELEMENT_DIRECTORY,strlen(FIBONACCI_ELEMENT_DIRECTORY));
+    //     strncat(filepath_no_whitespace,"/",strlen("/")); 
+    //     strncat(filepath_no_whitespace,filename_no_extension,strlen(filename_no_extension)); 
+    //     strncat(filepath_no_whitespace,"_no_whitespace",strlen("_no_whitespace")); 
+    //     strncat(filepath_no_whitespace,".vm",strlen(".vm")); 
+
+    //     parse_input_file(filename_no_extension,filepath,filepath_no_comment,filepath_no_whitespace,MAX_FILE_SIZE);
+
+    //     line_counter++;
+    // }
+
+
+
+    
+    // _write_instructions_to_file(FIBONACCI_ELEMENT_ASM_OUTPUT_FILE); 
 
     return 0;
 }
