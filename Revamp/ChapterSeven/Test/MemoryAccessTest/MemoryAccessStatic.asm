@@ -15,11 +15,15 @@
 // push static 1
 
 
-//  Implementing push/pop static i
+//  Implementing push/pop static i: See Slide 75 on Chapter 7 lecture Note
 
 
-//  push static i -> addr = 16 + i; *SP = *addr ; SP++
-//  pop  static i -> addr = 16 + i; SP-- ; *addr = *SP
+//  push static i -> *SP = addr ; SP++
+//  To push: Simply get the value from address memory and then put it in the location pointed by stack
+
+//  pop  static i -> addr = SP-- ; addr = *SP
+
+//  To pop: first you have to implement regular stack pop code, then you assign the value from stack to the addr memory.
 
 //  NOTE: addr = filename.i 
 //  NOTE[IMPORTANT]: You must run the StaticTest.tst file in the current directory so it can initialize the memory segments base addresses
@@ -79,17 +83,8 @@ M=D
 M=M+1
 
 
+
 //  pop static 8
-
-@8          //  i
-D=A
-
-@16          
-D=D+A       //  16 + i
-
-@MemoryAccessStatic.8
-M=D         //  addr = Temp + i
-
 
 @SP
 M=M-1       //  SP--
@@ -98,25 +93,14 @@ M=M-1       //  SP--
 A=M
 D=M         // *SP
 
-
 @MemoryAccessStatic.8
-A=M
-M=D         //  *addr = *SP  
+M=D         //  addr = *SP  
+
 
 
 
 //  pop static 3
 
-@3          //  i
-D=A
-
-@16          
-D=D+A       //  16 + i
-
-@MemoryAccessStatic.3
-M=D         //  addr = Temp + i
-
-
 @SP
 M=M-1       //  SP--
 
@@ -124,24 +108,11 @@ M=M-1       //  SP--
 A=M
 D=M         // *SP
 
-
 @MemoryAccessStatic.3
-A=M
 M=D         //  *addr = *SP 
 
 
 //  pop static 1
-
-@1          //  i
-D=A
-
-@16          
-D=D+A       //  16 + i
-
-@MemoryAccessStatic.1
-M=D         //  addr = Temp + i
-
-
 @SP
 M=M-1       //  SP--
 
@@ -149,25 +120,15 @@ M=M-1       //  SP--
 A=M
 D=M         // *SP
 
-
 @MemoryAccessStatic.1
-A=M
 M=D         //  *addr = *SP
 
 
 
 // push static 3
 
-@3
-D=A         //  i
-
-@16
-D=D+A       //  16 + i
-
-
 @MemoryAccessStatic.3
-A=D
-D=M         //  *addr
+D=M         //  addr
 
 
 @SP
@@ -180,15 +141,7 @@ M=M+1       //  SP++
 
 // push static 1
 
-@1
-D=A         //  i
-
-@16
-D=D+A       //  16 + i
-
-
 @MemoryAccessStatic.1
-A=D
 D=M         //  *addr
 
 

@@ -1,8 +1,3 @@
-function Sys.init 0
-push constant 4
-call Main.fibonacci 1
-label WHILE
-goto WHILE
 function Main.fibonacci 0
 push argument 0
 push constant 2

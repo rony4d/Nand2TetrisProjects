@@ -1,3 +1,7 @@
+@256
+D=A
+@SP
+M=D
 (SimpleFunction.test)
 @0
 D=A
@@ -10,14 +14,14 @@ M=M+1
 D=A
 @LCL
 D=D+M
-@addr_8
+@addr_12
 M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@addr_8
+@addr_12
 A=M
 M=D
 @SP
@@ -33,14 +37,14 @@ M=M+1
 D=A
 @LCL
 D=D+M
-@addr_31
+@addr_35
 M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@addr_31
+@addr_35
 A=M
 M=D
 @SP
@@ -49,7 +53,7 @@ M=M+1
 D=A
 @LCL
 D=D+M
-@addr_47
+@addr_51
 M=D
 A=M
 D=M
@@ -62,7 +66,7 @@ M=M+1
 D=A
 @LCL
 D=D+M
-@addr_60
+@addr_64
 M=D
 A=M
 D=M
@@ -94,7 +98,7 @@ M=M+1
 D=A
 @ARG
 D=D+M
-@addr_92
+@addr_96
 M=D
 A=M
 D=M
@@ -120,7 +124,7 @@ M=M+1
 D=A
 @ARG
 D=D+M
-@addr_118
+@addr_122
 M=D
 A=M
 D=M
@@ -152,7 +156,7 @@ D=A
 D=M-D
 A=D
 D=M
-@return_144
+@null$retAddrLabel
 M=D
 @SP
 M=M-1
@@ -199,6 +203,6 @@ A=D
 D=M
 @LCL
 M=D
-@return_144
+@null$retAddrLabel
 A=M
 0;JMP

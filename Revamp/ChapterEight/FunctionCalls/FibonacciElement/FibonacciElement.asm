@@ -60,7 +60,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Sys.init$retAddrLabel_62
+@call_function$retAddrLabel_62
 D=A
 @SP
 A=M
@@ -109,7 +109,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Sys.init$retAddrLabel_62)
+(call_function$retAddrLabel_62)
 (Sys.init$WHILE)
 @Sys.init$WHILE
 0;JMP
@@ -193,7 +193,7 @@ D=A
 D=M-D
 A=D
 D=M
-@Sys.init$retAddrLabel
+@return_185
 M=D
 @SP
 M=M-1
@@ -240,7 +240,7 @@ A=D
 D=M
 @LCL
 M=D
-@Sys.init$retAddrLabel
+@return_185
 A=M
 0;JMP
 (Main.fibonacci$IF_FALSE)
@@ -277,7 +277,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Sys.init$retAddrLabel_279
+@call_function$retAddrLabel_279
 D=A
 @SP
 A=M
@@ -326,7 +326,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Sys.init$retAddrLabel_279)
+(call_function$retAddrLabel_279)
 @0
 D=A
 @ARG
@@ -360,7 +360,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Sys.init$retAddrLabel_362
+@call_function$retAddrLabel_362
 D=A
 @SP
 A=M
@@ -409,7 +409,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Sys.init$retAddrLabel_362)
+(call_function$retAddrLabel_362)
 @SP
 M=M-1
 A=M
@@ -433,7 +433,7 @@ D=A
 D=M-D
 A=D
 D=M
-@Sys.init$retAddrLabel
+@return_425
 M=D
 @SP
 M=M-1
@@ -480,6 +480,6 @@ A=D
 D=M
 @LCL
 M=D
-@Sys.init$retAddrLabel
+@return_425
 A=M
 0;JMP

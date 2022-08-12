@@ -88,12 +88,16 @@
 #define FIBONACCI_ELEMENT_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/FibonacciElement.asm"
 
 
+#define STATICS_TEST_DIRECTORY "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/StaticsTest"
+#define STATICS_TEST_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/StaticsTest/StaticsTest.asm"
+
+
 
 //  Remove after testing
-#define NEW_SYS_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/NewSys.vm"
-#define NEW_SYS_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/NewSys_no_comment.vm"
-#define NEW_SYS_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/NewSys_no_whitespace.vm"
-#define NEW_SYS_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/FibonacciElement/FibonacciElement.asm"
+#define NEW_SYS_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/StaticsTest/NewSys.vm"
+#define NEW_SYS_NO_COMMENT_OUTPUT_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/StaticsTest/NewSys_no_comment.vm"
+#define NEW_SYS_NO_WHITESPACE_VM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/StaticsTest/NewSys_no_whitespace.vm"
+#define NEW_SYS_ASM_OUTPUT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterEight/FunctionCalls/StaticsTest/StaticsTest.asm"
 
 
 //  Stack Arithmetic Commands
@@ -365,6 +369,8 @@ void parse_vm_command(char * vm_command, char * filename)
     
     if (strncmp(command_type,FUNCTION_FUNCTION_COMMAND,sizeof(FUNCTION_FUNCTION_COMMAND)) == 0)
     {
+        //  ToDo: remove all commented code
+
         //  Todo:   We should not assign current function name here because this is not an action. An action is either a call or a return. This just implements a function
 
         //  if current_function_name already exists then we will continue to use the name till another function name replaces or we hit a return statement ( we will process return later )
@@ -381,16 +387,16 @@ void parse_vm_command(char * vm_command, char * filename)
 
         //  get the call_function_counter and if the value is zero, it means either no call was made or we have returned to the first or origin caller Sys.init
 
-        if(call_function_counter == 0)
-        {
-            //  we are back to Sys.init as caller
-            current_caller_function_name = strdup(SYS_INIT_FUNCTION_NAME);
-        }else
-        {
-            //  get the current_caller_function_name from caller_function_tree
+        // if(call_function_counter == 0)
+        // {
+        //     //  we are back to Sys.init as caller
+        //     current_caller_function_name = strdup(SYS_INIT_FUNCTION_NAME);
+        // }else
+        // {
+        //     //  get the current_caller_function_name from caller_function_tree
 
-            current_caller_function_name = caller_function_tree[call_function_counter - 1];
-        }
+        //     current_caller_function_name = caller_function_tree[call_function_counter - 1];
+        // }
         
 
         
@@ -412,7 +418,7 @@ void parse_vm_command(char * vm_command, char * filename)
     {
         //  ToDo: for any call command , the current_function needs to change to the called or callee function eg 'call function_name n' . The current function will become function_name
 
-        char * caller_function_name = {0};        
+        // char * caller_function_name = {0};        
         char * callee_function_name = {0}; 
 
         // if(current_function_name == NULL)
@@ -426,7 +432,7 @@ void parse_vm_command(char * vm_command, char * filename)
 
 
 
-        caller_function_name = current_caller_function_name;
+        // caller_function_name = current_caller_function_name;
         callee_function_name = strtok(NULL, empty_space_delimiter);
 
         // current_function_name = strdup(callee_function_name);
@@ -439,7 +445,7 @@ void parse_vm_command(char * vm_command, char * filename)
         current_function_argument_count = convert_string_to_number(function_argument_count_str);
 
 
-        generate_call_function_command(caller_function_name,callee_function_name,current_function_argument_count);
+        generate_call_function_command("ToDo:remove param",callee_function_name,current_function_argument_count);
 
 
     }
@@ -3189,16 +3195,10 @@ void generate_static_segment_asm_code(int static_value, char * memory_access_com
     {
         // push static 3
 
-        // @3
-        // D=A         //  i
-
-        // @16
-        // D=D+A       //  16 + i
 
 
         // @MemoryAccessStatic.3
-        // A=D
-        // D=M         //  *addr
+        // D=M         //  addr
 
 
         // @SP
@@ -3208,12 +3208,11 @@ void generate_static_segment_asm_code(int static_value, char * memory_access_com
         // @SP
         // M=M+1       //  SP++
 
+
+
         char static_value_str[BINARY_MAX_BITS] = {0};
         convert_to_string(static_value,static_value_str);
 
-        char static_value_asm_str[BINARY_MAX_BITS] = {0};   //  asm code for the temp_value. eg @7
-        strncat(static_value_asm_str,"@",strlen("@"));
-        strncat(static_value_asm_str,static_value_str,strlen(static_value_str));
 
         char static_variable_str[BINARY_MAX_BITS] = {0};        //  static variable format - @filename.n eg. @StaticTest.3
         strncat(static_variable_str,"@",strlen("@"));
@@ -3224,31 +3223,10 @@ void generate_static_segment_asm_code(int static_value, char * memory_access_com
 
         char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
         
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,static_value_asm_str);  //  @i
-
-        counter = counter + 1;    
-
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"D=A");                  
-        counter = counter + 1;
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"@16");                        
-        counter = counter + 1;
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"D=D+A");                  
-        counter = counter + 1;
 
         convert_to_string(counter,counter_str);
         DictInsert(global_asm_dictionary,counter_str,static_variable_str);                 //   eg @StaticTest.3
         counter = counter + 1;     
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"A=D");                  
-        counter = counter + 1;  
 
         convert_to_string(counter,counter_str);
         DictInsert(global_asm_dictionary,counter_str,"D=M");                  
@@ -3278,16 +3256,6 @@ void generate_static_segment_asm_code(int static_value, char * memory_access_com
     {
         //  pop static 1
 
-        // @1          //  i
-        // D=A
-
-        // @16          
-        // D=D+A       //  16 + i
-
-        // @MemoryAccessStatic.1
-        // M=D         //  addr = Temp + i
-
-
         // @SP
         // M=M-1       //  SP--
 
@@ -3297,15 +3265,12 @@ void generate_static_segment_asm_code(int static_value, char * memory_access_com
 
 
         // @MemoryAccessStatic.1
-        // A=M
-        // M=D         //  *addr = *SP
+        // M=D         //  addr = *SP
 
         char static_value_str[BINARY_MAX_BITS] = {0};
         convert_to_string(static_value,static_value_str);
 
-        char static_value_asm_str[BINARY_MAX_BITS] = {0};   //  asm code for the temp_value. eg @7
-        strncat(static_value_asm_str,"@",strlen("@"));
-        strncat(static_value_asm_str,static_value_str,strlen(static_value_str));
+
 
         char static_variable_str[BINARY_MAX_BITS] = {0};        //  static variable format - @filename.n eg. @StaticTest.3
         strncat(static_variable_str,"@",strlen("@"));
@@ -3316,30 +3281,7 @@ void generate_static_segment_asm_code(int static_value, char * memory_access_com
 
         char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
         
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,static_value_asm_str);  //  @i
-
-        counter = counter + 1; 
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"D=A");                  
-        counter = counter + 1;
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"@16");                        
-        counter = counter + 1;
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"D=D+A");                  
-        counter = counter + 1;
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,static_variable_str);                 //   eg @StaticTest.3
-        counter = counter + 1;     
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"M=D");                  
-        counter = counter + 1; 
+        
 
         convert_to_string(counter,counter_str);
         DictInsert(global_asm_dictionary,counter_str,"@SP");                  
@@ -3363,10 +3305,6 @@ void generate_static_segment_asm_code(int static_value, char * memory_access_com
 
         convert_to_string(counter,counter_str);
         DictInsert(global_asm_dictionary,counter_str,static_variable_str);                 //   eg @StaticTest.3
-        counter = counter + 1; 
-
-        convert_to_string(counter,counter_str);
-        DictInsert(global_asm_dictionary,counter_str,"A=M");                  
         counter = counter + 1; 
 
         convert_to_string(counter,counter_str);
@@ -3614,13 +3552,17 @@ void generate_return_function_command()
 
     //  reduce call_function_counter by 1
 
-    call_function_counter -= 1;
+    // call_function_counter -= 1;
 
-    const char * caller_function_name = caller_function_tree[call_function_counter];
+    // const char * caller_function_name = caller_function_tree[call_function_counter];
 
+    // if (caller_function_name == NULL)
+    // {
+    //     caller_function_name = strdup("null");
+    // }
+    
 
-
-    //  Build the retAddr by using the caller function name from the tree above
+    //  Build the retAddr by using the caller function name from the tree above: ToDo remove this
 
 
     //  delete the commented code below
@@ -3635,21 +3577,37 @@ void generate_return_function_command()
     // }
 
 
-    //  Build the return address
+
+
+
+    // char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    // convert_to_string(counter,counter_str);
+
+    // char return_address_label_command[BINARY_MAX_BITS] = {0};
+
+    // strncat(return_address_label_command,"@",strlen("@"));
+    // // strncat(return_address_label_command,caller_function_name,strlen(caller_function_name));
+    // // strncat(return_address_label_command,"$",strlen("$"));
+    // strncat(return_address_label_command,"return",strlen("return"));        
+    // strncat(return_address_label_command,"_",strlen("_"));        
+    // strncat(return_address_label_command,counter_str,strlen(counter_str));        // @return_n where n is counter
+
+
+
+    //  Build the return address by using a unique translator-generated address. Use line_counter to make this address unique for each return call 
+    //  NOTE: The most important thing to get right is making sure LCL is correct because that is where we calculate the actual location of the return of the caller function
+
+    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
+    convert_to_string(counter,counter_str);
+
     char return_address_label_command[BINARY_MAX_BITS] = {0};
 
-    strncat(return_address_label_command,"@",strlen("@"));
-    strncat(return_address_label_command,caller_function_name,strlen(caller_function_name));
-    strncat(return_address_label_command,"$",strlen("$"));
-    strncat(return_address_label_command,"retAddrLabel",strlen("retAddrLabel"));        // @function$retAddrLabel
-
-
-
+    strncat(return_address_label_command,"@return_",strlen("@return_"));       
+    strncat(return_address_label_command,counter_str,strlen(counter_str));        // @return_n where n is counter
 
 
     //  endFrame = LCL
 
-    char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
 
     convert_to_string(counter,counter_str);
     DictInsert(global_asm_dictionary,counter_str,"@LCL");                  
@@ -3924,6 +3882,8 @@ void generate_return_function_command()
     counter = counter + 1;
 
 
+    //  ToDo: remove lines of code below
+
     //  return control to the caller hence, the caller becomes the current function running in the global stack
     // current_function_name = strdup(caller_function_name);
     
@@ -3940,7 +3900,7 @@ void generate_return_function_command()
  *          
  *          Before call: These are operations that need to occur to save the state of the caller function
  * 
- *          1. push retAddrLabel        - Push the return address label of the caller function
+ *          1. push retAddrLabel        - Push the return address label of the caller function: The return address has to be unique. Use the line counter to make it unique. 
  *          2. push LCL                 - Saves LCL of the caller
  *          3. push ARG                 - Saves ARG of the caller
  *          4. push THIS                - Saves THIS of the caller
@@ -3954,7 +3914,7 @@ void generate_return_function_command()
  * 
  * @todo use key value pairs to hold function call and return mapping. Once return is executed, remove from dictionary
  * 
- * @param caller_function_name : This is the current function that is being executed and now wants to call a new function
+ * @param caller_function_name : This is the current function that is being executed and now wants to call a new function: ToDo: Remove this
  * @param callee_function_name : This is the function that is called here:  call 'functionname nArgs' . This function is the function that the caller will transfer control to. 
  * @param nArgs : This is the number of arguments or nArgs pushed to the stack by the caller for the callee to use to run its operations effectively
 */
@@ -3964,15 +3924,22 @@ void generate_call_function_command(char * caller_function_name, char * callee_f
     convert_to_string(counter,counter_str);
 
     //   1. push retAddrLabel        - Push the return address label of the caller function
+    // char return_address_command[BINARY_MAX_BITS] = {0};
+
+    // strncat(return_address_command,"@",strlen("@"));
+    // strncat(return_address_command,caller_function_name,strlen(caller_function_name));
+    // strncat(return_address_command,"$",strlen("$"));
+    // strncat(return_address_command,"retAddrLabel",strlen("retAddrLabel"));          
+    // strncat(return_address_command,"_",strlen("_"));  
+    // strncat(return_address_command,counter_str,strlen(counter_str));                                // @function$retAddrLabel_counter
+
+
+
+    //   1. push retAddrLabel        - Push the return address label of the caller function. The return address has to be unique. Use the line counter to make it unique. 
     char return_address_command[BINARY_MAX_BITS] = {0};
 
-    strncat(return_address_command,"@",strlen("@"));
-    strncat(return_address_command,caller_function_name,strlen(caller_function_name));
-    strncat(return_address_command,"$",strlen("$"));
-    strncat(return_address_command,"retAddrLabel",strlen("retAddrLabel"));          
-    strncat(return_address_command,"_",strlen("_"));  
-    strncat(return_address_command,counter_str,strlen(counter_str));                                // @function$retAddrLabel_counter
-
+    strncat(return_address_command,"@call_function$retAddrLabel_",strlen("@call_function$retAddrLabel_"));
+    strncat(return_address_command,counter_str,strlen(counter_str));                                // @call_function$retAddrLabel_n where n is the counter
 
 
     convert_to_string(counter,counter_str);
@@ -4225,14 +4192,15 @@ void generate_call_function_command(char * caller_function_name, char * callee_f
     //  DictInsert(global_caller_callee_function_dictionary,callee_function_name,caller_function_name);
 
 
-    //  10. map the caller function and the callee function using a the caller and callee tree array
+    //  Todo Delete commented code below 
+    // //  10. map the caller function and the callee function using a the caller and callee tree array
 
-    callee_function_tree[call_function_counter] = strdup(callee_function_name);
-    caller_function_tree[call_function_counter] = strdup(caller_function_name);
+    // callee_function_tree[call_function_counter] = strdup(callee_function_name);
+    // caller_function_tree[call_function_counter] = strdup(caller_function_name);
 
 
-    //  Increment call_function_counter
-    call_function_counter += 1;
+    // //  Increment call_function_counter
+    // call_function_counter += 1;
 }
 
 
@@ -4553,13 +4521,15 @@ void _initialize_asm_command_tables(){
         counter = counter + 1;   
 
 
-        //  10. Set current function to Sys.init
+        //  ToDo: remove code below
+        
+        // //  10. Set current function to Sys.init
 
-        current_function_name = strdup(SYS_INIT_FUNCTION_NAME);
+        // current_function_name = strdup(SYS_INIT_FUNCTION_NAME);
 
-        //  11. Set current caller function to Sys.init . We do this since we assume this will be the caller of any other function within the Sys.init function which is the genesis function we must call. 
+        // //  11. Set current caller function to Sys.init . We do this since we assume this will be the caller of any other function within the Sys.init function which is the genesis function we must call. 
 
-        current_caller_function_name = strdup(SYS_INIT_FUNCTION_NAME);
+        // current_caller_function_name = strdup(SYS_INIT_FUNCTION_NAME);
         
       
     }
@@ -4670,7 +4640,7 @@ void _make_variable_unique(char * variable, char * unique_variable, int _counter
 /**
  * @brief   This function looks at a folder , gets a collection of VM files within the folder and generates a single asm file to be executed.
  *          Steps :
- *          1.  Read the directory that contains the .vm files and store the filenames in a string array
+ *          1.  Read the directory that contains the .vm files and store the filenames in a string array except Sys.vm file since it will be processed first and alone
  *          
 
 */
@@ -4760,19 +4730,22 @@ int main(int argc, char * argv[])
 
 
     //  Basic Loop
+    //  NOTE: No boostrap code required
 
     //  parse_input_file(NULL,BASIC_LOOP_VM_FILE,BASIC_LOOP_NO_COMMENT_OUTPUT_VM_FILE,BASIC_LOOP_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
     //  _write_instructions_to_file(BASIC_LOOP_ASM_OUTPUT_FILE); 
 
 
-    //  Fibonnaci Series 
+    //  Fibonnaci Series
+    //  NOTE: No boostrap code required 
 
     // parse_input_file(NULL,FIBONACCI_SERIES_VM_FILE,FIBONACCI_SERIES_NO_COMMENT_OUTPUT_VM_FILE,FIBONACCI_SERIES_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
     // _write_instructions_to_file(FIBONACCI_SERIES_ASM_OUTPUT_FILE);  
 
     //  Simple Function 
+    //  NOTE: No boostrap code required
 
     // parse_input_file(NULL,SIMPLE_FUNCTION_VM_FILE,SIMPLE_FUNCTION_NO_COMMENT_OUTPUT_VM_FILE,SIMPLE_FUNCTION_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
@@ -4781,24 +4754,28 @@ int main(int argc, char * argv[])
 
 
     //  Nested Call
-    parse_input_file(NULL,NESTED_CALL_VM_FILE,NESTED_CALL_NO_COMMENT_OUTPUT_VM_FILE,NESTED_CALL_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+    //  NOTE: No boostrap code required
 
-    _write_instructions_to_file(NESTED_CALL_ASM_OUTPUT_FILE);   
+    // parse_input_file(NULL,NESTED_CALL_VM_FILE,NESTED_CALL_NO_COMMENT_OUTPUT_VM_FILE,NESTED_CALL_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+
+    // _write_instructions_to_file(NESTED_CALL_ASM_OUTPUT_FILE);   
 
 
-    //  Test Fibonacci Element 
+    //  Test Fibonacci Element with VM files combined manually
+    //  NOTE: Boostrap code is required
     // parse_input_file(NULL,NEW_SYS_VM_FILE,NEW_SYS_NO_COMMENT_OUTPUT_VM_FILE,NEW_SYS_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
 
     // _write_instructions_to_file(NEW_SYS_ASM_OUTPUT_FILE);   
 
-    // //  Fibonnaci Element - NOTE: This handles processing a collection of VM files in a folder with Sys.vm processed first
 
+    // //  Fibonnaci Element - NOTE: This handles processing a collection of VM files in a folder with Sys.vm processed first
+    // //  NOTE: Boostrap code is required
     // char ** filename_array = malloc(sizeof(char *) * MAX_FILE_SIZE);
 
     // //  Get the list of other vm files to be processed 
     // _build_vm_files_collection(FIBONACCI_ELEMENT_DIRECTORY,filename_array);
 
-    // //  Process Sys.init file  
+    // //  Process Sys.init file first
     // char sys_filepath[MAX_FILE_SIZE] = {0};
     // char sys_filepath_no_comment[MAX_FILE_SIZE] = {0};
     // char sys_filepath_no_whitespace[MAX_FILE_SIZE] = {0};
@@ -4866,6 +4843,94 @@ int main(int argc, char * argv[])
 
     
     // _write_instructions_to_file(FIBONACCI_ELEMENT_ASM_OUTPUT_FILE); 
+
+
+
+
+    //  Test Statics Test with VM files combined manually
+    //  NOTE: Boostrap code is required
+    //  parse_input_file("NewSys",NEW_SYS_VM_FILE,NEW_SYS_NO_COMMENT_OUTPUT_VM_FILE,NEW_SYS_NO_WHITESPACE_VM_FILE,MAX_FILE_SIZE);
+
+    //  _write_instructions_to_file(STATICS_TEST_ASM_OUTPUT_FILE);  
+
+
+    //  Statics Test - NOTE: This handles processing a collection of VM files in a folder with Sys.vm processed first
+    //  NOTE: Boostrap code is required
+    char ** filename_array = malloc(sizeof(char *) * MAX_FILE_SIZE);
+
+    //  Get the list of other vm files to be processed 
+    _build_vm_files_collection(STATICS_TEST_DIRECTORY,filename_array);
+
+    //  Process Sys.init file first
+    char sys_filepath[MAX_FILE_SIZE] = {0};
+    char sys_filepath_no_comment[MAX_FILE_SIZE] = {0};
+    char sys_filepath_no_whitespace[MAX_FILE_SIZE] = {0};
+
+    strncat(sys_filepath,STATICS_TEST_DIRECTORY,strlen(STATICS_TEST_DIRECTORY));
+    strncat(sys_filepath,"/",strlen("/")); 
+    strncat(sys_filepath,SYS_VM_FILENAME,strlen(SYS_VM_FILENAME));   
+        
+    strncat(sys_filepath_no_comment,STATICS_TEST_DIRECTORY,strlen(STATICS_TEST_DIRECTORY));
+    strncat(sys_filepath_no_comment,"/",strlen("/")); 
+    strncat(sys_filepath_no_comment,SYS_VM_FILENAME_NO_EXTENSION,strlen(SYS_VM_FILENAME_NO_EXTENSION)); 
+    strncat(sys_filepath_no_comment,"_no_comment",strlen("_no_comment")); 
+    strncat(sys_filepath_no_comment,".vm",strlen(".vm")); 
+
+    strncat(sys_filepath_no_whitespace,STATICS_TEST_DIRECTORY,strlen(STATICS_TEST_DIRECTORY));
+    strncat(sys_filepath_no_whitespace,"/",strlen("/")); 
+    strncat(sys_filepath_no_whitespace,SYS_VM_FILENAME_NO_EXTENSION,strlen(SYS_VM_FILENAME_NO_EXTENSION)); 
+    strncat(sys_filepath_no_whitespace,"_no_whitespace",strlen("_no_whitespace")); 
+    strncat(sys_filepath_no_whitespace,".vm",strlen(".vm")); 
+    
+    parse_input_file(SYS_VM_FILENAME_NO_EXTENSION,sys_filepath,sys_filepath_no_comment,sys_filepath_no_whitespace,MAX_FILE_SIZE);
+
+
+    char *filename;
+
+    int line_counter = 0;
+
+    while ((filename = filename_array[line_counter]) != NULL)
+    {
+        char *filename_copy = strdup(filename);
+
+        char* filename_no_extension = strtok(filename_copy,".");
+
+        //  confirm it is a vm file 
+        char* extension = strtok(NULL, ".");
+
+        //  build the filepath for each vm file
+
+        char filepath[MAX_FILE_SIZE] = {0};
+        char filepath_no_comment[MAX_FILE_SIZE] = {0};
+        char filepath_no_whitespace[MAX_FILE_SIZE] = {0};
+
+        strncat(filepath,STATICS_TEST_DIRECTORY,strlen(STATICS_TEST_DIRECTORY));
+        strncat(filepath,"/",strlen("/")); 
+        strncat(filepath,filename,strlen(filename));   
+        
+        strncat(filepath_no_comment,STATICS_TEST_DIRECTORY,strlen(STATICS_TEST_DIRECTORY));
+        strncat(filepath_no_comment,"/",strlen("/")); 
+        strncat(filepath_no_comment,filename_no_extension,strlen(filename_no_extension)); 
+        strncat(filepath_no_comment,"_no_comment",strlen("_no_comment")); 
+        strncat(filepath_no_comment,".vm",strlen(".vm")); 
+
+        strncat(filepath_no_whitespace,STATICS_TEST_DIRECTORY,strlen(STATICS_TEST_DIRECTORY));
+        strncat(filepath_no_whitespace,"/",strlen("/")); 
+        strncat(filepath_no_whitespace,filename_no_extension,strlen(filename_no_extension)); 
+        strncat(filepath_no_whitespace,"_no_whitespace",strlen("_no_whitespace")); 
+        strncat(filepath_no_whitespace,".vm",strlen(".vm")); 
+
+        parse_input_file(filename_no_extension,filepath,filepath_no_comment,filepath_no_whitespace,MAX_FILE_SIZE);
+
+        line_counter++;
+    }
+
+
+
+    
+    _write_instructions_to_file(STATICS_TEST_ASM_OUTPUT_FILE); 
+
+
 
     return 0;
 }
