@@ -155,7 +155,6 @@ int call_function_counter = 0;                      //  this keeps track of the 
 
 
 char * current_function_name = {0};                 //  this is the current function which is being processed. NOTE: This function should change once a return is hit
-char * current_caller_function_name = {0};          //  this is the current caller function which has called a callee
 
 //  Internal function declarations
 void _initialize_asm_command_tables();
@@ -205,7 +204,7 @@ void generate_goto_label_command(char * function_name, char * label);
 void generate_if_goto_label_command(char * function_name, char * label);
 void generate_label_command(char * function_name, char * label);
 
-void generate_call_function_command(char * caller_function_name, char * callee_function_name, int nArgs);  
+void generate_call_function_command(char * callee_function_name, int nArgs);  
 void generate_function_function_command(char * function_name, int local_variables);
 void generate_return_function_command();
 
@@ -369,37 +368,7 @@ void parse_vm_command(char * vm_command, char * filename)
     
     if (strncmp(command_type,FUNCTION_FUNCTION_COMMAND,sizeof(FUNCTION_FUNCTION_COMMAND)) == 0)
     {
-        //  ToDo: remove all commented code
-
-        //  Todo:   We should not assign current function name here because this is not an action. An action is either a call or a return. This just implements a function
-
-        //  if current_function_name already exists then we will continue to use the name till another function name replaces or we hit a return statement ( we will process return later )
-
-
-        //  current function should be assigned only during function implementation
-
-        // if (current_caller_function_name == NULL)
-        // {
-        //     //  This will occur if there is no bootstrap code 
-
-        //     current_caller_function_name = strdup("null_caller");
-        // }
-
-        //  get the call_function_counter and if the value is zero, it means either no call was made or we have returned to the first or origin caller Sys.init
-
-        // if(call_function_counter == 0)
-        // {
-        //     //  we are back to Sys.init as caller
-        //     current_caller_function_name = strdup(SYS_INIT_FUNCTION_NAME);
-        // }else
-        // {
-        //     //  get the current_caller_function_name from caller_function_tree
-
-        //     current_caller_function_name = caller_function_tree[call_function_counter - 1];
-        // }
-        
-
-        
+  
         char * function_name = strtok(NULL, empty_space_delimiter);  
 
         current_function_name = strdup(function_name);     
@@ -416,21 +385,9 @@ void parse_vm_command(char * vm_command, char * filename)
     }
     else if (strncmp(command_type,CALL_FUNCTION_COMMAND,sizeof(CALL_FUNCTION_COMMAND)) == 0)
     {
-        //  ToDo: for any call command , the current_function needs to change to the called or callee function eg 'call function_name n' . The current function will become function_name
 
         // char * caller_function_name = {0};        
         char * callee_function_name = {0}; 
-
-        // if(current_function_name == NULL)
-        // {
-        //     current_function_name = strdup("null");  //  null means the function was not initiated by the OS. This can be assumed if there is no Sys.init call from bootstrap code. 
-        // }
-
-        //  caller_function_name = current_function_name;
-
-        
-
-
 
         // caller_function_name = current_caller_function_name;
         callee_function_name = strtok(NULL, empty_space_delimiter);
@@ -445,14 +402,13 @@ void parse_vm_command(char * vm_command, char * filename)
         current_function_argument_count = convert_string_to_number(function_argument_count_str);
 
 
-        generate_call_function_command("ToDo:remove param",callee_function_name,current_function_argument_count);
+        generate_call_function_command(callee_function_name,current_function_argument_count);
 
 
     }
 
     else if (strncmp(command_type,RETURN_FUNCTION_COMMAND,sizeof(RETURN_FUNCTION_COMMAND)) == 0)
     {
-        //  return function is generated based on the caller_function_tree 
         generate_return_function_command();
     }
     
@@ -3547,53 +3503,6 @@ void generate_function_function_command(char * function_name, int local_variable
 
 void generate_return_function_command() 
 {
-
-    //  Get the caller function function based on the call_function_counter value from the caller_tree, it will give us the actual function to return to and then reduce it by 1. Then use it to build the retAddr below
-
-    //  reduce call_function_counter by 1
-
-    // call_function_counter -= 1;
-
-    // const char * caller_function_name = caller_function_tree[call_function_counter];
-
-    // if (caller_function_name == NULL)
-    // {
-    //     caller_function_name = strdup("null");
-    // }
-    
-
-    //  Build the retAddr by using the caller function name from the tree above: ToDo remove this
-
-
-    //  delete the commented code below
-
-    // //  Build the retAddr by searching the dictionary for the caller function (value) associated with this callee function (key)
-
-    // const char * caller_function_name = DictSearch(global_caller_callee_function_dictionary,current_function_name); //  search with callee as key
-
-    // if(caller_function_name == 0)
-    // {
-    //     caller_function_name = strdup("null");
-    // }
-
-
-
-
-
-    // char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
-    // convert_to_string(counter,counter_str);
-
-    // char return_address_label_command[BINARY_MAX_BITS] = {0};
-
-    // strncat(return_address_label_command,"@",strlen("@"));
-    // // strncat(return_address_label_command,caller_function_name,strlen(caller_function_name));
-    // // strncat(return_address_label_command,"$",strlen("$"));
-    // strncat(return_address_label_command,"return",strlen("return"));        
-    // strncat(return_address_label_command,"_",strlen("_"));        
-    // strncat(return_address_label_command,counter_str,strlen(counter_str));        // @return_n where n is counter
-
-
-
     //  Build the return address by using a unique translator-generated address. Use line_counter to make this address unique for each return call 
     //  NOTE: The most important thing to get right is making sure LCL is correct because that is where we calculate the actual location of the return of the caller function
 
@@ -3881,14 +3790,6 @@ void generate_return_function_command()
     DictInsert(global_asm_dictionary,counter_str,"0;JMP");                  
     counter = counter + 1;
 
-
-    //  ToDo: remove lines of code below
-
-    //  return control to the caller hence, the caller becomes the current function running in the global stack
-    // current_function_name = strdup(caller_function_name);
-    
-    //  delete entry from dictionary    : ToDo  delete commented code below
-    // DictDelete(global_caller_callee_function_dictionary,current_function_name);
 }
 
 
@@ -3910,28 +3811,15 @@ void generate_return_function_command()
  *          7. LCL = SP                 - Repositions LCL. Repositions LCL for the callee (called function)
  *          8. goto Functionname        - Transfers control to the called function
  *          9. retAddrLabel             - return here and continue caller function's code after executing callee function
- *          10. map the caller function and the callee function using a the caller and callee tree array
  * 
- * @todo use key value pairs to hold function call and return mapping. Once return is executed, remove from dictionary
  * 
- * @param caller_function_name : This is the current function that is being executed and now wants to call a new function: ToDo: Remove this
  * @param callee_function_name : This is the function that is called here:  call 'functionname nArgs' . This function is the function that the caller will transfer control to. 
  * @param nArgs : This is the number of arguments or nArgs pushed to the stack by the caller for the callee to use to run its operations effectively
 */
-void generate_call_function_command(char * caller_function_name, char * callee_function_name, int nArgs)
+void generate_call_function_command(char * callee_function_name, int nArgs)
 {
     char counter_str[BINARY_MAX_BITS] = {0}; // string equivalent of counter value
     convert_to_string(counter,counter_str);
-
-    //   1. push retAddrLabel        - Push the return address label of the caller function
-    // char return_address_command[BINARY_MAX_BITS] = {0};
-
-    // strncat(return_address_command,"@",strlen("@"));
-    // strncat(return_address_command,caller_function_name,strlen(caller_function_name));
-    // strncat(return_address_command,"$",strlen("$"));
-    // strncat(return_address_command,"retAddrLabel",strlen("retAddrLabel"));          
-    // strncat(return_address_command,"_",strlen("_"));  
-    // strncat(return_address_command,counter_str,strlen(counter_str));                                // @function$retAddrLabel_counter
 
 
 
@@ -3942,7 +3830,6 @@ void generate_call_function_command(char * caller_function_name, char * callee_f
     strncat(return_address_command,counter_str,strlen(counter_str));                                // @call_function$retAddrLabel_n where n is the counter
 
 
-    convert_to_string(counter,counter_str);
     DictInsert(global_asm_dictionary,counter_str,return_address_command);                  
     counter = counter + 1;
 
@@ -4187,20 +4074,6 @@ void generate_call_function_command(char * caller_function_name, char * callee_f
     DictInsert(global_asm_dictionary,counter_str,return_address_label_command);                  
     counter = counter + 1;
 
-    //  ToDo  delete commented code below
-    //  10. map the caller function and the callee function using a dictionary . Key: callee_function_name  , Value:  caller_function_name 
-    //  DictInsert(global_caller_callee_function_dictionary,callee_function_name,caller_function_name);
-
-
-    //  Todo Delete commented code below 
-    // //  10. map the caller function and the callee function using a the caller and callee tree array
-
-    // callee_function_tree[call_function_counter] = strdup(callee_function_name);
-    // caller_function_tree[call_function_counter] = strdup(caller_function_name);
-
-
-    // //  Increment call_function_counter
-    // call_function_counter += 1;
 }
 
 
@@ -4519,17 +4392,6 @@ void _initialize_asm_command_tables(){
         convert_to_string(counter,counter_str);
         DictInsert(global_asm_dictionary,counter_str,"(returnBootstrap)");           
         counter = counter + 1;   
-
-
-        //  ToDo: remove code below
-        
-        // //  10. Set current function to Sys.init
-
-        // current_function_name = strdup(SYS_INIT_FUNCTION_NAME);
-
-        // //  11. Set current caller function to Sys.init . We do this since we assume this will be the caller of any other function within the Sys.init function which is the genesis function we must call. 
-
-        // current_caller_function_name = strdup(SYS_INIT_FUNCTION_NAME);
         
       
     }

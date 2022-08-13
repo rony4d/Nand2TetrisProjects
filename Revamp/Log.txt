@@ -134,3 +134,32 @@ creating the final design. Implementing the HDL was really easy and ran once.
                 translate to asm code. The next tool was the CPU Emulator, this allowed me to test the behaviour of my manually written assembly
                 code and compare the results by watching the RAM unit and comparing it with the RAM unit of the VM Emulator. 
                 ToDo: Take pictures or scan the physical notes and upload
+
+13/08/2022
+
+-   Chapter 8:  Completed this chapter on the 12th of August. The first part ( program flow) and the first half of the second part (Simple Function and Nested Call) were relatively easy. I got those parts sorted in less than 2 weeks. 
+                The Fibonacci Element and StaticsTest were a nightmare. The Fibonacci Element exposed my wrong understanding of the call function and return implementations.
+                1)  Call Function: I did not know that each call function will have a unique retAddrLabel. It worked for non-recursive functions but failed for recursive functions and I believe the authors of the book knew this . hahaha
+                2)  return: In the return implementation, the most important thing to do is to ensure that your retAddr is unique and the same for 'retAddr = *(endFrame-5)'  and 'goto retAddr'.  
+                I was stuck on this for  2 extra weeks trying out different things till I decided to check on github for existing codebases that would solve this. I saw this https://github.com/jtdowney/nand2tetris and it was a good read. 
+                I studied his implementations and realized the mistakes I made on both Call and return commands. It was great learning from him. 
+                Finally, the StaticsTest kicked my butt. So having passed the StaticTest in chapter 7, I felt this one was a no-brainer. My test failed and then I started digging and realized that my formula  in chapter 7 which was
+                used to make my implementation for  'push/pop static i' were wrong. 
+                
+                So here was my wrong formula
+                
+                push static i -> addr = 16 + i ; *SP = addr ; SP++
+
+                pop  static i -> addr = 16+ i; addr = SP-- ; addr = *SP
+
+
+                Here is the right formula
+                
+                push static i ->  *SP = addr ; SP++
+
+                pop  static i -> addr = SP-- ; addr = *SP
+
+                NOTE: addr = filename.i      
+
+
+                Finally, this was a very challenging Chapeter. I am very excited about the next one. Let's Go. 
