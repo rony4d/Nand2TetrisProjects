@@ -1,0 +1,34 @@
+class Main{
+
+    function void main()
+    {
+        var Array numbersArray;
+
+        var int length;
+
+        var int counter;
+
+        var int sum;
+
+        let length = Keyboard.readInt("Enter Number Count to Get Average ");
+
+        let numbersArray = Array.new(length);
+
+        let counter = 0;
+        let sum = 0;
+        while(counter < length)
+        {
+            let numbersArray[counter] = Keyboard.readInt("Enter Number: ");
+
+            let sum = sum + numbersArray[counter];
+
+            let counter = counter + 1;
+        }
+
+        do Output.printString("The average is : ");
+        do Output.printInt(sum / length);
+        return;
+
+
+    }
+}

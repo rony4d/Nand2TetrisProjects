@@ -1,0 +1,11 @@
+/** My implementation of a simple Hello World Program in Jack */
+
+class Main{
+
+    function void main()
+    {
+        do Output.printString("Hello Jedi Master!!!");
+        do Output.println();
+        return;
+    }
+}
