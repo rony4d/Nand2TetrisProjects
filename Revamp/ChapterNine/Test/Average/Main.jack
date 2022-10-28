@@ -16,13 +16,14 @@ class Main{
 
         let counter = 0;
         let sum = 0;
-        while(counter < length)
+        while(counter  <   length)
         {
             let numbersArray[counter] = Keyboard.readInt("Enter Number: ");
 
             let sum = sum + numbersArray[counter];
 
             let counter = counter + 1;
+
         }
 
         do Output.printString("The average is : ");

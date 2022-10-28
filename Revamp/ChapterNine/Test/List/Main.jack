@@ -1,0 +1,16 @@
+class Main{
+    function void main(){
+
+        //  Creates and uses the list (4,44,444)
+
+        var List v;
+
+        let v = List.new(444, null);
+        let v = List.new(4,List.new(44,v));
+
+        do v.print();       //  prints 4 44 444
+        do v.dispose();     //  disposes the list
+
+        return;
+    }
+}
