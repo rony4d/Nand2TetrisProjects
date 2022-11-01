@@ -149,8 +149,6 @@ int counter = 0;                                //  the universal counter for co
 
 Dict global_asm_dictionary;                     //  this dictionary holds all the asm commands
 Dict global_caller_callee_function_dictionary;  
-char ** caller_function_tree;                       //  this gloabl array keeps a consecutive track of all the caller functions, once a 'call function_name' command is triggered, the caller is added as the last element in the tree
-char ** callee_function_tree;                       //  this gloabl array keeps a consecutive track of all the callee functions, once a 'call function_name' command is triggered, the callee is added as the last element in the tree
 int call_function_counter = 0;                      //  this keeps track of the number of times 'call function_name' appears in a vm code. This will be used to manage return statements. Once a return statement is called, it decreases by 1
 
 
@@ -4090,8 +4088,6 @@ void _initialize_asm_command_tables(){
 
 
     //  Initialize caller and callee function trees to track consecutive function calls
-    callee_function_tree = malloc(sizeof(char *) * MAX_ARRAY_SIZE);
-    caller_function_tree = malloc(sizeof(char *) * MAX_ARRAY_SIZE);
 
     //  Initialize SP to 256
 
