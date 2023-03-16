@@ -75,6 +75,12 @@
 #define SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/SquareT.xml"
 
 
+#define SQUAREGAME_JACK_FILE_EXPRESSIONLESS_SQUARE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/SquareGame.jack"
+#define SQUAREGAME_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_COMMENT_OUTPUT "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/SquareGame_no_comment.jack"
+#define SQUAREGAME_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_WHITESPACE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/SquareGame_no_whitespace.jack"
+#define SQUAREGAME_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/SquareGameT.xml"
+
+
 Dict defined_keyword_token_category_dictionary;                     //  this dictionary holds the already defined elements in the keyword category of the tokens
 Dict defined_symbol_token_category_dictionary;                      //  this dictionary holds the already defined elements in the symbol category of the tokens
 
@@ -374,11 +380,22 @@ int main (int argc, char * argv[])
 
     //  1.  This function takes the input jack file, removes comments a and then reads the jack code line by line and populated token linked
 
-    parse_jack_input_file(NULL,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_COMMENT_OUTPUT,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_WHITESPACE,MAX_FILE_SIZE);
+    // parse_jack_input_file(NULL,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_COMMENT_OUTPUT,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_WHITESPACE,MAX_FILE_SIZE);
+
+    // //  2.  Write the XML Formatted tokens to a file
+
+    // writeTokenizedXMLOutputToFile(SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT);
+
+
+    //  SQUAREGAME.JACK FILE
+
+    //  1.  This function takes the input jack file, removes comments a and then reads the jack code line by line and populated token linked
+
+    parse_jack_input_file(NULL,SQUAREGAME_JACK_FILE_EXPRESSIONLESS_SQUARE,SQUAREGAME_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_COMMENT_OUTPUT,SQUAREGAME_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_WHITESPACE,MAX_FILE_SIZE);
 
     //  2.  Write the XML Formatted tokens to a file
 
-    writeTokenizedXMLOutputToFile(SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT);
+    writeTokenizedXMLOutputToFile(SQUAREGAME_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT);
 
     return 0;
 }
