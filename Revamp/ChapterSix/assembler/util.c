@@ -37,6 +37,10 @@
 #define TEST_ASM_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterSix/assembler/test/Add.asm"
 
 
+#define TEST_MAIN_JACK_WITH_EXPRESSION_NO_COMMENT_TXT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/Square/Project/Main_no_comment.txt"
+#define TEST_MAIN_JACK_WITH_EXPRESSION_NO_WHITESPACE_TXT_FILE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/Square/Project/Main_no_whitespace.txt"
+#define TEST_MAIN_JACK_WITH_EXPRESSION "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/Square/Project/Main.jack"
+
 //  Todo: move all function delcarations to util.h
 void write_to_file(char* location, char * content);
 void read_file(char *filename, int max_size);
@@ -552,6 +556,141 @@ void print_double_pointer_array(char ** double_pointer_array){
 
 
 /**
+ * @brief This function takes a input string and stores them in an array
+*/
+void read_words(char * input, char ** word_array)
+{
+    
+}
+
+
+//  @todo Remove Code Starts
+
+// // Function to check if a given string is a keyword
+// int isKeyword(char* word) {
+//     char keywords[21][20] = {"class", "constructor", "function", "method", "field", "static", "var", "int", "char", "boolean", "void", "true", "false", "null", "this", "let", "do", "if", "else", "while", "return"};
+//     for (int i = 0; i < 21; i++) {
+//         if (strcmp(keywords[i], word) == 0) {
+//             return 1;
+//         }
+//     }
+//     return 0;
+// }
+
+// // Function to check if a given character is a symbol
+// int isSymbol(char c) {
+//     char symbols[19] = {'{', '}', '[', ']', '(', ')', ',', '.', ';', '+', '-', '=', '*', '/', '&', '|', '<', '>', '~'};
+//     for (int i = 0; i < 19; i++) {
+//         if (c == symbols[i]) {
+//             return 1;
+//         }
+//     }
+//     return 0;
+// }
+
+// // Function to tokenize a given sentence
+// void tokenize(char* sentence) {
+//     int len = strlen(sentence);
+//     char token[100];
+//     int pos = 0;
+//     for (int i = 0; i < len; i++) {
+//         char c = sentence[i];
+//         if (isspace(c)) {
+//             // Skip whitespace
+//             continue;
+//         }
+//         else if (isSymbol(c)) {
+//             // Tokenize symbols
+//             printf("<symbol> %c </symbol>\n", c);
+//         }
+//         else if (isdigit(c)) {
+//             // Tokenize integer constants
+//             pos = 0;
+//             while (i < len && isdigit(sentence[i])) {
+//                 token[pos++] = sentence[i++];
+//             }
+//             i--;
+//             token[pos] = '\0';
+//             printf("<integerConstant> %s </integerConstant>\n", token);
+//         }
+//         else if (c == '"') {
+//             // Tokenize string constants
+//             pos = 0;
+//             i++;
+//             while (i < len && sentence[i] != '"') {
+//                 token[pos++] = sentence[i++];
+//             }
+//             token[pos] = '\0';
+//             printf("<stringConstant> %s </stringConstant>\n", token);
+//         }
+//         else {
+//             // Tokenize keywords and identifiers
+//             pos = 0;
+//             while (i < len && isalnum(sentence[i]) || sentence[i] == '_') {
+//                 token[pos++] = sentence[i++];
+//             }
+//             i--;
+//             token[pos] = '\0';
+//             if (isKeyword(token)) {
+//                 printf("<keyword> %s </keyword>\n", token);
+//             }
+//             else {
+//                 printf("<identifier> %s </identifier>\n", token);
+//             }
+//         }
+//     }
+// }
+
+
+/**
+ * This main function purely tests tokenization and parser
+*/
+// int main(int argc, char* argv[]) {
+
+//     //  1. remove comments and store in no_comment vm file
+
+//     remove_comment(TEST_MAIN_JACK_WITH_EXPRESSION,TEST_MAIN_JACK_WITH_EXPRESSION_NO_COMMENT_TXT_FILE);
+
+//     //  2. remove whitespace and write to no_whitespace asm file.
+
+//     remove_white_spaces(TEST_MAIN_JACK_WITH_EXPRESSION_NO_COMMENT_TXT_FILE,TEST_MAIN_JACK_WITH_EXPRESSION_NO_WHITESPACE_TXT_FILE,MAX_FILE_SIZE);
+
+//     //  3. read no_whitespace asm file and begin march through the lines. 
+
+//     FILE* file_ptr;
+//     char str[MAX_FILE_SIZE];
+
+//     file_ptr = fopen(TEST_MAIN_JACK_WITH_EXPRESSION_NO_WHITESPACE_TXT_FILE,"r");
+
+//     if (file_ptr == NULL)
+//     {
+//         printf("File can't be opened \n");
+//         exit(1);
+//     }
+    
+//     int counter = 1;
+//     //  read file line by line
+//     while (fgets(str,MAX_FILE_SIZE,file_ptr) != NULL)    
+//     {
+
+//         printf("Line %d: \n", counter);     
+//         tokenize(str); 
+
+//         counter++; 
+        
+//     }   
+
+//     fclose(file_ptr);
+
+//     // char sentence[] = "let x=12345; if (x<10000) { x=x+1; } else { x = 0; } return x; ";
+//     // tokenize(sentence);
+//     return 0;
+// }
+
+
+
+//  @todo Remove Code Ends
+/**
  * @brief: This main function is used  to test the different functions here to ensure they work properly 
  * Uncomment to test the dictionary data structure here 
  * 
@@ -613,3 +752,4 @@ void print_double_pointer_array(char ** double_pointer_array){
 
 //     // return 0;
 // }
+

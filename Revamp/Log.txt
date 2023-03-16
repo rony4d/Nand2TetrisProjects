@@ -163,3 +163,8 @@ creating the final design. Implementing the HDL was really easy and ran once.
 
 
                 Finally, this was a very challenging Chapeter. I am very excited about the next one. Let's Go. 
+
+-   Chapter 9:  This chapter simply introduced the Jack programming language. 
+
+
+-   Chapter 10: 

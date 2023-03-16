@@ -1,6 +1,9 @@
 #include "../ChapterSix/assembler/dictionary.c"
 #include "../ChapterSix/assembler/util.c" 
  
+#include "compiler.h"
+#include "linkedlist.c"
+
  /**
   * 
   *         - - - -             - - - - -
@@ -28,9 +31,7 @@
   * 
   *         -       Based on the different tokens in each category, breakdown the input code into a token stream and store the stream in a list
   * 
-  *         -   2)  Create a tokenizer that will breakdown the input code character by character and compare with the lexical elements stores. The output of this tokenizer will be a dictionary that contains all the tokens . 
-  *                 The key will be the token category and the value will be the token itself. NOTE that we need to track the order in which these tokens are stored with a counter variable that continually increases.
-  *                 We will use this counter variable to build the XML output of the tokens. 
+  *         -   2)  Create a tokenizer that will breakdown the input code character by character and compare with the lexical elements stores. 
   * 
   *   
   *                 
@@ -41,30 +42,13 @@
   * 
   *         Tokenizer Details:
   * 
-  *         -   
+  *         -   See 'tokenize' function below that implements the above
   * 
   *         NOTES:
   *         -   A token is a string of characters that has meaning. This means that we need to breakdown the input code character by character and constantly check if any single or character group matches any member of the token categories
   *             based on the Jack Grammar Lexical elements section
   * 
   * 
-  *         -   The data storage that will hold the tokenized output will be populated the following way
-  * 
-  *             1)  Create a token_counter variable that only increments on every successful detection of a valid token
-  *             2)  This token_counter variable will be used to build a linked list that holds the value of the token_counter variable in sequential order. For example we will create a linked_list as seen below
-  *                     
-  *                     typedef struct token_node 
-  *                     { 
-  *                         int data; 
-  *                         struct token_node * next;
-  *                     }
-  * 
-  *                 The data in this linked list will be the value of the token_counter. We are using a linked_list because we need to maintain order of access from first to last
-  * 
-  *             3)  Create a dictionary by token-category (or lexicl element category) to store the detected valid tokens. Eg. Keyword_dictionary, Symbol_dictionary etc
-  * 
-  *             4)  Each token_counter variable will also be used as key based on the token-category (or lexicl element category) for which the detected token matches and the detected token will be used as value in the dictionary
-  *                 For example: If we detect 'if' at token_counter value of '10'. It means we will store '10' as key in the Keyword_dictionary and then 'if' will be the value. Also
   * 
   *         
   *         
@@ -85,84 +69,55 @@
 #define MAIN_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/MainT.xml"
 
 
+#define SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/Square.jack"
+#define SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_COMMENT_OUTPUT "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/Square_no_comment.jack"
+#define SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_WHITESPACE "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/Square_no_whitespace.jack"
+#define SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT "/Users/ugochukwu/Desktop/rony/ComputerBasics/ProjectFiles/Revamp/ChapterTen/ExpressionLessSquare/Project/SquareT.xml"
 
 
-Dict keyword_token_category_dictionary;                     //  this dictionary holds the keyword category of the tokens
-Dict symbol_token_category_dictionary;                      //  this dictionary holds the symbol category of the tokens
+Dict defined_keyword_token_category_dictionary;                     //  this dictionary holds the already defined elements in the keyword category of the tokens
+Dict defined_symbol_token_category_dictionary;                      //  this dictionary holds the already defined elements in the symbol category of the tokens
+
+int token_counter = 1;                                              //  this variable tracks successful tokens that have been found
+
+Dict found_keyword_token_dictionary;                                //  this dictionary holds the keywords that are found from the input code as value and token_counter as key
+Dict found_symbol_token_dictionary;                                 //  this dictionary holds the symbols that are found from the input code as value and token_counter as key
+Dict found_integerConstant_token_dictionary;                        //  this dictionary holds the integer constants that are found from the input code as value and token_counter as key
+Dict found_stringConstant_token_dictionary;                         //  this dictionary holds the string constants that are found from the input code as value and token_counter as key
+Dict found_identifier_token_dictionary;                             //  this dictionary holds the identifiers that are found from the input code as value and token_counter as key
 
 
 
-
-
-
-
-//  Token Category: Keyword  . Contains 21 Keywords
-
-#define CLASS "class"
-#define CONSTRUCTOR "constructor"
-#define FUNCTION "function"
-#define METHOD "method"
-#define FIELD "field"
-#define STATIC "static"
-#define VAR "var"
-#define INT "int"
-#define CHAR "char"
-#define BOOLEAN "boolean"
-#define VOID "void"
-#define TRUE "true"
-#define FALSE "false"
-#define NULL_POINTER "null"
-#define THIS "this"
-#define LET "let"
-#define DO "do"
-#define IF "if"
-#define ELSE "else"
-#define WHILE "while"
-#define RETURN "return"
-
-
-//  Token Category: Symbol  . Contains 19 Symbols
-#define LEFT_CURLY_BRACKET "{"
-#define RIGHT_CURLY_BRACKET "}"
-#define LEFT_BRACKET "("
-#define RIGHT_BRACKET ")"
-#define LEFT_ANGLE_BRACKET "["
-#define RIGHT_ANGLE_BRACKET "]"
-#define FULLSTOP "."
-#define COMMA ","
-#define SEMICOLON ";"
-#define PLUS "+"
-#define MINUS "-"
-#define ASTERISK "*"
-#define FORWARD_SLASH "/"
-#define AMPERSAND "&"
-#define PIPE "|"
-#define LESSTHAN "<"
-#define GREATERTHAN ">"
-#define EQUAL "="
-#define TILDE "~"
-
-//  Token Category: Integer Constant
-
-#define INTEGER_CONSTANT_LOWER_LIMIT 0
-#define INTEGER_CONSTANT_UPPER_LIMIT 32767
+linked_list * token_list = NULL;                                    //  linked list that holds all the tokens in sequential order while eating code from left to right and top to bottom
 
 
 
 /**
- * @brief: Tokenizer Module : This module contains functions that read the jack files and generates the token symbols
- * @param parse_input_jack_file: This function takes the input jack file, removes comments a and then reads the jack code line by line
- * @param parse_vm_command: This function parses the vm command into its component parts and then allows the code generator to do its magic
+ * @brief internal functions
+ * @param _processCompoundWord : Processes words that contain symbols eg  text;  if(i){   a[i]   a=1;
+*/
+
+void _processCompoundWord(char * word);
+
+/**
+ * @brief: Tokenizer Module : This module contains functions that read the jack files , analyzes the syntax based on Jack Grammar, tokenizes and parses the code to generate XML output
+ * @param parse_jack_input_file: This function takes the input jack file, removes comments a and then reads the jack code line by line and populates the token linked list
+ * @param tokenize: Takes in each line of code and prints out the XML output as well as stores the XML output in a linkedList
  *
 */
 
+void tokenize(char* sentence);
+int isKeyword(char* word);
+int isSymbol(char c);
+void writeTokenizedXMLOutputToFile(char * tokenized_xml_output_filename);
 
-void parse_input_file(char * filename, char * input_jack_file, char * no_comment_output_jack_file,char * no_whitespace_output_jack_file, int max_file_zie);
 
 
 
 
-void parse_input_jack_file(char * filename, char * input_jack_file, char * no_comment_output_jack_file,char * no_whitespace_output_jack_file, int max_file_zie)
+
+
+void parse_jack_input_file(char * filename, char * input_jack_file, char * no_comment_output_jack_file,char * no_whitespace_output_jack_file, int max_file_zie)
 {  
     //  1. remove comments and store in no_comment vm file
 
@@ -189,9 +144,9 @@ void parse_input_jack_file(char * filename, char * input_jack_file, char * no_co
     //  read file line by line
     while (fgets(str,MAX_FILE_SIZE,file_ptr) != NULL)    
     {
-        // parse_vm_command(str,filename);  
-        printf("Line %d: \n", counter);     
 
+        // printf("Line %d: \n", counter);     
+        tokenize(str);
         counter++; 
         
     }   
@@ -200,72 +155,230 @@ void parse_input_jack_file(char * filename, char * input_jack_file, char * no_co
     
 }
 
+
+
 /**
  * @internal function
- * @brief : Creates data storage to hold the token categories Keyword, symbol, integer constant, string constant and identifier
+ * @brief Function to check if a given string is a keyword
 */
-
-void  _initialize_token_categories() {
-
-    keyword_token_category_dictionary = DictCreate();
-
-    DictInsert(keyword_token_category_dictionary,CLASS,CLASS);
-    DictInsert(keyword_token_category_dictionary,CONSTRUCTOR,CONSTRUCTOR);
-    DictInsert(keyword_token_category_dictionary,FUNCTION,FUNCTION);
-    DictInsert(keyword_token_category_dictionary,METHOD,METHOD);
-    DictInsert(keyword_token_category_dictionary,FIELD,FIELD);
-    DictInsert(keyword_token_category_dictionary,STATIC,STATIC);
-    DictInsert(keyword_token_category_dictionary,VAR,VAR);
-    DictInsert(keyword_token_category_dictionary,INT,INT);
-    DictInsert(keyword_token_category_dictionary,CHAR,CHAR);
-    DictInsert(keyword_token_category_dictionary,BOOLEAN,BOOLEAN);
-    DictInsert(keyword_token_category_dictionary,VOID,VOID);
-    DictInsert(keyword_token_category_dictionary,TRUE,TRUE);
-    DictInsert(keyword_token_category_dictionary,FALSE,FALSE);
-    DictInsert(keyword_token_category_dictionary,NULL_POINTER,NULL_POINTER);
-    DictInsert(keyword_token_category_dictionary,THIS,THIS);
-    DictInsert(keyword_token_category_dictionary,LET,LET);
-    DictInsert(keyword_token_category_dictionary,DO,DO);
-    DictInsert(keyword_token_category_dictionary,IF,IF);
-    DictInsert(keyword_token_category_dictionary,ELSE,ELSE);
-    DictInsert(keyword_token_category_dictionary,WHILE,WHILE);
-    DictInsert(keyword_token_category_dictionary,RETURN,RETURN);
+int isKeyword(char* word) {
+    char keywords[21][20] = {"class", "constructor", "function", "method", "field", "static", "var", "int", "char", "boolean", "void", "true", "false", "null", "this", "let", "do", "if", "else", "while", "return"};
+    for (int i = 0; i < 21; i++) {
+        if (strcmp(keywords[i], word) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 
-    symbol_token_category_dictionary = DictCreate();
-    DictInsert(symbol_token_category_dictionary,LEFT_CURLY_BRACKET,LEFT_CURLY_BRACKET);
-    DictInsert(symbol_token_category_dictionary,RIGHT_CURLY_BRACKET,RIGHT_CURLY_BRACKET);
-    DictInsert(symbol_token_category_dictionary,LEFT_BRACKET,LEFT_BRACKET);
-    DictInsert(symbol_token_category_dictionary,RIGHT_BRACKET,RIGHT_BRACKET);
-    DictInsert(symbol_token_category_dictionary,LEFT_ANGLE_BRACKET,LEFT_ANGLE_BRACKET);
-    DictInsert(symbol_token_category_dictionary,RIGHT_ANGLE_BRACKET,RIGHT_ANGLE_BRACKET);
-    DictInsert(symbol_token_category_dictionary,FULLSTOP,FULLSTOP);
-    DictInsert(symbol_token_category_dictionary,COMMA,COMMA);
-    DictInsert(symbol_token_category_dictionary,SEMICOLON,SEMICOLON);
-    DictInsert(symbol_token_category_dictionary,PLUS,PLUS);
-    DictInsert(symbol_token_category_dictionary,MINUS,MINUS);
-    DictInsert(symbol_token_category_dictionary,ASTERISK,ASTERISK);
-    DictInsert(symbol_token_category_dictionary,FORWARD_SLASH,FORWARD_SLASH);
-    DictInsert(symbol_token_category_dictionary,AMPERSAND,AMPERSAND);
-    DictInsert(symbol_token_category_dictionary,PIPE,PIPE);
-    DictInsert(symbol_token_category_dictionary,LESSTHAN,LESSTHAN);
-    DictInsert(symbol_token_category_dictionary,GREATERTHAN,GREATERTHAN);
-    DictInsert(symbol_token_category_dictionary,EQUAL,EQUAL);
-    DictInsert(symbol_token_category_dictionary,TILDE,TILDE);
+/**
+ * @internal function
+ * @brief Function to check if a given character is a symbol
+*/
+int isSymbol(char c) {
+    char symbols[19] = {'{', '}', '[', ']', '(', ')', ',', '.', ';', '+', '-', '=', '*', '/', '&', '|', '<', '>', '~'};
+    for (int i = 0; i < 19; i++) {
+        if (c == symbols[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+/**
+ * @brief Function to tokenize a given sentence
+ * 
+ * 1. Get the whole length of the sentence or line of code
+ * 2. Initialize the maximum number of characters a token can hold to 100. This can change in future
+ * 3. Initialize the cursor position to 0
+ * 4. Create a holder for the XML output string
+ * 
+ * 5. Create a loop to go through the entire sentence character by character
+ * 
+ * This is where the magic happens ( in the loop )
+ * 
+ * 1. Check if the character is a whitespace, if it is then move to the next element in the loop or next iteration
+ * 2. Check if the character is a symbol, if yes, process the symbol by adding to symbol XML
+ * 
+ * 3. Check if character is a digit. To achieve this we need to do the following
+ * i) Look into the future of the sentence by taking future characters and checking if they are digits, we store all the allowed digits in the token variable
+ * ii) set the position of the character back to the correct position (i--) after the last correct integer character was found
+ * iii) create the integer constant XML
+ * 
+ * 4. Check if the character is a string constant by checking if it is a quote(") character. 
+ * i) advance the character (i++) and then look into the future to check if the terminating character (") has reached. 
+ * ii) once the single quote character is seen, stop and build the string constant XML
+ * 
+ * 5. Check if the character is a Keyword or Identifier
+ * i) look into the future by checking if the current character is alphanumeric or starts with underscore (_) which are allowed for identifiers or keywords
+ * ii) build up the token while looking into the future and once a character that is not any of the above is seen, stop and then use the token to check the following
+ * iii) check if it is a keyword by using the function that contains all the allowable keywords. if it is a keyword then build Keyword XML
+ * iv) if it is not a keyword then it must be an identifier, hence build the identifier XML
+ * 
+*/
+void tokenize(char* sentence) {
+    int len = strlen(sentence);
+    char token[100];
+    int pos = 0;
+    char * formattedXMLString;
+
+    for (int i = 0; i < len; i++) {
+        char c = sentence[i];
+        if (isspace(c)) {
+            // Skip whitespace
+            continue;
+        }
+        else if (isSymbol(c)) {
+            // Tokenize symbols
+            printf("<symbol> %c </symbol>", c);
+
+           
+            //  Store XML output in linked list
+            int formattedXMLStringLength = snprintf(NULL,0, "<symbol> %c </symbol>", c);     // Determine the length of the formatted string
+            formattedXMLString = (char *) malloc(formattedXMLStringLength + 1);             // Allocate memory for the formatted string
+            sprintf(formattedXMLString, "<symbol> %c </symbol>", c);                      // Format the string and store it in the allocated memory
+
+
+            append(&token_list,formattedXMLString,i);                                         //  push to linked list
+
+        }
+        else if (isdigit(c)) {
+            // Tokenize integer constants
+            pos = 0;
+            while (i < len && isdigit(sentence[i])) {
+                token[pos++] = sentence[i++];                           //  look into the future 
+            }
+            i--;
+            token[pos] = '\0';
+            printf("<integerConstant> %s </integerConstant>", token);
+
+            //  Store XML output in linked list
+            int formattedXMLStringLength = snprintf(NULL,0, "<integerConstant> %s </integerConstant>", token);       // Determine the length of the formatted string
+            formattedXMLString = (char *) malloc(formattedXMLStringLength + 1);                                 // Allocate memory for the formatted string
+            sprintf(formattedXMLString, "<integerConstant> %s </integerConstant>", token);                                          // Format the string and store it in the allocated memory
+
+
+            append(&token_list,formattedXMLString,i);                                                             //  push to linked list
+
+
+        }
+        else if (c == '"') {
+            // Tokenize string constants
+            pos = 0;
+            i++;
+            while (i < len && sentence[i] != '"') {
+                token[pos++] = sentence[i++];
+            }
+            token[pos] = '\0';
+            printf("<stringConstant> %s </stringConstant>", token);
+
+
+            //  Store XML output in linked list
+            int formattedXMLStringLength = snprintf(NULL,0,"<stringConstant> %s </stringConstant>", token);       // Determine the length of the formatted string
+            formattedXMLString = (char *) malloc(formattedXMLStringLength + 1);                                 // Allocate memory for the formatted string
+            sprintf(formattedXMLString,"<stringConstant> %s </stringConstant>", token);                                          // Format the string and store it in the allocated memory
+
+
+            append(&token_list,formattedXMLString,i);                                                             //  push to linked list
+
+        }
+        else {
+            // Tokenize keywords and identifiers
+            pos = 0;
+            while (i < len && isalnum(sentence[i]) || sentence[i] == '_') {
+                token[pos++] = sentence[i++];
+            }
+            i--;
+            token[pos] = '\0';
+            if (isKeyword(token)) {
+
+                printf("<keyword> %s </keyword>", token);
+
+                //  Store XML output in linked list
+                int formattedXMLStringLength = snprintf(NULL,0,"<keyword> %s </keyword>", token);                 // Determine the length of the formatted string
+                formattedXMLString = (char *) malloc(formattedXMLStringLength + 1);                                 // Allocate memory for the formatted string
+                sprintf(formattedXMLString,"<keyword> %s </keyword>", token);                                     // Format the string and store it in the allocated memory
+
+
+                append(&token_list,formattedXMLString,i);                                                             //  push to linked list
+
+            }
+            else {
+
+                printf("<identifier> %s </identifier>", token);
+
+                //  Store XML output in linked list
+                int formattedXMLStringLength = snprintf(NULL,0,"<identifier> %s </identifier>", token);       // Determine the length of the formatted string
+                formattedXMLString = (char *) malloc(formattedXMLStringLength + 1);                                 // Allocate memory for the formatted string
+                sprintf(formattedXMLString,"<identifier> %s </identifier>", token);                                          // Format the string and store it in the allocated memory
+
+
+                append(&token_list,formattedXMLString,i);                                                             //  push to linked list
+
+            }
+        }
+    }
+
+}
+
+
+
+void writeTokenizedXMLOutputToFile(char * tokenized_xml_output_filename){
+    
+     // remove output file if already exists
+    remove(tokenized_xml_output_filename);
+
+    FILE* file_ptr;
+    file_ptr = fopen(tokenized_xml_output_filename,"w");   
+    char str[MAX_FILE_SIZE];
+
+    if (file_ptr == NULL)
+    {
+        printf("File not found !!! \n");
+        exit(1);
+    }
+
+    if (token_list == NULL)
+    {
+        printf("List cannot be NULL \n");
+    }
+
+    while (token_list != NULL)
+    {
+        fprintf(file_ptr,"%s\n", token_list->data_str);
+        token_list = token_list->next;
+
+    }
+    fclose(file_ptr);
+    
 }
 
 
 int main (int argc, char * argv[])
 {
 
+    //  MAIN.JACK FILE
 
-    _initialize_token_categories();
+    //  1.  This function takes the input jack file, removes comments a and then reads the jack code line by line and populated token linked
 
-    //  Expressionless Square (Main.jack)
+    // parse_jack_input_file(NULL,MAIN_JACK_FILE_EXPRESSIONLESS_SQUARE,MAIN_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_COMMENT_OUTPUT,MAIN_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_WHITESPACE,MAX_FILE_SIZE);
 
-    parse_input_jack_file(NULL,MAIN_JACK_FILE_EXPRESSIONLESS_SQUARE,MAIN_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_COMMENT_OUTPUT,MAIN_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_WHITESPACE,MAX_FILE_SIZE);
+    // //  2.  Write the XML Formatted tokens to a file
+
+    // writeTokenizedXMLOutputToFile(MAIN_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT);
 
 
+    //  SQUARE.JACK FILE
+
+    //  1.  This function takes the input jack file, removes comments a and then reads the jack code line by line and populated token linked
+
+    parse_jack_input_file(NULL,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_COMMENT_OUTPUT,SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_NO_WHITESPACE,MAX_FILE_SIZE);
+
+    //  2.  Write the XML Formatted tokens to a file
+
+    writeTokenizedXMLOutputToFile(SQUARE_JACK_FILE_EXPRESSIONLESS_SQUARE_TOKEN_XML_OUTPUT);
 
     return 0;
 }
